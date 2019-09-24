@@ -1,0 +1,23 @@
+{
+  "name": "wporg-5ftf",
+  "version": "1.0.0",
+  "description": "Theme for WordPress.org/five-for-the-future/",
+  "author": "wordpressdotorg",
+  "license": "GPL-2.0+",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WordPress/five-for-the-future"
+  },
+  "devDependencies": {
+    "autoprefixer": "^6.3.6",
+    "cssnano": "^3.7.4",
+    "es6-promise": "~4.0.5",
+    "grunt": "^1.0.3",
+    "grunt-contrib-watch": "^1.1.0",
+    "grunt-postcss": "^0.8.0",
+    "grunt-sass": "~3.0.1",
+    "grunt-sass-globbing": "^1.5.1",
+    "node-sass": "^4.9.3",
+    "pixrem": "^3.0.2"
+  }
+}
