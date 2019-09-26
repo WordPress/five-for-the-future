@@ -1,6 +1,6 @@
-### WordPress.org Five for the Future
+### WordPress.org Five for the Future theme
 
-Plugins and themes for [the Five for the Future subsite](https://wordpress.org/five-for-the-future).
+WordPress theme for [the Five for the Future subsite](https://wordpress.org/five-for-the-future).
 
 
 ## Developing

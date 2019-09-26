@@ -43,7 +43,8 @@ module.exports = function( grunt ) {
 			},
 			dist: {
 				files: {
-					'css/style.css': 'css/style.scss'
+					'css/style.css': 'css/style.scss',
+					'css/style-editor.css': 'css/style-editor.scss'
 				}
 			}
 		},

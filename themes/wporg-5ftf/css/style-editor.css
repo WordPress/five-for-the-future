@@ -1,0 +1,576 @@
+/*
+ * Add content area styles to the editor (in addition to the front end), so that users see content the way it will
+ * appear on the front end.
+ */
+.wp-block-image {
+  /* Make it fill 100% of the screen */
+  position: relative;
+  left: -ms(4);
+  width: calc( 100% + ( 2 * ms(4) ));
+  max-width: calc( 100% + ( 2 * ms(4) ));
+  clear: both;
+}
+
+@media screen and (min-width: 960px) {
+  .wp-block-image {
+    position: inherit;
+    left: inherit;
+    width: inherit;
+    max-width: inherit;
+    clear: inherit;
+  }
+}
+
+p.is-style-wporg-tldr {
+  color: #606A73;
+  font-style: italic;
+}
+
+@media screen and (min-width: 768px) {
+  p.is-style-wporg-tldr {
+    text-align: center;
+  }
+}
+
+.entry-content {
+  position: relative;
+  color: #555D66;
+  hyphens: none;
+}
+
+.entry-content h1, .entry-content h2, .entry-content h3, .entry-content h4, .entry-content h5, .entry-content h6 {
+  color: #23282D;
+}
+
+.entry-content .wp-block-pullquote {
+  color: #606A73;
+}
+
+.has-wporg-blue-color {
+  color: #1E8CBE;
+}
+
+.has-wporg-blue-background-color, body.page-about .entry-content .wp-block-pullquote.is-style-solid-color {
+  background-color: #1E8CBE;
+}
+
+.has-wporg-purple-color {
+  color: #826EB4;
+}
+
+.has-wporg-purple-background-color {
+  background-color: #826EB4;
+}
+
+.has-wporg-white-color, body.page-about .entry-content .wp-block-pullquote.is-style-solid-color blockquote {
+  color: #FFFFFF;
+}
+
+.has-wporg-white-background-color {
+  background-color: #FFFFFF;
+}
+
+p.has-background,
+.wp-block-group.has-background,
+.wp-block-pullquote.has-wporg-blue-background-color,
+body.page-about .entry-content .wp-block-pullquote.is-style-solid-color {
+  /*
+	 * Remove the gaps between consecutive paragraphs that have the same background color, and make it fill 100%
+	 * of the screen on the mobile view.
+	 */
+}
+
+body.page-about .entry-content .wp-block-pullquote.is-style-solid-color blockquote {
+  max-width: 100%;
+  border: none;
+}
+
+@media screen and (min-width: 768px) {
+  body.page-about .entry-content > p,
+  body.page-about .entry-content > h1,
+  body.page-about .entry-content > h2,
+  body.page-about .entry-content > h3,
+  body.page-about .entry-content > h4,
+  body.page-about .entry-content > h5,
+  body.page-about .entry-content > h6,
+  body.page-about .entry-content > .wp-block-quote,
+  body.page-about .entry-content > .wp-block-media-text,
+  body.page-about .entry-content > .wp-block-button {
+    margin-left: 40%;
+  }
+  body.page-about .entry-content p.is-style-wporg-tldr {
+    margin-left: auto;
+  }
+  body.page-about .entry-content .wp-block-pullquote.is-style-solid-color {
+    background-color: white !important;
+    position: absolute;
+    top: 800px;
+    left: 0;
+    width: 40%;
+  }
+  body.page-about .entry-content .wp-block-pullquote.is-style-solid-color blockquote {
+    color: #606A73 !important;
+    border-left: none;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+  1.0 - Button Layouts
+---------------------------------------------------------------------------- */
+.button, input[type="submit"], .wp-block-button,
+.button-primary,
+.button-secondary,
+.plugin-upload-form .button-primary {
+  border: 1px solid;
+  border-radius: 3px;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: inline-block;
+  font-size: ms(-2);
+  height: ms(4);
+  line-height: 1;
+  margin: 0;
+  padding: 0 0.8rem;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-appearance: none;
+}
+
+/* Remove the dotted border on :focus and the extra padding in Firefox */
+button::-moz-focus-inner,
+input[type="reset"]::-moz-focus-inner,
+input[type="button"]::-moz-focus-inner,
+input[type="submit"]::-moz-focus-inner {
+  border: 0 none;
+  padding: 0;
+}
+
+.button.button-xl, input.button-xl[type="submit"], .button-xl.wp-block-button,
+.button-group.button-xl .button,
+.button-group.button-xl input[type="submit"],
+.button-group.button-xl .wp-block-button {
+  font-size: ms(0);
+  height: ms(8);
+  line-height: 1;
+  padding: 0 1.5rem;
+}
+
+.button.button-large, input.button-large[type="submit"], .button-large.wp-block-button,
+.button-group.button-large .button,
+.button-group.button-large input[type="submit"],
+.button-group.button-large .wp-block-button {
+  height: ms(6);
+  line-height: 1;
+  padding: 0 1rem;
+}
+
+.button.button-small, input.button-small[type="submit"], .button-small.wp-block-button,
+.button-group.button-small .button,
+.button-group.button-small input[type="submit"],
+.button-group.button-small .wp-block-button {
+  font-size: ms(-4);
+  height: ms(2);
+  line-height: 1;
+  padding: 0 0.5rem;
+}
+
+a.button, a.wp-block-button,
+a.button-primary,
+a.button-secondary {
+  line-height: ms(4);
+}
+
+a.button.button-large, a.button-large.wp-block-button,
+.button-group.button-large a.button,
+.button-group.button-large a.wp-block-button {
+  line-height: ms(6);
+}
+
+a.button.button-xl, a.button-xl.wp-block-button,
+.button-group.button-xl a.button,
+.button-group.button-xl a.wp-block-button {
+  line-height: ms(8);
+}
+
+a.button.button-small, a.button-small.wp-block-button,
+.button-group.button-small a.button,
+.button-group.button-small a.wp-block-button {
+  line-height: ms(2);
+}
+
+.button:active, input:active[type="submit"], .wp-block-button:active,
+.button:focus,
+input:focus[type="submit"],
+.wp-block-button:focus {
+  outline: none;
+}
+
+.button.hidden, input.hidden[type="submit"], .hidden.wp-block-button {
+  display: none;
+}
+
+/* Style Reset buttons as simple text links */
+input[type="reset"],
+input[type="reset"]:hover,
+input[type="reset"]:active,
+input[type="reset"]:focus {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0 2px 1px;
+  width: auto;
+}
+
+/* ----------------------------------------------------------------------------
+  2.0 - Default Button Style
+---------------------------------------------------------------------------- */
+.button, input[type="submit"], .wp-block-button,
+.button:visited,
+input:visited[type="submit"],
+.wp-block-button:visited,
+.button-secondary {
+  background: #f7f7f7;
+  border-color: #cccccc;
+  box-shadow: 0 1px 0 #cccccc;
+  color: #555;
+  vertical-align: top;
+}
+
+p .button, p input[type="submit"], p .wp-block-button {
+  vertical-align: baseline;
+}
+
+.button.hover, input.hover[type="submit"], .hover.wp-block-button,
+.button:hover,
+input:hover[type="submit"],
+.wp-block-button:hover,
+.button-secondary:hover,
+.button.focus,
+input.focus[type="submit"],
+.focus.wp-block-button,
+.button:focus,
+input:focus[type="submit"],
+.wp-block-button:focus,
+.button-secondary:focus {
+  background: #fafafa;
+  border-color: #999;
+  color: #23282d;
+}
+
+
+.button.focus,
+input.focus[type="submit"],
+.focus.wp-block-button,
+.button:focus,
+input:focus[type="submit"],
+.wp-block-button:focus,
+.button-secondary:focus,
+.button-link:focus {
+  border-color: #5b9dd9;
+  box-shadow: 0 0 3px rgba(0, 115, 170, 0.8);
+}
+
+.button.active, input.active[type="submit"], .active.wp-block-button,
+.button.active:hover,
+input.active:hover[type="submit"],
+.active.wp-block-button:hover, .button:active, input:active[type="submit"], .wp-block-button:active,
+.button-secondary:active {
+  background: #eee;
+  border-color: #999;
+  box-shadow: inset 0 2px 5px -3px rgba(0, 0, 0, 0.5);
+  transform: translateY(1px);
+}
+
+.button.active:focus, input.active:focus[type="submit"], .active.wp-block-button:focus {
+  border-color: #5b9dd9;
+  box-shadow: inset 0 2px 5px -3px rgba(0, 0, 0, 0.5), 0 0 3px rgba(0, 115, 170, 0.8);
+}
+
+.button[disabled], input[disabled][type="submit"], .wp-block-button[disabled],
+.button:disabled,
+input:disabled[type="submit"],
+.wp-block-button:disabled,
+.button.disabled,
+input.disabled[type="submit"],
+.disabled.wp-block-button,
+.button-secondary[disabled],
+.button-secondary:disabled,
+.button-secondary.disabled,
+.button-disabled {
+  background: #f7f7f7 !important;
+  border-color: #ddd !important;
+  box-shadow: none !important;
+  color: #a0a5aa !important;
+  cursor: default;
+  text-shadow: 0 1px 0 #fff !important;
+  transform: none !important;
+}
+
+/* Buttons that look like links, for a cross of good semantics with the visual */
+.button-link {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  cursor: pointer;
+  margin: 0;
+  outline: none;
+  padding: 0;
+}
+
+.button-link:focus {
+  outline: #5b9dd9 solid 1px;
+}
+
+/* ----------------------------------------------------------------------------
+  3.0 - Primary Button Style
+---------------------------------------------------------------------------- */
+.button-primary,
+.download-button,
+.plugin-upload-form .button-primary {
+  background: #0085ba;
+  border-color: #0073aa #006799 #006799;
+  box-shadow: 0 1px 0 #006799;
+  color: #fff;
+  text-decoration: none;
+  text-shadow: 0 -1px 1px #006799, 1px 0 1px #006799, 0 1px 1px #006799, -1px 0 1px #006799;
+}
+
+.button-primary:visited,
+.download-button:visited,
+.plugin-upload-form .button-primary:visited {
+  background: #0085ba;
+  border-color: #0073aa #006799 #006799;
+  box-shadow: 0 1px 0 #006799;
+  color: #fff;
+}
+
+.button-primary.hover, .button-primary:hover, .button-primary.focus, .button-primary:focus,
+.download-button.hover,
+.download-button:hover,
+.download-button.focus,
+.download-button:focus,
+.plugin-upload-form .button-primary.hover,
+.plugin-upload-form .button-primary:hover,
+.plugin-upload-form .button-primary.focus,
+.plugin-upload-form .button-primary:focus {
+  background: #008ec2;
+  border-color: #006799;
+  box-shadow: 0 1px 0 #006799;
+  color: #fff;
+}
+
+.button-primary.focus, .button-primary:focus,
+.download-button.focus,
+.download-button:focus,
+.plugin-upload-form .button-primary.focus,
+.plugin-upload-form .button-primary:focus {
+  box-shadow: 0 1px 0 #0073aa, 0 0 2px 1px #33b3db;
+}
+
+.button-primary.active, .button-primary.active:hover, .button-primary.active:focus, .button-primary:active,
+.download-button.active,
+.download-button.active:hover,
+.download-button.active:focus,
+.download-button:active,
+.plugin-upload-form .button-primary.active,
+.plugin-upload-form .button-primary.active:hover,
+.plugin-upload-form .button-primary.active:focus,
+.plugin-upload-form .button-primary:active {
+  background: #0073aa;
+  border-color: #006799;
+  box-shadow: inset 0 2px 0 #006799;
+  vertical-align: top;
+}
+
+.button-primary[disabled], .button-primary:disabled, .button-primary.disabled,
+.download-button[disabled],
+.download-button:disabled,
+.download-button.disabled,
+.plugin-upload-form .button-primary[disabled],
+.plugin-upload-form .button-primary:disabled,
+.plugin-upload-form .button-primary.disabled {
+  background: #008ec2 !important;
+  border-color: #007cb2 !important;
+  box-shadow: none !important;
+  color: #66c6e4 !important;
+  cursor: default;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.button-primary.button.button-hero, input.button-primary.button-hero[type="submit"], .button-primary.button-hero.wp-block-button,
+.download-button.button.button-hero,
+input.download-button.button-hero[type="submit"],
+.download-button.button-hero.wp-block-button,
+.plugin-upload-form .button-primary.button.button-hero,
+.plugin-upload-form input.button-primary.button-hero[type="submit"],
+.plugin-upload-form .button-primary.button-hero.wp-block-button {
+  box-shadow: 0 2px 0 #006799;
+}
+
+.button-primary.button.button-hero.active, input.button-primary.button-hero.active[type="submit"], .button-primary.button-hero.active.wp-block-button, .button-primary.button.button-hero.active:hover, input.button-primary.button-hero.active:hover[type="submit"], .button-primary.button-hero.active.wp-block-button:hover, .button-primary.button.button-hero.active:focus, input.button-primary.button-hero.active:focus[type="submit"], .button-primary.button-hero.active.wp-block-button:focus, .button-primary.button.button-hero:active, input.button-primary.button-hero:active[type="submit"], .button-primary.button-hero.wp-block-button:active,
+.download-button.button.button-hero.active,
+input.download-button.button-hero.active[type="submit"],
+.download-button.button-hero.active.wp-block-button,
+.download-button.button.button-hero.active:hover,
+input.download-button.button-hero.active:hover[type="submit"],
+.download-button.button-hero.active.wp-block-button:hover,
+.download-button.button.button-hero.active:focus,
+input.download-button.button-hero.active:focus[type="submit"],
+.download-button.button-hero.active.wp-block-button:focus,
+.download-button.button.button-hero:active,
+input.download-button.button-hero:active[type="submit"],
+.download-button.button-hero.wp-block-button:active,
+.plugin-upload-form .button-primary.button.button-hero.active,
+.plugin-upload-form input.button-primary.button-hero.active[type="submit"],
+.plugin-upload-form .button-primary.button-hero.active.wp-block-button,
+.plugin-upload-form .button-primary.button.button-hero.active:hover,
+.plugin-upload-form input.button-primary.button-hero.active:hover[type="submit"],
+.plugin-upload-form .button-primary.button-hero.active.wp-block-button:hover,
+.plugin-upload-form .button-primary.button.button-hero.active:focus,
+.plugin-upload-form input.button-primary.button-hero.active:focus[type="submit"],
+.plugin-upload-form .button-primary.button-hero.active.wp-block-button:focus,
+.plugin-upload-form .button-primary.button.button-hero:active,
+.plugin-upload-form input.button-primary.button-hero:active[type="submit"],
+.plugin-upload-form .button-primary.button-hero.wp-block-button:active {
+  box-shadow: inset 0 3px 0 #006799;
+}
+
+.button-primary-disabled {
+  background: #008ec2 !important;
+  border-color: #007cb2 !important;
+  box-shadow: none !important;
+  color: #66c6e4 !important;
+  cursor: default;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+/* ----------------------------------------------------------------------------
+  4.0 - Button Groups
+---------------------------------------------------------------------------- */
+.button-group {
+  display: inline-block;
+  font-size: 0;
+  position: relative;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.button-group > .button, .button-group > input[type="submit"], .button-group > .wp-block-button {
+  border-radius: 0;
+  display: inline-block;
+  margin-right: -1px;
+  z-index: 10;
+}
+
+.button-group > .button-primary {
+  z-index: 100;
+}
+
+.button-group > .button:hover, .button-group > input:hover[type="submit"], .button-group > .wp-block-button:hover {
+  z-index: 20;
+}
+
+.button-group > .button:first-child, .button-group > input:first-child[type="submit"], .button-group > .wp-block-button:first-child {
+  border-radius: 3px 0 0 3px;
+}
+
+.button-group > .button:last-child, .button-group > input:last-child[type="submit"], .button-group > .wp-block-button:last-child {
+  border-radius: 0 3px 3px 0;
+}
+
+.button-group > .button:focus, .button-group > input:focus[type="submit"], .button-group > .wp-block-button:focus {
+  position: relative;
+  z-index: 1;
+}
+
+/* ----------------------------------------------------------------------------
+  5.0 - Responsive Button Styles
+---------------------------------------------------------------------------- */
+@media screen and (max-width: 737px) {
+  .button, input[type="submit"], .wp-block-button, .button.button-large, input.button-large[type="submit"], .button-large.wp-block-button, .button.button-small, input.button-small[type="submit"], .button-small.wp-block-button,
+  .plugin-upload-form .button-primary {
+    font-size: 14px;
+    height: auto;
+    line-height: normal;
+    margin-bottom: 4px;
+    padding: 6px 14px;
+    vertical-align: middle;
+  }
+}
+
+.wp-block-button {
+  display: inline-block;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+.wp-block-button__link {
+  background: none;
+  color: #555555;
+  text-decoration: none;
+}
+
+.parallelogram-container {
+  width: 80%;
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
+@media screen and (min-width: 768px) {
+  .parallelogram-container > .wp-block-group__inner-container {
+    display: flex;
+  }
+}
+
+.parallelogram-container .wp-block-group__inner-container .is-style-wporg-parallelogram:last-child .wp-block-group__inner-container {
+  /*
+		 * Adjust for the overlapping parralelograms, so that the text in this one appears to be more aligned to
+		 * its container.
+		 */
+  position: relative;
+  left: 10px;
+}
+
+/*
+ * Not just doing `@extend .parallelogram` b/c want to split between breakpoints, which that doesn't do.
+ */
+.is-style-wporg-parallelogram {
+  color: #fff;
+  margin: 0 auto;
+  opacity: 0.9;
+  padding: 4.7rem 0;
+  text-align: center;
+}
+
+@media screen and (min-width: 768px) {
+  .is-style-wporg-parallelogram {
+    transform: skew(-15deg);
+  }
+  .is-style-wporg-parallelogram:first-child {
+    position: relative;
+    top: 40px;
+    z-index: 2;
+  }
+  .is-style-wporg-parallelogram:last-child {
+    z-index: 1;
+    padding-left: 40px;
+  }
+  .is-style-wporg-parallelogram:before {
+    font-size: ms(12);
+    height: 64px;
+    position: relative;
+    right: 1rem;
+    transform: skew(15deg);
+    width: 64px;
+  }
+  .is-style-wporg-parallelogram > * {
+    transform: skew(15deg);
+  }
+  .is-style-wporg-parallelogram > .wp-block-group__inner-container {
+    width: 60%;
+    margin: 0 auto;
+  }
+}
+
+/*# sourceMappingURL=style-editor.css.map */

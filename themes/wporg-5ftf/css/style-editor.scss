@@ -1,0 +1,22 @@
+/*
+ * Add content area styles to the editor (in addition to the front end), so that users see content the way it will
+ * appear on the front end.
+ */
+
+
+@import "settings/colors";
+@import "../../pub/wporg/css/settings/structure";
+@import "settings/structure";
+@import "../../pub/wporg/css/tools/breakpoint";
+@import "base/elements";
+@import "components/entry-content";
+@import "components/about";
+@import "../../pub/wporg/css/settings/_modular-scale.scss";
+@import "../../pub/wporg/css/objects/buttons";
+@import "objects/buttons";
+@import "objects/parallelogram";
+
+
+
+
+// font-family and face, etc?
