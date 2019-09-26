@@ -1,5 +1,5 @@
 #wporg-header {
-	@include breakpoint( $sm ) {
+	@include breakpoint( $breakpoint-tablet ) {
 		ul li.current-menu-item:after,
 		ul li.current_page_parent:after,
 		ul li a.current ~ .uparrow {

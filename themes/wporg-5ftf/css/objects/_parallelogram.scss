@@ -1,23 +1,68 @@
-.parallelogram {
+.parallelogram-container {
+	width: 80%;
+	margin-left: 10%;
+	margin-right: 10%;
+
+	> .wp-block-group__inner-container {
+		@include breakpoint($breakpoint-tablet) {
+			display: flex;
+		}
+	}
+
+	.wp-block-group__inner-container .is-style-wporg-parallelogram:last-child .wp-block-group__inner-container {
+		/*
+		 * Adjust for the overlapping parralelograms, so that the text in this one appears to be more aligned to
+		 * its container.
+		 */
+		position: relative;
+		left: 10px;
+	}
+}
+
+/*
+ * Not just doing `@extend .parallelogram` b/c want to split between breakpoints, which that doesn't do.
+ */
+.is-style-wporg-parallelogram {
 	color: #fff;
-	display: block;
 	margin: 0 auto;
 	opacity: 0.9;
 	padding: 4.7rem 0;
-	position: absolute;
 	text-align: center;
-	transform: skew( -15deg) ;
 
-	&:before {
-		font-size: ms( 12 );
-		height: 64px;
-		position: relative;
-		right: 1rem;
-		transform: skew( 15deg );
-		width: 64px;
-	}
+	// probably need to remove that negative margin from the has-background block? it's shouldn't apply here really, so need to rethink why have it and best way to address that
+	// or maybe just refine how it's implemented, like making sure that have padding to replace margin, and no position:relative crap
 
-	> * {
-		transform: skew( 15deg );
+	@include breakpoint( $breakpoint-tablet ) {
+		transform: skew(-15deg);
+
+		&:first-child {
+			position: relative;
+			top: 40px;
+			z-index: 2;
+		}
+
+		&:last-child {
+			z-index: 1;
+			padding-left: 40px;
+			// todo the first and second child aren't overlapping as much as they used to, what changed?
+		}
+
+		&:before {
+			font-size: ms(12);
+			height: 64px;
+			position: relative;
+			right: 1rem;
+			transform: skew(15deg);
+			width: 64px;
+		}
+
+		> * {
+			transform: skew(15deg);
+		}
+
+		> .wp-block-group__inner-container {
+			width: 60%;
+			margin: 0 auto;
+		}
 	}
 }

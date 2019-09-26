@@ -1,0 +1,32 @@
+$size__spacing-unit: ms( 4 );	// todo is this globally scoped? if so should move to vars file
+
+.wp-block-image {
+	// this shouldn't apply to all images, just .alignfull ?
+		// but then the design calls for the images to be allignful on mobile, but not on desktop, so.... wtf?
+		// need a new alignment setting that says "alignfull-on-mobile-but-constrain-on-desktop" ?
+		// maybe this impacts how you do the has-background pullquote and other paragraphs, too, since they're also aligned fully on mobile.
+
+	/* Make it fill 100% of the screen */
+	position: relative;
+	left: -#{ $size__spacing-unit };
+	width: calc( 100% + ( 2 * #{ $size__spacing-unit } ) );
+	max-width: calc( 100% + ( 2 * #{ $size__spacing-unit} ) );
+	clear: both;
+
+	@include breakpoint( $breakpoint-desktop ) {
+		position: inherit;
+		left: inherit;
+		width: inherit;
+		max-width: inherit;
+		clear: inherit;
+	}
+}
+
+p.is-style-wporg-tldr {
+	color: $color__text-heading;
+	font-style: italic;
+
+	@include breakpoint( $breakpoint-tablet ) {
+		text-align: center;
+	}
+}

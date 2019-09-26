@@ -11,7 +11,6 @@ namespace WordPressdotorg\Five_for_the_Future\Theme;
  * as indicating support for post thumbnails.
  */
 function setup() {
-
 	// Add default posts and comments RSS feed links to head.
 	add_theme_support( 'automatic-feed-links' );
 
@@ -30,11 +29,56 @@ function setup() {
 		'caption',
 	) );
 
-	add_theme_support( 'wp4-styles' );
-
 	register_nav_menus( array(
 		'primary' => esc_html__( 'Primary', 'wporg-5ftf' ),
 	) );
+
+	add_theme_support( 'wp4-styles' );
+
+	add_theme_support( 'wp-block-styles' );
+
+	add_theme_support(
+		'editor-color-palette',
+		array(
+			array(
+				'name'  => 'W.org Blue',
+				'slug'  => 'wporg-blue',
+				'color' => '#1E8CBE',
+			),
+			array(
+				'name'  => 'W.org Purple',
+				'slug'  => 'wporg-purple',
+				'color' => '#826EB4',
+			),
+			array(
+				'name'  => 'W.org White',
+				'slug'  => 'wporg-white',
+				'color' => '#FFFFFF',
+			),
+		)
+	);
+
+	register_block_style(
+		'core/group',
+		array(
+			'name'         => 'wporg-parallelogram',
+			'label'        => __( 'Parallelogram' ),
+			'style_handle' => 'wporg-style',
+		)
+	);
+
+	register_block_style(
+		'core/paragraph',
+		array(
+			'name'         => 'wporg-tldr',
+			'label'        => __( 'TL;DR summary paragraph' ),
+			'style_handle' => 'wporg-style',
+		)
+	);
+
+
+	// todo also setup block styles for other things, like the quote symbol, etc
+
 }
 add_action( 'after_setup_theme', __NAMESPACE__ . '\setup' );
 
@@ -55,7 +99,6 @@ add_action( 'after_setup_theme', __NAMESPACE__ . '\content_width', 0 );
  */
 function scripts() {
 	wp_enqueue_style( 'wporg-style', get_theme_file_uri( '/css/style.css' ), [ 'dashicons', 'open-sans' ], '20190703' );
-//	wp_enqueue_style( 'wporg-style2', get_stylesheet_uri(), [ 'dashicons', 'open-sans' ], '20190703' ); // todo this one or the one above?
 	wp_style_add_data( 'wporg-style', 'rtl', 'replace' );
 
 	wp_enqueue_script( 'wporg-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20181209', true );
@@ -87,6 +130,18 @@ function body_class( $classes ) {
 	return array_unique( $classes );
 }
 add_filter( 'body_class', __NAMESPACE__ . '\body_class' );
+
+/**
+ * Filters the list of CSS body classes for the current post or page.
+ *
+ * @param array $classes An array of body classes.
+ * @return array
+ */
+function custom_body_class( $classes ) {
+	$classes[] = 'no-js';
+	return $classes;
+}
+add_filter( 'body_class', __NAMESPACE__ . '\custom_body_class' );
 
 /**
  * Filters an enqueued script & style's fully-qualified URL.
@@ -129,15 +184,3 @@ function loader_src( $src, $handle ) {
 }
 add_filter( 'style_loader_src', __NAMESPACE__ . '\loader_src', 10, 2 );
 add_filter( 'script_loader_src', __NAMESPACE__ . '\loader_src', 10, 2 );
-
-/**
- * Filters the list of CSS body classes for the current post or page.
- *
- * @param array $classes An array of body classes.
- * @return array
- */
-function custom_body_class( $classes ) {
-	$classes[] = 'no-js';
-	return $classes;
-}
-add_filter( 'body_class', __NAMESPACE__ . '\custom_body_class' );

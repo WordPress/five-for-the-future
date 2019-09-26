@@ -1,3 +1,17 @@
 input[type="submit"] {
 	@extend .button;
 }
+
+.wp-block-button {
+	@extend .button;
+
+	display: inline-block;
+	height: auto;
+	margin-bottom: 1rem;
+}
+
+.wp-block-button__link {
+	background: none;
+	color: $color__link-button;
+	text-decoration: none;
+}
