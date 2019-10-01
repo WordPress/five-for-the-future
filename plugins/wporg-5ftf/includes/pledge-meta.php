@@ -13,16 +13,9 @@ defined( 'WPINC' ) || die();
 
 const META_PREFIX = FiveForTheFuture\PREFIX . '-';
 
-add_action( 'init', __NAMESPACE__ . '\register' );
+add_action( 'init', __NAMESPACE__ . '\register_pledge_meta' );
 add_action( 'admin_init', __NAMESPACE__ . '\add_meta_boxes' );
 add_action( 'save_post', __NAMESPACE__ . '\save_pledge', 10, 2 );
-
-/**
- *
- */
-function register() {
-	register_pledge_meta();
-}
 
 /**
  * Define pledge meta fields and their properties.
@@ -56,7 +49,6 @@ function get_pledge_meta_config() {
 			'sanitize_callback' => 'absint',
 			'required'          => true,
 		],
-		// todo add # sponsored employees here and also to form, etc
 		'contact-name'            => [
 			'show_in_rest'      => false,
 			'sanitize_callback' => 'sanitize_text_field',
