@@ -23,47 +23,44 @@ add_action( 'save_post', __NAMESPACE__ . '\save_pledge', 10, 2 );
  * @return array
  */
 function get_pledge_meta_config() {
-	return [
-		'org-name'             => [
+	return array(
+		'org-name'             => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
-			'required'          => true,
 			'php_filter'        => FILTER_SANITIZE_STRING
-		],
-		'org-url'              => [
+		),
+		'org-url'              => array(
 			'single'            => true,
 			'sanitize_callback' => 'esc_url_raw',
 			'show_in_rest'      => true,
-			'required'          => true,
 			'php_filter'        => FILTER_VALIDATE_URL,
-		],
-		'org-domain'           => [
+		),
+		'org-domain'           => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => false,
-			'required'          => true,
 			'php_filter'        => FILTER_SANITIZE_STRING,
-		],
-		'org-description'      => [
+		),
+		'org-description'      => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
-			'required'          => true,
 			'php_filter'        => FILTER_SANITIZE_STRING
-		],
-		'admin-wporg-username' => [
+		),
+		'admin-wporg-username' => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_user',
 			'show_in_rest'      => false,
-			'required'          => true,
 			'php_filter'        => FILTER_SANITIZE_STRING
-		],
-	];
+		),
+	);
 }
 
 /**
  * Register post meta keys for the custom post type.
+ *
+ * @return void
  */
 function register_pledge_meta() {
 	$meta = get_pledge_meta_config();
@@ -76,12 +73,14 @@ function register_pledge_meta() {
 }
 
 /**
- * Adds meta boxes for the custom post type
+ * Adds meta boxes for the custom post type.
+ *
+ * @return void
  */
 function add_meta_boxes() {
 	add_meta_box(
-		'company-information',
-		__( 'Company Information', 'wordpressorg' ),
+		'org-info',
+		__( 'Organization Information', 'wordpressorg' ),
 		__NAMESPACE__ . '\render_meta_boxes',
 		Pledge\CPT_ID,
 		'normal',
@@ -97,7 +96,7 @@ function add_meta_boxes() {
  */
 function render_meta_boxes( $pledge, $box ) {
 	switch ( $box['id'] ) {
-		case 'company-information':
+		case 'org-info':
 			require dirname( __DIR__ ) . '/views/metabox-' . sanitize_file_name( $box['id'] ) . '.php';
 			break;
 	}
@@ -106,24 +105,28 @@ function render_meta_boxes( $pledge, $box ) {
 /**
  * Check that an array contains values for all required keys.
  *
- * @return bool|WP_Error True if all required values are present.
+ * @return bool|WP_Error True if all required values are present. Otherwise WP_Error.
  */
-function has_required_pledge_meta( array $values ) {
-	$config   = get_pledge_meta_config();
-	$plucked  = wp_list_pluck( get_pledge_meta_config(), 'required' );
-	$required = array_combine( array_keys( $config ), $plucked );
+function has_required_pledge_meta( array $submission ) {
+	$error = new WP_Error();
 
-	$required_keys = array_keys( $required, true, true );
-	$error         = new WP_Error();
-
-	foreach ( $required_keys as $key ) {
-		if ( ! isset( $values[ $key ] ) || empty( $values[ $key ] ) ) {
+	foreach ( $submission as $key => $value ) {
+		if ( is_null( $value ) ) {
 			$error->add(
 				'required_field',
-				__( 'Please fill all required fields.', 'wporg' )
+				sprintf(
+					__( 'The <code>%s</code> field does not have a value.', 'wporg' ),
+					sanitize_key( $key )
+				)
 			);
-
-			break;
+		} elseif ( false === $value ) {
+			$error->add(
+				'required_field',
+				sprintf(
+					__( 'The <code>%s</code> field has an invalid value.', 'wporg' ),
+					sanitize_key( $key )
+				)
+			);
 		}
 	}
 
@@ -135,19 +138,24 @@ function has_required_pledge_meta( array $values ) {
 }
 
 /**
- * Save the pledge data
+ * Save the pledge data.
  *
  * @param int     $pledge_id
  * @param WP_Post $pledge
  */
 function save_pledge( $pledge_id, $pledge ) {
+	$action          = filter_input( INPUT_GET, 'action' );
 	$ignored_actions = array( 'trash', 'untrash', 'restore' );
 
-	if ( isset( $_GET['action'] ) && in_array( $_GET['action'], $ignored_actions, true ) ) {
+	if ( $action && in_array( $action, $ignored_actions, true ) ) {
 		return;
 	}
 
-	if ( ! $pledge || $pledge->post_type !== Pledge\CPT_ID || ! current_user_can( 'edit_pledge', $pledge_id ) ) {
+	if ( ! $pledge instanceof WP_Post || $pledge->post_type !== Pledge\CPT_ID ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'edit_pledge', $pledge_id ) ) {
 		return;
 	}
 
@@ -169,19 +177,18 @@ function save_pledge( $pledge_id, $pledge ) {
  *
  * @param int   $pledge_id
  * @param array $new_values
+ *
+ * @return void
  */
 function save_pledge_meta( $pledge_id, $new_values ) {
-	$keys = array_keys( get_pledge_meta_config() );
+	$config = get_pledge_meta_config();
 
-	foreach ( $keys as $key ) {
-		$meta_key = META_PREFIX . $key;
-
-		if ( isset( $new_values[ $key ] ) ) {
+	foreach ( $new_values as $key => $value ) {
+		if ( array_key_exists( $key, $config ) ) {
+			$meta_key = META_PREFIX . $key;
 			// Since the sanitize callback is called during this function, it could still end up
 			// saving an empty value to the database.
-			update_post_meta( $pledge_id, $meta_key, $new_values[ $key ] );
-		} else {
-			delete_post_meta( $pledge_id, $meta_key );
+			update_post_meta( $pledge_id, $meta_key, $value );
 		}
 	}
 }
