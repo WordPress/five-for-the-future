@@ -1,13 +1,27 @@
 <?php
+/**
+ *
+ */
 
 namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
+
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\Company;
-use WordPressDotOrg\FiveForTheFuture\CompanyMeta;
+use WordPressDotOrg\FiveForTheFuture\Pledge;
+use WordPressDotOrg\FiveForTheFuture\PledgeMeta;
 use WP_Error;
 
 defined( 'WPINC' ) || die();
 
+add_shortcode( 'five_for_the_future_pledge_form', __NAMESPACE__ . '\render_shortcode' );
+
+/**
+ *
+ *
+ * @param $attributes
+ * @param $content
+ *
+ * @return false|string
+ */
 function render_shortcode( $attributes, $content ) {
 	$action   = filter_input( INPUT_POST, 'action' );
 	$messages = [];
@@ -35,8 +49,6 @@ function render_shortcode( $attributes, $content ) {
 	return $html;
 }
 
-add_shortcode( 'five_for_the_future_pledge_form', __NAMESPACE__ . '\render_shortcode' );
-
 /**
  *
  *
@@ -45,26 +57,26 @@ add_shortcode( 'five_for_the_future_pledge_form', __NAMESPACE__ . '\render_short
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
 function process_form( array $form_values ) {
-	$required_fields = CompanyMeta\has_required_company_meta( $form_values );
+	$required_fields = PledgeMeta\has_required_pledge_meta( $form_values );
 
 	if ( is_wp_error( $required_fields ) ) {
 		return $required_fields;
 	}
 
 	$name = sanitize_meta(
-		CompanyMeta\META_PREFIX . 'company-name',
+		PledgeMeta\META_PREFIX . 'company-name',
 		$form_values['company-name'],
 		'post',
-		Company\CPT_SLUG
+		Pledge\CPT_ID
 	);
 
-	$created = create_new_company( $name );
+	$created = create_new_pledge( $name );
 
 	if ( is_wp_error( $created ) ) {
 		return $created;
 	}
 
-	CompanyMeta\save_company_meta( $created, $form_values );
+	PledgeMeta\save_pledge_meta( $created, $form_values );
 	// save teams contirbuted to as terms
 
 	return 'success';
@@ -77,9 +89,9 @@ function process_form( array $form_values ) {
  *
  * @return int|WP_Error Post ID on success. Otherwise WP_Error.
  */
-function create_new_company( $name ) {
+function create_new_pledge( $name ) {
 	$args = [
-		'post_type'   => Company\CPT_SLUG,
+		'post_type'   => Pledge\CPT_ID,
 		'post_title'  => $name,
 		'post_status' => 'pending',
 		'post_author' => get_current_user_id(), // TODO is this how we want to do this?

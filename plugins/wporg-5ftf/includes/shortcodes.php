@@ -7,7 +7,7 @@
 
 namespace WordPressDotOrg\FiveForTheFuture\Blocks;
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\Company;
+use WordPressDotOrg\FiveForTheFuture\Pledge;
 
 defined( 'WPINC' ) || die();
 
@@ -36,7 +36,7 @@ function enqueue_scripts() {
 	$params = array(
 		// explain 100 is just sanity limit to keep page size performant. might need to lazy-load more in the future
 		// maybe order by donated_employees, or rand, to ensure the top companies are always displayed first, or to make sure treta everyone equal
-		'post_type'      => Company\CPT_SLUG,
+		'post_type'      => Pledge\CPT_ID,
 		'post_status'    => 'publish',
 		'posts_per_page' => 100,
 		'orderby'        => 'title',
