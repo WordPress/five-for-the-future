@@ -5,11 +5,11 @@ namespace WordPressdotorg\Five_for_the_Future\Theme;
 global $wporg_global_header_options;
 $GLOBALS['pagetitle'] = wp_get_document_title();
 
-if ( ! isset( $wporg_global_header_options[ 'in_wrapper' ] ) ) {
-	$wporg_global_header_options[ 'in_wrapper' ] = '';
+if ( ! isset( $wporg_global_header_options['in_wrapper'] ) ) {
+	$wporg_global_header_options['in_wrapper'] = '';
 }
 
-$wporg_global_header_options[ 'in_wrapper' ] .= '<a class="skip-link screen-reader-text" href="#main">' . esc_html__( 'Skip to content', 'wporg-5ftf' ) . '</a>';
+$wporg_global_header_options['in_wrapper'] .= '<a class="skip-link screen-reader-text" href="#main">' . esc_html__( 'Skip to content', 'wporg-5ftf' ) . '</a>';
 
 require WPORGPATH . 'header.php';
 
@@ -48,10 +48,12 @@ require WPORGPATH . 'header.php';
 						</button>
 
 						<div id="primary-menu" class="menu">
-							<?php wp_nav_menu( array(
+							<?php
+							wp_nav_menu( array(
 								'theme_location' => 'primary',
 								'menu_id'        => 'primary-menu',
-							) ); ?>
+							) );
+							?>
 						</div>
 					</nav><!-- #site-navigation -->
 				<?php endif; ?>

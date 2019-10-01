@@ -64,7 +64,7 @@ function setup() {
 		'core/group',
 		array(
 			'name'         => 'wporg-parallelogram',
-			'label'        => __( 'Parallelogram' ),
+			'label'        => __( 'Parallelogram', 'wporg-5ftf' ),
 			'style_handle' => 'wporg-style',
 		)
 	);
@@ -73,14 +73,12 @@ function setup() {
 		'core/paragraph',
 		array(
 			'name'         => 'wporg-tldr',
-			'label'        => __( 'TL;DR summary paragraph' ),
+			'label'        => __( 'Summary paragraph', 'wporg-5ftf' ),
 			'style_handle' => 'wporg-style',
 		)
 	);
 
-
-	// todo also setup block styles for other things, like the quote symbol, etc
-
+	// todo also setup block styles for other things, like the quote symbol, etc.
 }
 add_action( 'after_setup_theme', __NAMESPACE__ . '\setup' );
 
