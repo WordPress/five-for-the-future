@@ -1,0 +1,8 @@
+*.css.map
+*.js.map
+
+mu-plugins/vendor
+node_modules
+
+plugins/gutenberg
+plugins/wordpress-importer
