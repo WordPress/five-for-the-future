@@ -1,9 +1,27 @@
 /* global module:false, require:function, process:object */
-
-require( 'es6-promise' ).polyfill();
-
 module.exports = function( grunt ) {
 	var isChild = 'wporg' !== grunt.file.readJSON( 'package.json' ).name;
+
+	const getSassFiles = () => {
+		const files = {};
+		const paths = [ 'settings', 'tools', 'generic', 'base', 'objects', 'components', 'trumps' ];
+
+		paths.forEach( function( component ) {
+			var paths = [
+				'../pub/wporg/css/' + component + '/**/*.scss',
+				'!../pub/wporg/css/' + component + '/_' + component + '.scss'
+			];
+
+			if ( isChild ) {
+				paths.push( 'css/' + component + '/**/*.scss' );
+				paths.push( '!css/' + component + '/_' + component + '.scss' );
+			}
+
+			files[ 'css/' + component + '/_' + component + '.scss' ] = paths;
+		} );
+
+		return files;
+	};
 
 	grunt.initConfig({
 		postcss: {
@@ -11,21 +29,12 @@ module.exports = function( grunt ) {
 				map: 'build' !== process.argv[2],
 				processors: [
 					require( 'autoprefixer' )( {
-						browsers: [
-							'Android >= 2.1',
-							'Chrome >= 21',
-							'Edge >= 12',
-							'Explorer >= 7',
-							'Firefox >= 17',
-							'Opera >= 12.1',
-							'Safari >= 6.0'
-						],
 						cascade: false
 					} ),
 					require( 'pixrem' ),
-					require('cssnano')({
+					require('cssnano')( {
 						mergeRules: false
-					})
+					} )
 				]
 			},
 			dist: {
@@ -51,22 +60,7 @@ module.exports = function( grunt ) {
 
 		sass_globbing: {
 			itcss: {
-				files: (function() {
-					var files = {};
-
-					['settings', 'tools', 'generic', 'base', 'objects', 'components', 'trumps'].forEach( function( component ) {
-						var paths = ['../pub/wporg/css/' + component + '/**/*.scss', '!../pub/wporg/css/' + component + '/_' + component + '.scss'];
-
-						if ( isChild ) {
-							paths.push( 'css/' + component + '/**/*.scss' );
-							paths.push( '!css/' + component + '/_' + component + '.scss' );
-						}
-
-						files[ 'css/' + component + '/_' + component + '.scss' ] = paths;
-					} );
-
-					return files;
-				}())
+				files: getSassFiles(),
 			},
 			options: { signature: false }
 		},
@@ -88,6 +82,8 @@ module.exports = function( grunt ) {
 	grunt.loadNpmTasks( 'grunt-sass-globbing' );
 	grunt.loadNpmTasks( 'grunt-contrib-watch' );
 
-	grunt.registerTask( 'css', ['sass_globbing', 'sass', 'postcss' ] );
-	grunt.registerTask( 'build', ['css'] );
+	grunt.registerTask( 'css', [ 'sass_globbing', 'sass', 'postcss' ] );
+
+	grunt.registerTask( 'default', [ 'css' ] );
+	grunt.registerTask( 'build', [ 'css' ] ); // Automatically runs "production" steps
 };
