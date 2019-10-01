@@ -60,23 +60,25 @@ function setup() {
 		)
 	);
 
-	register_block_style(
-		'core/group',
-		array(
-			'name'         => 'wporg-parallelogram',
-			'label'        => __( 'Parallelogram', 'wporg-5ftf' ),
-			'style_handle' => 'wporg-style',
-		)
-	);
+	if ( function_exists( 'register_block_style' ) ) {
+		register_block_style(
+			'core/group',
+			array(
+				'name'         => 'wporg-parallelogram',
+				'label'        => __( 'Parallelogram', 'wporg-5ftf' ),
+				'style_handle' => 'wporg-style',
+			)
+		);
 
-	register_block_style(
-		'core/paragraph',
-		array(
-			'name'         => 'wporg-tldr',
-			'label'        => __( 'Summary paragraph', 'wporg-5ftf' ),
-			'style_handle' => 'wporg-style',
-		)
-	);
+		register_block_style(
+			'core/paragraph',
+			array(
+				'name'         => 'wporg-tldr',
+				'label'        => __( 'Summary paragraph', 'wporg-5ftf' ),
+				'style_handle' => 'wporg-style',
+			)
+		);
+	}
 
 	// todo also setup block styles for other things, like the quote symbol, etc.
 }
