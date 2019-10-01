@@ -37,4 +37,8 @@ This section puts together the base and objects to create pages. Page-specific s
 ## 07 Utilities
 
 The `is-*`/`has-*` classes, these custom classes override previous styles. For example, `has-background` would be
-defined here.
+defined here. This is where block styles should live.
+
+# Editor Styles
+
+Editor styles will use a custom import of a subset of the above folders, TBD?
