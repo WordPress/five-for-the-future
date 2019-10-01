@@ -61,7 +61,7 @@ function register_custom_post_type() {
 
 	$args = array(
 		'labels'              => $labels,
-		'supports'            => array( 'title', 'thumbnail', 'author', 'revisions' ),
+		'supports'            => array( 'title', 'thumbnail' ),
 		'hierarchical'        => false,
 		'public'              => true,
 		'show_ui'             => true,

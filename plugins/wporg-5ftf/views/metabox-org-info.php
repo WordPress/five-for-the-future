@@ -1,39 +1,63 @@
-<table>
+<?php
+/** @var bool $editable */
+/** @var array $data */
+?>
+
+<table class="form-table">
 	<tbody>
-		url
-		total # employees
-		# employees pledged at least part time
-		total # hours pleged
-		what else was there?
-
-		<?php /*
 		<tr>
 			<th>
-				<label for="_5ftf_wporg_username">
-					<?php _e( 'WordPress.org Username:', 'wordpressorg' ); ?>
+				<label for="5ftf-org-name">
+					<?php esc_html_e( 'Organization Name', 'wordpressorg' ); ?>
 				</label>
 			</th>
-
 			<td>
-				<input id="_5ftf_wporg_username" name="_5ftf_wporg_username" type="text" value="<?php echo esc_attr( $company->_5ftf_wporg_username ); ?>" required class="regular-text" />
-
-				<?php if ( $avatar_url ) : ?>
-					<img src="<?php echo esc_url( $avatar_url ); ?>" width="95" height="95" />
-				<?php endif; ?>
+				<input
+					type="text"
+					class="large-text"
+					id="5ftf-org-name"
+					name="org-name"
+					value="<?php echo esc_attr( $data['org-name'] ); ?>"
+					required
+					<?php echo ( $editable ) ? '' : 'readonly'; ?>
+				/>
 			</td>
 		</tr>
-
 		<tr>
 			<th>
-				<label for="_5ftf_hours_per_month">
-					<?php _e( 'Hours per Month:', 'wordpressorg' ); ?>
+				<label for="5ftf-org-url">
+					<?php esc_html_e( 'Website Address', 'wordpressorg' ); ?>
 				</label>
 			</th>
-
 			<td>
-				<input id="_5ftf_hours_per_month" name="_5ftf_hours_per_month" type="number" value="<?php echo esc_attr( $company->_5ftf_hours_per_month ); ?>" required class="regular-text" />
+				<input
+					type="url"
+					class="large-text"
+					id="5ftf-org-url"
+					name="org-url"
+					value="<?php echo esc_attr( $data['org-url'] ); ?>"
+					required
+					<?php echo ( $editable ) ? '' : 'readonly'; ?>
+				/>
 			</td>
 		</tr>
- 		*/ ?>
+		<tr>
+			<th>
+				<label for="5ftf-org-description">
+					<?php _e( 'Organization Blurb', 'wordpressorg' ); ?>
+				</label>
+			</th>
+			<td>
+				<textarea
+					class="large-text"
+					id="5ftf-org-description"
+					name="org-description"
+					required
+					<?php echo ( $editable ) ? '' : 'readonly'; ?>
+				>
+					<?php echo esc_html( $data['org-description'] ); ?>
+				</textarea>
+			</td>
+		</tr>
 	</tbody>
 </table>

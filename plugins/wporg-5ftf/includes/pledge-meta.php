@@ -24,35 +24,35 @@ add_action( 'save_post', __NAMESPACE__ . '\save_pledge', 10, 2 );
  */
 function get_pledge_meta_config() {
 	return array(
-		'org-name'             => array(
+		'org-description' => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING
 		),
-		'org-url'              => array(
-			'single'            => true,
-			'sanitize_callback' => 'esc_url_raw',
-			'show_in_rest'      => true,
-			'php_filter'        => FILTER_VALIDATE_URL,
-		),
-		'org-domain'           => array(
+		'org-domain'      => array( // This value is derived programmatically from `org-url`.
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => false,
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
-		'org-description'      => array(
+		'org-name'        => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING
 		),
-		'admin-wporg-username' => array(
+		'org-url'         => array(
 			'single'            => true,
-			'sanitize_callback' => 'sanitize_user',
+			'sanitize_callback' => 'esc_url_raw',
+			'show_in_rest'      => true,
+			'php_filter'        => FILTER_VALIDATE_URL,
+		),
+		'pledge-email'    => array(
+			'single'            => true,
+			'sanitize_callback' => 'sanitize_email',
 			'show_in_rest'      => false,
-			'php_filter'        => FILTER_SANITIZE_STRING
+			'php_filter'        => FILTER_VALIDATE_EMAIL
 		),
 	);
 }
@@ -79,12 +79,30 @@ function register_pledge_meta() {
  */
 function add_meta_boxes() {
 	add_meta_box(
+		'pledge-email',
+		__( 'Pledge Email', 'wordpressorg' ),
+		__NAMESPACE__ . '\render_meta_boxes',
+		Pledge\CPT_ID,
+		'normal',
+		'high'
+	);
+
+	add_meta_box(
 		'org-info',
 		__( 'Organization Information', 'wordpressorg' ),
 		__NAMESPACE__ . '\render_meta_boxes',
 		Pledge\CPT_ID,
 		'normal',
-		'default'
+		'high'
+	);
+
+	add_meta_box(
+		'pledge-contributors',
+		__( 'Contributors', 'wordpressorg' ),
+		__NAMESPACE__ . '\render_meta_boxes',
+		Pledge\CPT_ID,
+		'normal',
+		'high'
 	);
 }
 
@@ -95,11 +113,26 @@ function add_meta_boxes() {
  * @param array   $box
  */
 function render_meta_boxes( $pledge, $box ) {
+	$editable = current_user_can( 'edit_pledge', $pledge->ID );
+
 	switch ( $box['id'] ) {
+		case 'pledge-email':
+			$email     = get_post_meta( $pledge->ID, META_PREFIX . 'pledge-email', true );
+			$confirmed = get_post_meta( $pledge->ID, META_PREFIX . 'pledge-email-confirmed', true );
+			break;
 		case 'org-info':
-			require dirname( __DIR__ ) . '/views/metabox-' . sanitize_file_name( $box['id'] ) . '.php';
+			$data = array();
+
+			foreach ( get_pledge_meta_config() as $key => $config ) {
+				$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
+			}
+			break;
+		case 'pledge-contributors':
+
 			break;
 	}
+
+	require dirname( __DIR__ ) . '/views/metabox-' . sanitize_file_name( $box['id'] ) . '.php';
 }
 
 /**
