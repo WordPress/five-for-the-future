@@ -17,19 +17,15 @@ add_shortcode( 'five_for_the_future_pledge_form', __NAMESPACE__ . '\render_short
 /**
  *
  *
- * @param $attributes
- * @param $content
- *
  * @return false|string
  */
-function render_shortcode( $attributes, $content ) {
+function render_shortcode() {
 	$action   = filter_input( INPUT_POST, 'action' );
 	$messages = [];
 	$complete = false;
-	$html     = '';
 
-	if ( 'Submit' === $action ) {
-		$processed = process_form( $_POST );
+	if ( 'Submit Pledge' === $action ) {
+		$processed = process_form();
 
 		if ( is_wp_error( $processed ) ) {
 			$messages = array_merge( $messages, $processed->get_error_messages() );
@@ -38,34 +34,61 @@ function render_shortcode( $attributes, $content ) {
 		}
 	}
 
-	if ( $complete ) {
-		$html = wpautop( __( 'Thank you for your submission.', 'wporg' ) );
-	} else {
-		ob_start();
-		require FiveForTheFuture\PATH . 'views/pledge-form.php';
-		$html = ob_get_clean();
-	}
+	ob_start();
+	require FiveForTheFuture\PATH . 'views/pledge-form.php';
 
-	return $html;
+	return ob_get_clean();
 }
 
 /**
  *
  *
- * @param array $form_values
+ * @return array
+ */
+function get_input_filters() {
+	return array_merge(
+		// Inputs that correspond to meta values.
+		wp_list_pluck( PledgeMeta\get_pledge_meta_config(), 'php_filter' ),
+		// Inputs with no corresponding meta value.
+		array(
+			'contributor-wporg-usernames' => [
+				'filter' => FILTER_SANITIZE_STRING,
+				'flags'  => FILTER_REQUIRE_ARRAY,
+			],
+			'pledge-agreement'            => FILTER_VALIDATE_BOOLEAN,
+		)
+	);
+}
+
+/**
+ *
  *
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
-function process_form( array $form_values ) {
-	$required_fields = PledgeMeta\has_required_pledge_meta( $form_values );
+function process_form() {
+	$submission = filter_input_array( INPUT_POST, get_input_filters() );
 
-	if ( is_wp_error( $required_fields ) ) {
-		return $required_fields;
+	$submission['org-domain'] = get_normalized_domain_from_url( $submission['org-url'] );
+
+	if ( in_array( null, $submission, true ) || in_array( false, $submission, true ) ) {
+		return new WP_Error(
+			'invalid_submission',
+			__( 'Some fields have missing or invalid information.', 'wporg' )
+		);
+	}
+
+	$has_existing_pledge = has_existing_pledge( $submission['org-domain'] );
+
+	if ( $has_existing_pledge ) {
+		return new WP_Error(
+			'existing_pledge',
+			__( 'A pledge already exists for this domain.', 'wporg' )
+		);
 	}
 
 	$name = sanitize_meta(
-		PledgeMeta\META_PREFIX . 'company-name',
-		$form_values['company-name'],
+		PledgeMeta\META_PREFIX . 'org-name',
+		$submission['org-name'],
 		'post',
 		Pledge\CPT_ID
 	);
@@ -76,10 +99,44 @@ function process_form( array $form_values ) {
 		return $created;
 	}
 
-	PledgeMeta\save_pledge_meta( $created, $form_values );
-	// save teams contirbuted to as terms
+	PledgeMeta\save_pledge_meta( $created, $submission );
 
 	return 'success';
+}
+
+/**
+ *
+ *
+ * @param string $url
+ *
+ * @return string
+ */
+function get_normalized_domain_from_url( $url ) {
+	$domain = wp_parse_url( $url, PHP_URL_HOST );
+	$domain = preg_replace( '#^www\.#', '', $domain );
+
+	return $domain;
+}
+
+/**
+ *
+ *
+ * @param string $domain
+ *
+ * @return bool
+ */
+function has_existing_pledge( $domain ) {
+	$matching_pledge = get_posts( array(
+		'post_type'   => Pledge\CPT_ID,
+		'post_status' => array( 'pending', 'publish' ),
+		'meta_query'  => array(
+			'key'     => PledgeMeta\META_PREFIX . 'org-domain',
+			'value'   => $domain,
+			'compare' => 'LIKE',
+		),
+	) );
+
+	return ! empty( $matching_pledge );
 }
 
 /**

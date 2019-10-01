@@ -11,7 +11,7 @@ use WP_Post, WP_Error;
 
 defined( 'WPINC' ) || die();
 
-const META_PREFIX = FiveForTheFuture\PREFIX . '-';
+const META_PREFIX = FiveForTheFuture\PREFIX . '_';
 
 add_action( 'init', __NAMESPACE__ . '\register_pledge_meta' );
 add_action( 'admin_init', __NAMESPACE__ . '\add_meta_boxes' );
@@ -24,50 +24,40 @@ add_action( 'save_post', __NAMESPACE__ . '\save_pledge', 10, 2 );
  */
 function get_pledge_meta_config() {
 	return [
-		'company-name'            => [
-			'show_in_rest'      => true,
+		'org-name'             => [
+			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
-			'required'          => true,
-		],
-		'company-url'             => [
 			'show_in_rest'      => true,
+			'required'          => true,
+			'php_filter'        => FILTER_SANITIZE_STRING
+		],
+		'org-url'              => [
+			'single'            => true,
 			'sanitize_callback' => 'esc_url_raw',
-			'required'          => true,
-		],
-		'company-email'           => [
-			'show_in_rest'      => false,
-			'sanitize_callback' => 'sanitize_email',
-			'required'          => true,
-		],
-		'company-phone'           => [
-			'show_in_rest'      => false,
-			'sanitize_callback' => 'sanitize_text_field',
-			'required'          => false,
-		],
-		'company-total-employees' => [
 			'show_in_rest'      => true,
-			'sanitize_callback' => 'absint',
 			'required'          => true,
+			'php_filter'        => FILTER_VALIDATE_URL,
 		],
-		'contact-name'            => [
-			'show_in_rest'      => false,
+		'org-domain'           => [
+			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
-			'required'          => true,
-		],
-		'contact-wporg-username'  => [
 			'show_in_rest'      => false,
+			'required'          => true,
+			'php_filter'        => FILTER_SANITIZE_STRING,
+		],
+		'org-description'      => [
+			'single'            => true,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'required'          => true,
+			'php_filter'        => FILTER_SANITIZE_STRING
+		],
+		'admin-wporg-username' => [
+			'single'            => true,
 			'sanitize_callback' => 'sanitize_user',
-			'required'          => true,
-		],
-		'pledge-hours'            => [
-			'show_in_rest'      => true,
-			'sanitize_callback' => 'absint',
-			'required'          => true,
-		],
-		'pledge-agreement'        => [
 			'show_in_rest'      => false,
-			'sanitize_callback' => 'wp_validate_boolean',
 			'required'          => true,
+			'php_filter'        => FILTER_SANITIZE_STRING
 		],
 	];
 }
@@ -165,11 +155,13 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	if ( is_wp_error( has_required_pledge_meta( $_POST ) ) ) {
+	$submitted_meta = filter_input_array( INPUT_POST, wp_list_pluck( get_pledge_meta_config(), 'php_filter' ) );
+
+	if ( is_wp_error( has_required_pledge_meta( $submitted_meta ) ) ) {
 		return;
 	}
 
-	save_pledge_meta( $pledge_id, $_POST );
+	save_pledge_meta( $pledge_id, $submitted_meta );
 }
 
 /**
@@ -192,12 +184,12 @@ function save_pledge_meta( $pledge_id, $new_values ) {
 			delete_post_meta( $pledge_id, $meta_key );
 		}
 	}
-
-	// maybe set the wporg username as the company author, so they can edit it themselves to keep it updated,
-	// then make the user a contributor if they don't already have a role on the site
-	// setup cron to automatically email once per quarter
-	// "here's all the info we have: x, y, z"
-	// is that still accurate? if not, click here to update it
-	// if want to be removed from public listing, emailing support@wordcamp.org
-	// don't let them edit the "featured" taxonomy, only admins
 }
+
+// maybe set the wporg username as the company author, so they can edit it themselves to keep it updated,
+// then make the user a contributor if they don't already have a role on the site
+// setup cron to automatically email once per quarter
+// "here's all the info we have: x, y, z"
+// is that still accurate? if not, click here to update it
+// if want to be removed from public listing, emailing support@wordcamp.org
+// don't let them edit the "featured" taxonomy, only admins
