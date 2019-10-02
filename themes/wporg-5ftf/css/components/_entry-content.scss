@@ -6,37 +6,7 @@
 	h1, h2, h3, h4, h5, h6 {
 		color: $color__text-heading-darker;
 	}
-
-	.wp-block-pullquote {
-		color: $color__text-heading;
-	}
 }
-
-// todo move better location?
-.has-wporg-blue-color {
-	color: $color__wporg-blue;
-}
-
-.has-wporg-blue-background-color {
-	background-color: $color__wporg-blue;
-}
-
-.has-wporg-purple-color {
-	color: $color__wporg-purple;
-}
-
-.has-wporg-purple-background-color {
-	background-color: $color__wporg-purple;
-}
-
-.has-wporg-white-color {
-	color: $color__text-over-background;
-}
-
-.has-wporg-white-background-color {
-	background-color: $color__text-over-background;
-}
-
 
 p.has-background,
 .wp-block-group.has-background,

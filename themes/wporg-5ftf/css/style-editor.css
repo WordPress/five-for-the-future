@@ -2,88 +2,6 @@
  * Add content area styles to the editor (in addition to the front end), so that users see content the way it will
  * appear on the front end.
  */
-.entry-content {
-  position: relative;
-  color: #555D66;
-  hyphens: none;
-}
-
-.entry-content h1, .entry-content h2, .entry-content h3, .entry-content h4, .entry-content h5, .entry-content h6 {
-  color: #23282D;
-}
-
-.entry-content .wp-block-pullquote {
-  color: #606A73;
-}
-
-.has-wporg-blue-color {
-  color: #1E8CBE;
-}
-
-.has-wporg-blue-background-color, body.page-about .entry-content .wp-block-pullquote.is-style-solid-color {
-  background-color: #1E8CBE;
-}
-
-.has-wporg-purple-color {
-  color: #826EB4;
-}
-
-.has-wporg-purple-background-color {
-  background-color: #826EB4;
-}
-
-.has-wporg-white-color, body.page-about .entry-content .wp-block-pullquote.is-style-solid-color blockquote {
-  color: #FFFFFF;
-}
-
-.has-wporg-white-background-color {
-  background-color: #FFFFFF;
-}
-
-p.has-background,
-.wp-block-group.has-background,
-.wp-block-pullquote.has-wporg-blue-background-color,
-body.page-about .entry-content .wp-block-pullquote.is-style-solid-color {
-  /*
-	 * Remove the gaps between consecutive paragraphs that have the same background color, and make it fill 100%
-	 * of the screen on the mobile view.
-	 */
-}
-
-body.page-about .entry-content .wp-block-pullquote.is-style-solid-color blockquote {
-  max-width: 100%;
-  border: none;
-}
-
-@media screen and (min-width: 768px) {
-  body.page-about .entry-content > p,
-  body.page-about .entry-content > h1,
-  body.page-about .entry-content > h2,
-  body.page-about .entry-content > h3,
-  body.page-about .entry-content > h4,
-  body.page-about .entry-content > h5,
-  body.page-about .entry-content > h6,
-  body.page-about .entry-content > .wp-block-quote,
-  body.page-about .entry-content > .wp-block-media-text,
-  body.page-about .entry-content > .wp-block-button {
-    margin-left: 40%;
-  }
-  body.page-about .entry-content p.is-style-wporg-tldr {
-    margin-left: auto;
-  }
-  body.page-about .entry-content .wp-block-pullquote.is-style-solid-color {
-    background-color: white !important;
-    position: absolute;
-    top: 800px;
-    left: 0;
-    width: 40%;
-  }
-  body.page-about .entry-content .wp-block-pullquote.is-style-solid-color blockquote {
-    color: #606A73 !important;
-    border-left: none;
-  }
-}
-
 /* ----------------------------------------------------------------------------
   1.0 - Button Layouts
 ---------------------------------------------------------------------------- */
@@ -500,6 +418,34 @@ input.download-button.button-hero:active[type="submit"],
   }
 }
 
+.wp-block-pullquote {
+  color: #606A73;
+}
+
+.has-wporg-blue-color {
+  color: #1E8CBE;
+}
+
+.has-wporg-blue-background-color {
+  background-color: #1E8CBE;
+}
+
+.has-wporg-purple-color {
+  color: #826EB4;
+}
+
+.has-wporg-purple-background-color {
+  background-color: #826EB4;
+}
+
+.has-wporg-white-color {
+  color: #FFFFFF;
+}
+
+.has-wporg-white-background-color {
+  background-color: #FFFFFF;
+}
+
 .parallelogram-container {
   width: 80%;
   margin-left: 10%;
@@ -570,6 +516,26 @@ p.is-style-wporg-tldr {
 @media screen and (min-width: 768px) {
   p.is-style-wporg-tldr {
     text-align: center;
+  }
+}
+
+.wp-block-pullquote.is-style-solid-color {
+  background-color: #1E8CBE;
+}
+
+.wp-block-pullquote.is-style-solid-color blockquote {
+  max-width: 100%;
+  border: none;
+  color: #FFFFFF;
+}
+
+@media screen and (min-width: 768px) {
+  .wp-block-pullquote.is-style-solid-color {
+    background-color: #FFFFFF;
+  }
+  .wp-block-pullquote.is-style-solid-color blockquote {
+    border-left: none;
+    color: #606A73;
   }
 }
 

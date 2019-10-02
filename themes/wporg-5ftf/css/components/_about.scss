@@ -1,14 +1,4 @@
 body.page-about .entry-content {
-	.wp-block-pullquote.is-style-solid-color  {
-		@extend .has-wporg-blue-background-color;
-
-		blockquote {
-			@extend .has-wporg-white-color;
-
-			max-width: 100%;
-			border: none;
-		}
-	}
 
 	@include breakpoint( $breakpoint-tablet ) {
 		> p,
@@ -28,22 +18,11 @@ body.page-about .entry-content {
 			margin-left: auto;
 		}
 
-		.wp-block-pullquote.is-style-solid-color {
-			@extend .is-style-default !optional;
-			//@extend .has-wporg-white-background-color;	// todo compile error
-			background-color: white !important;	// todo why does this need !important? it shouldn't
-
+		.wp-block-pullquote.is-style-solid-color  {
 			position: absolute;
 			top: 800px;
 			left: 0;
 			width: 40%;
-
-			blockquote {
-				color: $color__text-heading !important;	// todo why does this need !important?
-				border-left: none;
-			}
-
-			// todo works in front end, but need it in editor-styles too. maybe b/c targeting body.page-about?
 		}
 	}
 }

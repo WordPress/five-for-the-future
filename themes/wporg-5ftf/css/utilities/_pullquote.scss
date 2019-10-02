@@ -1,0 +1,18 @@
+.wp-block-pullquote.is-style-solid-color  {
+	background-color: $color__wporg-blue;
+
+	blockquote {
+		max-width: 100%;
+		border: none;
+		color: $color__text-over-background;
+	}
+
+	@include breakpoint( $breakpoint-tablet ) {
+		background-color: $color__text-over-background;
+
+		blockquote {
+			border-left: none;
+			color: $color__text-heading;
+		}
+	}
+}
