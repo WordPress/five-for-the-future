@@ -62,7 +62,7 @@ function setup() {
 
 	if ( function_exists( 'register_block_style' ) ) {
 		register_block_style(
-			'core/group',
+			'core/columns',
 			array(
 				'name'         => 'wporg-parallelogram',
 				'label'        => __( 'Parallelogram', 'wporg-5ftf' ),
