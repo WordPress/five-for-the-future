@@ -4,7 +4,7 @@ module.exports = function( grunt ) {
 
 	const getSassFiles = () => {
 		const files = {};
-		const paths = [ 'settings', 'tools', 'generic', 'base', 'objects', 'components', 'trumps' ];
+		const paths = [ 'settings', 'tools', 'generic', 'base', 'objects', 'components', 'utilities' ];
 
 		paths.forEach( function( component ) {
 			var paths = [
