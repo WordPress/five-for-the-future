@@ -446,52 +446,41 @@ input.download-button.button-hero:active[type="submit"],
   background-color: #FFFFFF;
 }
 
-.parallelogram-container {
-  width: 80%;
-  margin-left: 10%;
-  margin-right: 10%;
-}
-
-@media screen and (min-width: 768px) {
-  .parallelogram-container > .wp-block-group__inner-container {
-    display: flex;
-  }
-}
-
-.parallelogram-container .wp-block-group__inner-container .is-style-wporg-parallelogram:last-child .wp-block-group__inner-container {
-  /*
-		 * Adjust for the overlapping parralelograms, so that the text in this one appears to be more aligned to
-		 * its container.
-		 */
-  position: relative;
-  left: 10px;
-}
-
-/*
- * Not just doing `@extend .parallelogram` b/c want to split between breakpoints, which that doesn't do.
- */
-.is-style-wporg-parallelogram {
+.is-style-wporg-parallelogram .wp-block-column {
+  background: black;
   color: #fff;
-  margin: 0 auto;
+  margin: 0;
   opacity: 0.9;
-  padding: 4.7rem 0;
+  padding: 4.7rem 3rem;
   text-align: center;
+  mix-blend-mode: multiply;
+}
+
+.is-style-wporg-parallelogram .wp-block-column:nth-of-type(2n+1) {
+  background: #1E8CBE;
+}
+
+.is-style-wporg-parallelogram .wp-block-column:nth-of-type(2n) {
+  background: #826EB4;
 }
 
 @media screen and (min-width: 768px) {
-  .is-style-wporg-parallelogram {
+  .is-style-wporg-parallelogram .wp-block-column {
     transform: skew(-15deg);
   }
-  .is-style-wporg-parallelogram:first-child {
+  .is-style-wporg-parallelogram .wp-block-column:first-child {
     position: relative;
     top: 40px;
+    left: 30px;
     z-index: 2;
   }
-  .is-style-wporg-parallelogram:last-child {
+  .is-style-wporg-parallelogram .wp-block-column:last-child {
+    position: relative;
     z-index: 1;
-    padding-left: 40px;
+    right: 30px;
+    padding-left: 4rem;
   }
-  .is-style-wporg-parallelogram:before {
+  .is-style-wporg-parallelogram .wp-block-column:before {
     font-size: ms(12);
     height: 64px;
     position: relative;
@@ -499,12 +488,27 @@ input.download-button.button-hero:active[type="submit"],
     transform: skew(15deg);
     width: 64px;
   }
-  .is-style-wporg-parallelogram > * {
+  .is-style-wporg-parallelogram .wp-block-column > * {
     transform: skew(15deg);
   }
-  .is-style-wporg-parallelogram > .wp-block-group__inner-container {
-    width: 60%;
-    margin: 0 auto;
+}
+
+@media screen and (min-width: 600px) and (max-width: 767px) {
+  .is-style-wporg-parallelogram .wp-block-column {
+    padding: 3rem 2rem;
+    flex-basis: calc(50% + 0.5rem);
+  }
+  .is-style-wporg-parallelogram .wp-block-column:nth-of-type(n+2) {
+    margin-left: -1rem;
+  }
+}
+
+@media screen and (max-width: 599px) {
+  .is-style-wporg-parallelogram .wp-block-column {
+    padding: 2rem;
+  }
+  .is-style-wporg-parallelogram .wp-block-column:nth-of-type(n+2) {
+    margin-top: -1rem;
   }
 }
 
@@ -536,6 +540,23 @@ p.is-style-wporg-tldr {
   .wp-block-pullquote.is-style-solid-color blockquote {
     border-left: none;
     color: #606A73;
+  }
+}
+
+@media screen and (min-width: 768px) {
+  .block-editor-block-list__block-edit .is-style-wporg-parallelogram .wp-block-column {
+    transform: skew(0);
+  }
+  .block-editor-block-list__block-edit .is-style-wporg-parallelogram .wp-block-column:last-child {
+    position: static;
+    z-index: auto;
+    top: auto;
+    left: auto;
+    right: auto;
+    padding-left: 0;
+  }
+  .block-editor-block-list__block-edit .is-style-wporg-parallelogram .wp-block-column > * {
+    transform: skew(0);
   }
 }
 
