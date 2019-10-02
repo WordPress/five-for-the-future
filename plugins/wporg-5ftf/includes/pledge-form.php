@@ -48,7 +48,7 @@ function render_shortcode() {
 function get_input_filters() {
 	return array_merge(
 		// Inputs that correspond to meta values.
-		wp_list_pluck( PledgeMeta\get_pledge_meta_config(), 'php_filter' ),
+		wp_list_pluck( PledgeMeta\get_pledge_meta_config( 'user_input' ), 'php_filter' ),
 		// Inputs with no corresponding meta value.
 		array(
 			'contributor-wporg-usernames' => [
@@ -68,7 +68,7 @@ function get_input_filters() {
 function process_form() {
 	$submission = filter_input_array( INPUT_POST, get_input_filters() );
 
-	$submission['org-domain'] = get_normalized_domain_from_url( $submission['org-url'] );
+	$submission['org-domain'] = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
 
 	if ( in_array( null, $submission, true ) || in_array( false, $submission, true ) ) {
 		return new WP_Error(
@@ -102,20 +102,6 @@ function process_form() {
 	PledgeMeta\save_pledge_meta( $created, $submission );
 
 	return 'success';
-}
-
-/**
- *
- *
- * @param string $url
- *
- * @return string
- */
-function get_normalized_domain_from_url( $url ) {
-	$domain = wp_parse_url( $url, PHP_URL_HOST );
-	$domain = preg_replace( '#^www\.#', '', $domain );
-
-	return $domain;
 }
 
 /**

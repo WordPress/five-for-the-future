@@ -16,25 +16,20 @@ const META_PREFIX = FiveForTheFuture\PREFIX . '_';
 add_action( 'init', __NAMESPACE__ . '\register_pledge_meta' );
 add_action( 'admin_init', __NAMESPACE__ . '\add_meta_boxes' );
 add_action( 'save_post', __NAMESPACE__ . '\save_pledge', 10, 2 );
+add_action( 'updated_' . Pledge\CPT_ID . '_meta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
 
 /**
  * Define pledge meta fields and their properties.
  *
  * @return array
  */
-function get_pledge_meta_config() {
-	return array(
+function get_pledge_meta_config( $context = '' ) {
+	$user_input = array(
 		'org-description' => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING
-		),
-		'org-domain'      => array( // This value is derived programmatically from `org-url`.
-			'single'            => true,
-			'sanitize_callback' => 'sanitize_text_field',
-			'show_in_rest'      => false,
-			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
 		'org-name'        => array(
 			'single'            => true,
@@ -55,6 +50,33 @@ function get_pledge_meta_config() {
 			'php_filter'        => FILTER_VALIDATE_EMAIL
 		),
 	);
+
+	$generated = array(
+		'org-domain'             => array(
+			'single'            => true,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => false,
+		),
+		'pledge-email-confirmed' => array(
+			'single'            => true,
+			'sanitize_callback' => 'wp_validate_boolean',
+			'show_in_rest'      => false,
+		),
+	);
+
+	switch ( $context ) {
+		case 'user_input':
+			$return = $user_input;
+			break;
+		case 'generated':
+			$return = $generated;
+			break;
+		default:
+			$return = array_merge( $user_input, $generated );
+			break;
+	}
+
+	return $return;
 }
 
 /**
@@ -123,7 +145,7 @@ function render_meta_boxes( $pledge, $box ) {
 		case 'org-info':
 			$data = array();
 
-			foreach ( get_pledge_meta_config() as $key => $config ) {
+			foreach ( get_pledge_meta_config( 'user_input' ) as $key => $config ) {
 				$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
 			}
 			break;
@@ -143,18 +165,20 @@ function render_meta_boxes( $pledge, $box ) {
 function has_required_pledge_meta( array $submission ) {
 	$error = new WP_Error();
 
-	foreach ( $submission as $key => $value ) {
-		if ( is_null( $value ) ) {
+	$required = array_keys( get_pledge_meta_config( 'user_input' ) );
+
+	foreach ( $required as $key ) {
+		if ( ! isset( $submission[ $key ] ) || is_null( $submission[ $key ] ) ) {
 			$error->add(
-				'required_field',
+				'required_field_empty',
 				sprintf(
 					__( 'The <code>%s</code> field does not have a value.', 'wporg' ),
 					sanitize_key( $key )
 				)
 			);
-		} elseif ( false === $value ) {
+		} elseif ( false === $submission[ $key ] ) {
 			$error->add(
-				'required_field',
+				'required_field_invalid',
 				sprintf(
 					__( 'The <code>%s</code> field has an invalid value.', 'wporg' ),
 					sanitize_key( $key )
@@ -196,7 +220,8 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	$submitted_meta = filter_input_array( INPUT_POST, wp_list_pluck( get_pledge_meta_config(), 'php_filter' ) );
+	$definitions    = wp_list_pluck( get_pledge_meta_config( 'user_input' ), 'php_filter' );
+	$submitted_meta = filter_input_array( INPUT_POST, $definitions );
 
 	if ( is_wp_error( has_required_pledge_meta( $submitted_meta ) ) ) {
 		return;
@@ -206,7 +231,7 @@ function save_pledge( $pledge_id, $pledge ) {
 }
 
 /**
- * Save the pledge's meta fields
+ * Save the pledge's meta fields.
  *
  * @param int   $pledge_id
  * @param array $new_values
@@ -224,6 +249,47 @@ function save_pledge_meta( $pledge_id, $new_values ) {
 			update_post_meta( $pledge_id, $meta_key, $value );
 		}
 	}
+}
+
+/**
+ * Updated some generated meta values based on changes in user input meta values.
+ *
+ * This is hooked to the `updated_{$meta_type}_meta` action, which only fires if a submitted post meta value
+ * is different from the previous value. Thus here we assume the values of specific meta keys are changed
+ * when they come through this function.
+ *
+ * @param int    $meta_id
+ * @param int    $object_id
+ * @param string $meta_key
+ * @param mixed  $_meta_value
+ *
+ * @return void
+ */
+function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) {
+	switch ( $meta_key ) {
+		case META_PREFIX . 'org-url':
+			$domain = get_normalized_domain_from_url( $_meta_value );
+			update_post_meta( $object_id, META_PREFIX . 'org-domain', $domain );
+			break;
+
+		case META_PREFIX . 'pledge-email':
+			delete_post_meta( $object_id, META_PREFIX . 'pledge-email-confirmed' );
+			break;
+	}
+}
+
+/**
+ * Isolate the domain from a given URL and remove the `www.` if necessary.
+ *
+ * @param string $url
+ *
+ * @return string
+ */
+function get_normalized_domain_from_url( $url ) {
+	$domain = wp_parse_url( $url, PHP_URL_HOST );
+	$domain = preg_replace( '#^www\.#', '', $domain );
+
+	return $domain;
 }
 
 // maybe set the wporg username as the company author, so they can edit it themselves to keep it updated,
