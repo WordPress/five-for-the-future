@@ -1,0 +1,8 @@
+p.is-style-wporg-tldr {
+	color: $color__text-heading;
+	font-style: italic;
+
+	@include breakpoint( $breakpoint-tablet ) {
+		text-align: center;
+	}
+}

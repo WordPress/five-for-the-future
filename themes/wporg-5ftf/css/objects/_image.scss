@@ -1,4 +1,6 @@
-$size__spacing-unit: ms( 4 );	// todo is this globally scoped? if so should move to vars file
+
+// Defined here so we can use `ms`.
+$size__spacing-unit: ms( 4 );
 
 .wp-block-image {
 	// this shouldn't apply to all images, just .alignfull ?
@@ -19,14 +21,5 @@ $size__spacing-unit: ms( 4 );	// todo is this globally scoped? if so should move
 		width: inherit;
 		max-width: inherit;
 		clear: inherit;
-	}
-}
-
-p.is-style-wporg-tldr {
-	color: $color__text-heading;
-	font-style: italic;
-
-	@include breakpoint( $breakpoint-tablet ) {
-		text-align: center;
 	}
 }
