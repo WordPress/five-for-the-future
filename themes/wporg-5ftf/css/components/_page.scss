@@ -1,0 +1,38 @@
+body.page:not(.home) {
+	.site-title a {
+		color: #fff;
+		text-decoration: none;
+
+		&:hover,
+		&:active {
+			color: #fff;
+		}
+	}
+
+	.site-main {
+		margin: 0 auto;
+		padding: 0 ms( 2 );
+		max-width: calc( #{ $size__content-width } + #{ ms( 2 ) * 2 } );
+	}
+
+	.entry-header {
+		background: none;
+
+		.entry-title {
+			color: $color__text-heading-darker;
+			font-size: ms( 8 );
+			font-weight: 300;
+			line-height: 1.5;
+			margin: 2rem auto 1rem;
+			padding: 0;
+		}
+	}
+
+	.entry-content {
+		padding: 0 0 ms( 10 );
+	}
+
+	.entry-footer {
+		padding: ms( 10 ) 0;
+	}
+}
