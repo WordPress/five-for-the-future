@@ -3,7 +3,6 @@
  * appear on the front end.
  */
 
-
 @import "settings/colors";
 @import "../../pub/wporg/css/settings/structure";
 @import "settings/structure";
@@ -15,7 +14,29 @@
 @import "objects/pullquote";
 @import "utilities/utilities";
 
+// Un-parallelogram the columns in the editor– `skew` doesn't play well with the nesting of editor components.
+.block-editor-block-list__block-edit {
+	.is-style-wporg-parallelogram {
+		.wp-block-column {
+			@include breakpoint( $breakpoint-tablet ) {
+				transform: skew(0);
 
+				&:last-child {
+					position: static;
+					z-index: auto;
+					top: auto;
+					left: auto;
+					right: auto;
+					padding-left: 0;
+				}
+
+				> * {
+					transform: skew(0);
+				}
+			}
+		}
+	}
+}
 
 
 // font-family and face, etc?

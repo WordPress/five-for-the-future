@@ -1,0 +1,70 @@
+.is-style-wporg-parallelogram {
+
+	.wp-block-column {
+		background: black;
+		color: #fff;
+		margin: 0;
+		opacity: 0.9;
+		padding: 4.7rem 3rem;
+		text-align: center;
+		mix-blend-mode: multiply;
+
+		&:nth-of-type(2n+1) {
+			background: $color__wporg-blue;
+		}
+
+		&:nth-of-type(2n) {
+			background: $color__wporg-purple;
+		}
+
+		// Applies to 768px and above.
+		@include breakpoint( $breakpoint-tablet ) {
+			transform: skew(-15deg);
+
+			&:first-child {
+				position: relative;
+				top: 40px;
+				left: 30px;
+				z-index: 2;
+			}
+
+			&:last-child {
+				position: relative;
+				z-index: 1;
+				right: 30px;
+				padding-left: 4rem;
+			}
+
+			&:before {
+				font-size: ms(12);
+				height: 64px;
+				position: relative;
+				right: 1rem;
+				transform: skew(15deg);
+				width: 64px;
+			}
+
+			> * {
+				transform: skew(15deg);
+			}
+		}
+
+		@include breakpoint( $breakpoint-small, $breakpoint-tablet - 1 ) {
+			padding: 3rem 2rem;
+			flex-basis: calc(50% + 0.5rem);
+
+			&:nth-of-type( n+2 ) {
+				margin-left: -1rem;
+			}
+		}
+
+		// Applies to 0-599px. The columns wrap at 600px.
+		@include breakpoint( 0, $breakpoint-small - 1 ) {
+			padding: 2rem;
+
+			&:nth-of-type( n+2 ) {
+				margin-top: -1rem;
+			}
+		}
+	}
+}
