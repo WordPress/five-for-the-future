@@ -101,7 +101,6 @@ add_action( 'after_setup_theme', __NAMESPACE__ . '\content_width', 0 );
  */
 function scripts() {
 	wp_enqueue_style( 'wporg-style', get_theme_file_uri( '/css/style.css' ), [ 'dashicons', 'open-sans' ], '20190703' );
-	wp_style_add_data( 'wporg-style', 'rtl', 'replace' );
 
 	wp_enqueue_script( 'wporg-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20181209', true );
 	wp_enqueue_script( 'wporg-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );
