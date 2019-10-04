@@ -6,6 +6,12 @@
 	h1, h2, h3, h4, h5, h6 {
 		color: $color__text-heading-darker;
 	}
+	
+	h2 {
+		font-size: ms( 2 );
+		font-weight: 400;
+		color: $color__text-heading;
+	}
 }
 
 p.has-background,
