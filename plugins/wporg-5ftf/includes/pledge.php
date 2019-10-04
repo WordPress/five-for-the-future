@@ -16,10 +16,22 @@ const SLUG    = 'pledge';
 const SLUG_PL = 'pledges';
 const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
 
-add_action( 'init', __NAMESPACE__ . '\register_custom_post_type', 0 );
+add_action( 'init', __NAMESPACE__ . '\register', 0 );
 
 /**
- * Register the post type.
+ * Register all the things.
+ *
+ * @return void
+ */
+function register() {
+	register_custom_post_type();
+	register_custom_post_status();
+}
+
+/**
+ * Register the post type(s).
+ *
+ * @return void
  */
 function register_custom_post_type() {
 	$labels = array(
@@ -49,7 +61,7 @@ function register_custom_post_type() {
 
 	$args = array(
 		'labels'              => $labels,
-		'supports'            => array( 'title', 'thumbnail', 'author', 'revisions' ),
+		'supports'            => array( 'title', 'thumbnail' ),
 		'hierarchical'        => false,
 		'public'              => true,
 		'show_ui'             => true,
@@ -70,4 +82,23 @@ function register_custom_post_type() {
 	);
 
 	register_post_type( CPT_ID, $args );
+}
+
+/**
+ * Register the post status(es).
+ *
+ * @return void
+ */
+function register_custom_post_status() {
+	register_post_status(
+		FiveForTheFuture\PREFIX . '-deactivated',
+		array(
+			'label'       => __( 'Deactivated', 'wporg' ),
+			'label_count' => _n_noop( 'Deactivated <span class="count">(%s)</span>', 'Deactivated <span class="count">(%s)</span>', 'wporg' ),
+			'public'      => false,
+			'internal'    => false,
+			'protected'   => true,
+			CPT_ID        => true, // Custom parameter to streamline its use with the Pledge CPT.
+		)
+	);
 }

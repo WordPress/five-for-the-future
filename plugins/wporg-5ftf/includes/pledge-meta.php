@@ -11,77 +11,78 @@ use WP_Post, WP_Error;
 
 defined( 'WPINC' ) || die();
 
-const META_PREFIX = FiveForTheFuture\PREFIX . '-';
+const META_PREFIX = FiveForTheFuture\PREFIX . '_';
 
-add_action( 'init', __NAMESPACE__ . '\register' );
+add_action( 'init', __NAMESPACE__ . '\register_pledge_meta' );
 add_action( 'admin_init', __NAMESPACE__ . '\add_meta_boxes' );
 add_action( 'save_post', __NAMESPACE__ . '\save_pledge', 10, 2 );
-
-/**
- *
- */
-function register() {
-	register_pledge_meta();
-}
+add_action( 'updated_' . Pledge\CPT_ID . '_meta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
 
 /**
  * Define pledge meta fields and their properties.
  *
  * @return array
  */
-function get_pledge_meta_config() {
-	return [
-		'company-name'            => [
-			'show_in_rest'      => true,
+function get_pledge_meta_config( $context = '' ) {
+	$user_input = array(
+		'org-description' => array(
+			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
-			'required'          => true,
-		],
-		'company-url'             => [
 			'show_in_rest'      => true,
+			'php_filter'        => FILTER_SANITIZE_STRING
+		),
+		'org-name'        => array(
+			'single'            => true,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+			'php_filter'        => FILTER_SANITIZE_STRING
+		),
+		'org-url'         => array(
+			'single'            => true,
 			'sanitize_callback' => 'esc_url_raw',
-			'required'          => true,
-		],
-		'company-email'           => [
-			'show_in_rest'      => false,
+			'show_in_rest'      => true,
+			'php_filter'        => FILTER_VALIDATE_URL,
+		),
+		'pledge-email'    => array(
+			'single'            => true,
 			'sanitize_callback' => 'sanitize_email',
-			'required'          => true,
-		],
-		'company-phone'           => [
 			'show_in_rest'      => false,
+			'php_filter'        => FILTER_VALIDATE_EMAIL
+		),
+	);
+
+	$generated = array(
+		'org-domain'             => array(
+			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
-			'required'          => false,
-		],
-		'company-total-employees' => [
-			'show_in_rest'      => true,
-			'sanitize_callback' => 'absint',
-			'required'          => true,
-		],
-		// todo add # sponsored employees here and also to form, etc
-		'contact-name'            => [
 			'show_in_rest'      => false,
-			'sanitize_callback' => 'sanitize_text_field',
-			'required'          => true,
-		],
-		'contact-wporg-username'  => [
-			'show_in_rest'      => false,
-			'sanitize_callback' => 'sanitize_user',
-			'required'          => true,
-		],
-		'pledge-hours'            => [
-			'show_in_rest'      => true,
-			'sanitize_callback' => 'absint',
-			'required'          => true,
-		],
-		'pledge-agreement'        => [
-			'show_in_rest'      => false,
+		),
+		'pledge-email-confirmed' => array(
+			'single'            => true,
 			'sanitize_callback' => 'wp_validate_boolean',
-			'required'          => true,
-		],
-	];
+			'show_in_rest'      => false,
+		),
+	);
+
+	switch ( $context ) {
+		case 'user_input':
+			$return = $user_input;
+			break;
+		case 'generated':
+			$return = $generated;
+			break;
+		default:
+			$return = array_merge( $user_input, $generated );
+			break;
+	}
+
+	return $return;
 }
 
 /**
  * Register post meta keys for the custom post type.
+ *
+ * @return void
  */
 function register_pledge_meta() {
 	$meta = get_pledge_meta_config();
@@ -94,16 +95,36 @@ function register_pledge_meta() {
 }
 
 /**
- * Adds meta boxes for the custom post type
+ * Adds meta boxes for the custom post type.
+ *
+ * @return void
  */
 function add_meta_boxes() {
 	add_meta_box(
-		'company-information',
-		__( 'Company Information', 'wordpressorg' ),
+		'pledge-email',
+		__( 'Pledge Email', 'wordpressorg' ),
 		__NAMESPACE__ . '\render_meta_boxes',
 		Pledge\CPT_ID,
 		'normal',
-		'default'
+		'high'
+	);
+
+	add_meta_box(
+		'org-info',
+		__( 'Organization Information', 'wordpressorg' ),
+		__NAMESPACE__ . '\render_meta_boxes',
+		Pledge\CPT_ID,
+		'normal',
+		'high'
+	);
+
+	add_meta_box(
+		'pledge-contributors',
+		__( 'Contributors', 'wordpressorg' ),
+		__NAMESPACE__ . '\render_meta_boxes',
+		Pledge\CPT_ID,
+		'normal',
+		'high'
 	);
 }
 
@@ -114,9 +135,23 @@ function add_meta_boxes() {
  * @param array   $box
  */
 function render_meta_boxes( $pledge, $box ) {
+	$editable = current_user_can( 'edit_pledge', $pledge->ID );
+	$data     = array();
+
+	foreach ( get_pledge_meta_config() as $key => $config ) {
+		$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
+	}
+
 	switch ( $box['id'] ) {
-		case 'company-information':
-			require dirname( __DIR__ ) . '/views/metabox-' . sanitize_file_name( $box['id'] ) . '.php';
+		case 'pledge-email':
+			require FiveForTheFuture\get_views_path() . 'inputs-pledge-org-email.php';
+			break;
+		case 'org-info':
+			require FiveForTheFuture\get_views_path() . 'inputs-pledge-org-info.php';
+			break;
+
+		case 'pledge-contributors':
+			require FiveForTheFuture\get_views_path() . 'inputs-pledge-contributors.php';
 			break;
 	}
 }
@@ -124,24 +159,30 @@ function render_meta_boxes( $pledge, $box ) {
 /**
  * Check that an array contains values for all required keys.
  *
- * @return bool|WP_Error True if all required values are present.
+ * @return bool|WP_Error True if all required values are present. Otherwise WP_Error.
  */
-function has_required_pledge_meta( array $values ) {
-	$config   = get_pledge_meta_config();
-	$plucked  = wp_list_pluck( get_pledge_meta_config(), 'required' );
-	$required = array_combine( array_keys( $config ), $plucked );
+function has_required_pledge_meta( array $submission ) {
+	$error = new WP_Error();
 
-	$required_keys = array_keys( $required, true, true );
-	$error         = new WP_Error();
+	$required = array_keys( get_pledge_meta_config( 'user_input' ) );
 
-	foreach ( $required_keys as $key ) {
-		if ( ! isset( $values[ $key ] ) || empty( $values[ $key ] ) ) {
+	foreach ( $required as $key ) {
+		if ( ! isset( $submission[ $key ] ) || is_null( $submission[ $key ] ) ) {
 			$error->add(
-				'required_field',
-				__( 'Please fill all required fields.', 'wporg' )
+				'required_field_empty',
+				sprintf(
+					__( 'The <code>%s</code> field does not have a value.', 'wporg' ),
+					sanitize_key( $key )
+				)
 			);
-
-			break;
+		} elseif ( false === $submission[ $key ] ) {
+			$error->add(
+				'required_field_invalid',
+				sprintf(
+					__( 'The <code>%s</code> field has an invalid value.', 'wporg' ),
+					sanitize_key( $key )
+				)
+			);
 		}
 	}
 
@@ -153,19 +194,26 @@ function has_required_pledge_meta( array $values ) {
 }
 
 /**
- * Save the pledge data
+ * Save the pledge data.
+ *
+ * This only fires when the pledge post itself is created or updated.
  *
  * @param int     $pledge_id
  * @param WP_Post $pledge
  */
 function save_pledge( $pledge_id, $pledge ) {
+	$action          = filter_input( INPUT_GET, 'action' );
 	$ignored_actions = array( 'trash', 'untrash', 'restore' );
 
-	if ( isset( $_GET['action'] ) && in_array( $_GET['action'], $ignored_actions, true ) ) {
+	if ( $action && in_array( $action, $ignored_actions, true ) ) {
 		return;
 	}
 
-	if ( ! $pledge || $pledge->post_type !== Pledge\CPT_ID || ! current_user_can( 'edit_pledge', $pledge_id ) ) {
+	if ( ! $pledge instanceof WP_Post || $pledge->post_type !== Pledge\CPT_ID ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'edit_pledge', $pledge_id ) ) {
 		return;
 	}
 
@@ -173,39 +221,82 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	if ( is_wp_error( has_required_pledge_meta( $_POST ) ) ) {
+	$definitions    = wp_list_pluck( get_pledge_meta_config( 'user_input' ), 'php_filter' );
+	$submitted_meta = filter_input_array( INPUT_POST, $definitions );
+
+	if ( is_wp_error( has_required_pledge_meta( $submitted_meta ) ) ) {
 		return;
 	}
 
-	save_pledge_meta( $pledge_id, $_POST );
+	save_pledge_meta( $pledge_id, $submitted_meta );
 }
 
 /**
- * Save the pledge's meta fields
+ * Save the pledge's meta fields.
  *
  * @param int   $pledge_id
  * @param array $new_values
+ *
+ * @return void
  */
 function save_pledge_meta( $pledge_id, $new_values ) {
-	$keys = array_keys( get_pledge_meta_config() );
+	$config = get_pledge_meta_config();
 
-	foreach ( $keys as $key ) {
-		$meta_key = META_PREFIX . $key;
-
-		if ( isset( $new_values[ $key ] ) ) {
+	foreach ( $new_values as $key => $value ) {
+		if ( array_key_exists( $key, $config ) ) {
+			$meta_key = META_PREFIX . $key;
 			// Since the sanitize callback is called during this function, it could still end up
 			// saving an empty value to the database.
-			update_post_meta( $pledge_id, $meta_key, $new_values[ $key ] );
-		} else {
-			delete_post_meta( $pledge_id, $meta_key );
+			update_post_meta( $pledge_id, $meta_key, $value );
 		}
 	}
-
-	// maybe set the wporg username as the company author, so they can edit it themselves to keep it updated,
-	// then make the user a contributor if they don't already have a role on the site
-	// setup cron to automatically email once per quarter
-	// "here's all the info we have: x, y, z"
-	// is that still accurate? if not, click here to update it
-	// if want to be removed from public listing, emailing support@wordcamp.org
-	// don't let them edit the "featured" taxonomy, only admins
 }
+
+/**
+ * Updated some generated meta values based on changes in user input meta values.
+ *
+ * This is hooked to the `updated_{$meta_type}_meta` action, which only fires if a submitted post meta value
+ * is different from the previous value. Thus here we assume the values of specific meta keys are changed
+ * when they come through this function.
+ *
+ * @param int    $meta_id
+ * @param int    $object_id
+ * @param string $meta_key
+ * @param mixed  $_meta_value
+ *
+ * @return void
+ */
+function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) {
+	switch ( $meta_key ) {
+		case META_PREFIX . 'org-url':
+			$domain = get_normalized_domain_from_url( $_meta_value );
+			update_post_meta( $object_id, META_PREFIX . 'org-domain', $domain );
+			break;
+
+		case META_PREFIX . 'pledge-email':
+			delete_post_meta( $object_id, META_PREFIX . 'pledge-email-confirmed' );
+			break;
+	}
+}
+
+/**
+ * Isolate the domain from a given URL and remove the `www.` if necessary.
+ *
+ * @param string $url
+ *
+ * @return string
+ */
+function get_normalized_domain_from_url( $url ) {
+	$domain = wp_parse_url( $url, PHP_URL_HOST );
+	$domain = preg_replace( '#^www\.#', '', $domain );
+
+	return $domain;
+}
+
+// maybe set the wporg username as the company author, so they can edit it themselves to keep it updated,
+// then make the user a contributor if they don't already have a role on the site
+// setup cron to automatically email once per quarter
+// "here's all the info we have: x, y, z"
+// is that still accurate? if not, click here to update it
+// if want to be removed from public listing, emailing support@wordcamp.org
+// don't let them edit the "featured" taxonomy, only admins

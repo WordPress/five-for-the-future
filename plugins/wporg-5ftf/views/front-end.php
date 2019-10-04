@@ -1,6 +1,8 @@
 <?php // todo i18n
 //// change all id/class prefixes to fftf (or something better) b/c not valid to start w/ number
-///  ?>
+
+// TODO are we using this, or is all the front end stuff happening in the 5ftF theme now?
+?>
 
 <article class="5ftf">
 	<section class="about">
