@@ -136,25 +136,24 @@ function add_meta_boxes() {
  */
 function render_meta_boxes( $pledge, $box ) {
 	$editable = current_user_can( 'edit_pledge', $pledge->ID );
+	$data     = array();
+
+	foreach ( get_pledge_meta_config() as $key => $config ) {
+		$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
+	}
 
 	switch ( $box['id'] ) {
 		case 'pledge-email':
-			$email     = get_post_meta( $pledge->ID, META_PREFIX . 'pledge-email', true );
-			$confirmed = get_post_meta( $pledge->ID, META_PREFIX . 'pledge-email-confirmed', true );
+			require FiveForTheFuture\get_views_path() . 'inputs-pledge-org-email.php';
 			break;
 		case 'org-info':
-			$data = array();
-
-			foreach ( get_pledge_meta_config( 'user_input' ) as $key => $config ) {
-				$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
-			}
+			require FiveForTheFuture\get_views_path() . 'inputs-pledge-org-info.php';
 			break;
-		case 'pledge-contributors':
 
+		case 'pledge-contributors':
+			require FiveForTheFuture\get_views_path() . 'inputs-pledge-contributors.php';
 			break;
 	}
-
-	require dirname( __DIR__ ) . '/views/metabox-' . sanitize_file_name( $box['id'] ) . '.php';
 }
 
 /**

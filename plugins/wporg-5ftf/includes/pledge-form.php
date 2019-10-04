@@ -12,6 +12,7 @@ use WP_Error;
 
 defined( 'WPINC' ) || die();
 
+// Todo make this into simple optionless blocks instead?
 add_shortcode( '5ftf_pledge_form_new', __NAMESPACE__ . '\render_form_new' );
 add_shortcode( '5ftf_pledge_form_manage', __NAMESPACE__ . '\render_form_manage' );
 

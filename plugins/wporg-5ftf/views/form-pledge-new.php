@@ -1,7 +1,7 @@
 <?php
-/**
- *
- */
+namespace WordPressDotOrg\FiveForTheFuture\View;
+
+use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 
 /** @var array $messages */
 /** @var bool  $complete */
@@ -29,77 +29,14 @@
 
 <?php else : ?>
 
-	<form action="" method="post">
-		<div>
-			<label for="5ftf-org-name">
-				<?php _e( 'Organization Name', 'wporg' ); ?>
-			</label>
-			<input
-				type="text"
-				id="5ftf-org-name"
-				name="org-name"
-				value="<?php echo esc_attr( filter_input( INPUT_POST, 'org-name' ) ); ?>"
-				required
-			/>
-		</div>
-
-		<div>
-			Logo <strong>TODO</strong>
-		</div>
-
-		<div>
-			<label for="5ftf-org-description">
-				<?php _e( 'Organization Blurb', 'wporg' ); ?>
-			</label>
-			<textarea
-				id="5ftf-org-description"
-				name="org-description"
-				required
-			>
-				<?php echo esc_html( filter_input( INPUT_POST, 'org-description' ) ); ?>
-			</textarea>
-			<span class="field-help">280 characters</span>
-		</div>
-
-		<div>
-			<label for="5ftf-admin-wporg-username">
-				<?php _e( 'Admin Username', 'wporg' ); ?>
-			</label>
-			<input
-				type="text"
-				id="5ftf-admin-wporg-username"
-				name="admin-wporg-username"
-				value="<?php echo esc_attr( filter_input( INPUT_POST, 'admin-wporg-username' ) ); ?>"
-				required
-			/>
-			<span class="field-help">This user will be responsible for managing your organization's pledge.</span>
-		</div>
-
-		<div>
-			<label for="5ftf-contributor-wporg-usernames">
-				<?php _e( 'Contributing Employee Usernames', 'wporg' ); ?>
-			</label>
-			<input
-				type="text"
-				id="5ftf-contributor-wporg-usernames"
-				name="contributor-wporg-usernames"
-				value="<?php echo esc_attr( filter_input( INPUT_POST, 'contributor-wporg-usernames' ) ); ?>"
-				required
-			/>
-			<span class="field-help">Separate each username with a comma.</span>
-		</div>
-
-		<div>
-			<label for="5ftf-pledge-agreement">
-				<input
-					type="checkbox"
-					id="5ftf-pledge-agreement"
-					name="pledge-agreement"
-					required
-				/>
-				<?php _e( 'I agree', 'wporg' ); ?>
-			</label>
-		</div>
+	<form id="5ftf-form-pledge-new" action="" method="post">
+		<?php
+		require get_views_path() . 'inputs-pledge-org-info.php';
+		require get_views_path() . 'inputs-pledge-org-logo.php';
+		require get_views_path() . 'inputs-pledge-org-email.php';
+		require get_views_path() . 'inputs-pledge-contributors.php';
+		require get_views_path() . 'inputs-pledge-new-misc.php';
+		?>
 
 		<div>
 			<input type="submit" id="5ftf-pledge-submit" name="action" class="button button-primary" value="<?php esc_attr_e( 'Submit Pledge', 'wporg' ); ?>" />

@@ -28,3 +28,39 @@ function load() {
 	require_once PATH . 'includes/pledge-form.php';
 	require_once PATH . 'includes/shortcodes.php';
 }
+
+/**
+ * Shortcut to the assets directory.
+ *
+ * @return string
+ */
+function get_assets_path() {
+	return PATH . 'assets/';
+}
+
+/**
+ * Shortcut to the assets URL.
+ *
+ * @return string
+ */
+function get_assets_url() {
+	return URL . 'assets/';
+}
+
+/**
+ * Shortcut to the includes directory.
+ *
+ * @return string
+ */
+function get_includes_path() {
+	return PATH . 'includes/';
+}
+
+/**
+ * Shortcut to the views directory.
+ *
+ * @return string
+ */
+function get_views_path() {
+	return PATH . 'views/';
+}
