@@ -5,6 +5,8 @@
  * or two, we may want to create a subfolder and have a separate file for each block.
  */
 
+// TODO are we actually using any of this?
+
 namespace WordPressDotOrg\FiveForTheFuture\Blocks;
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;

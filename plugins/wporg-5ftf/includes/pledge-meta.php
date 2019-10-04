@@ -196,6 +196,8 @@ function has_required_pledge_meta( array $submission ) {
 /**
  * Save the pledge data.
  *
+ * This only fires when the pledge post itself is created or updated.
+ *
  * @param int     $pledge_id
  * @param WP_Post $pledge
  */

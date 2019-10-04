@@ -7,7 +7,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 /** @var bool  $updated */
 ?>
 
-<form id="5ftf-form-pledge-new" action="" method="post">
+<form id="5ftf-form-pledge-manage" action="" method="post">
 	<?php
 	require get_views_path() . 'inputs-pledge-org-info.php';
 	require get_views_path() . 'inputs-pledge-org-logo.php';
