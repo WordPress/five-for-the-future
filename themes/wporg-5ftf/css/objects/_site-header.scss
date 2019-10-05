@@ -1,4 +1,9 @@
 .site-header {
+	.site-title,
+	.site-description {
+		text-align: left;
+	}
+
 	.home & {
 		background: #0073aa;
 
@@ -13,10 +18,13 @@
 			font-weight: 300;
 			line-height: 1;
 			margin: 2rem 0 1rem;
-			text-align: center;
 
 			@include breakpoint( $ms-breakpoint ) {
 				font-size: ms( 12 );
+			}
+
+			@include breakpoint( $breakpoint-tablet ) {
+				text-align: center;
 			}
 		}
 
@@ -24,6 +32,10 @@
 			color: #fff;
 			max-width: 100%;
 			padding: 11px 0;
+
+			@include breakpoint( $breakpoint-tablet ) {
+				text-align: center;
+			}
 		}
 	}
 }
