@@ -1,0 +1,15 @@
+.site-title {
+
+	body:not(.home) & {
+
+		a {
+			color: #fff;
+			text-decoration: none;
+
+			&:hover,
+			&:active {
+				color: #fff;
+			}
+		}
+	}
+}

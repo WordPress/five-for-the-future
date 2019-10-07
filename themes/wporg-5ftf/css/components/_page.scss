@@ -1,19 +1,4 @@
 body.page:not(.home) {
-	.site-title a {
-		color: #fff;
-		text-decoration: none;
-
-		&:hover,
-		&:active {
-			color: #fff;
-		}
-	}
-
-	.site-main {
-		margin: 0 auto;
-		padding: 0 ms( 2 );
-		max-width: calc( #{ $size__content-width } + #{ ms( 2 ) * 2 } );
-	}
 
 	.entry-header {
 		background: none;
