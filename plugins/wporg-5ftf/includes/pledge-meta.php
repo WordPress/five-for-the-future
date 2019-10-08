@@ -13,10 +13,11 @@ defined( 'WPINC' ) || die();
 
 const META_PREFIX = FiveForTheFuture\PREFIX . '_';
 
-add_action( 'init', __NAMESPACE__ . '\register_pledge_meta' );
-add_action( 'admin_init', __NAMESPACE__ . '\add_meta_boxes' );
-add_action( 'save_post', __NAMESPACE__ . '\save_pledge', 10, 2 );
+add_action( 'init',                               __NAMESPACE__ . '\register_pledge_meta' );
+add_action( 'admin_init',                         __NAMESPACE__ . '\add_meta_boxes' );
+add_action( 'save_post',                          __NAMESPACE__ . '\save_pledge',           10, 2 );
 add_action( 'updated_' . Pledge\CPT_ID . '_meta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
+add_action( 'admin_enqueue_scripts',              __NAMESPACE__ . '\enqueue_assets' );
 
 /**
  * Define pledge meta fields and their properties.
@@ -25,29 +26,35 @@ add_action( 'updated_' . Pledge\CPT_ID . '_meta', __NAMESPACE__ . '\update_gener
  */
 function get_pledge_meta_config( $context = '' ) {
 	$user_input = array(
-		'org-description' => array(
+		'org-description'      => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
-		'org-name'        => array(
+		'org-name'             => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
-		'org-url'         => array(
+		'org-url'              => array(
 			'single'            => true,
 			'sanitize_callback' => 'esc_url_raw',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_VALIDATE_URL,
 		),
-		'pledge-email'    => array(
+		'org-pledge-email'     => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_email',
 			'show_in_rest'      => false,
 			'php_filter'        => FILTER_VALIDATE_EMAIL,
+		),
+		'org-number-employees' => array(
+			'single'            => true,
+			'sanitize_callback' => 'absint',
+			'show_in_rest'      => false,
+			'php_filter'        => FILTER_VALIDATE_INT,
 		),
 	);
 
@@ -135,17 +142,20 @@ function add_meta_boxes() {
  * @param array   $box
  */
 function render_meta_boxes( $pledge, $box ) {
-	$editable = current_user_can( 'edit_pledge', $pledge->ID );
+	$readonly = ! current_user_can( 'edit_page', $pledge->ID );
 	$data     = array();
 
 	foreach ( get_pledge_meta_config() as $key => $config ) {
 		$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
 	}
 
+	echo '<div class="pledge-form">';
+
 	switch ( $box['id'] ) {
 		case 'pledge-email':
 			require FiveForTheFuture\get_views_path() . 'inputs-pledge-org-email.php';
 			break;
+
 		case 'org-info':
 			require FiveForTheFuture\get_views_path() . 'inputs-pledge-org-info.php';
 			break;
@@ -154,43 +164,8 @@ function render_meta_boxes( $pledge, $box ) {
 			require FiveForTheFuture\get_views_path() . 'inputs-pledge-contributors.php';
 			break;
 	}
-}
 
-/**
- * Check that an array contains values for all required keys.
- *
- * @return bool|WP_Error True if all required values are present. Otherwise WP_Error.
- */
-function has_required_pledge_meta( array $submission ) {
-	$error = new WP_Error();
-
-	$required = array_keys( get_pledge_meta_config( 'user_input' ) );
-
-	foreach ( $required as $key ) {
-		if ( ! isset( $submission[ $key ] ) || is_null( $submission[ $key ] ) ) {
-			$error->add(
-				'required_field_empty',
-				sprintf(
-					__( 'The <code>%s</code> field does not have a value.', 'wporg' ),
-					sanitize_key( $key )
-				)
-			);
-		} elseif ( false === $submission[ $key ] ) {
-			$error->add(
-				'required_field_invalid',
-				sprintf(
-					__( 'The <code>%s</code> field has an invalid value.', 'wporg' ),
-					sanitize_key( $key )
-				)
-			);
-		}
-	}
-
-	if ( ! empty( $error->get_error_messages() ) ) {
-		return $error;
-	}
-
-	return true;
+	echo '</div>';
 }
 
 /**
@@ -209,7 +184,7 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	if ( ! $pledge instanceof WP_Post || $pledge->post_type !== Pledge\CPT_ID ) {
+	if ( ! $pledge instanceof WP_Post || Pledge\CPT_ID !== $pledge->post_type ) {
 		return;
 	}
 
@@ -217,7 +192,7 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || $pledge->post_status === 'auto-draft' ) {
+	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || 'auto-draft' === $pledge->post_status ) {
 		return;
 	}
 
@@ -280,6 +255,94 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 }
 
 /**
+ * Check that an array contains values for all required keys.
+ *
+ * @return bool|WP_Error True if all required values are present. Otherwise WP_Error.
+ */
+function has_required_pledge_meta( array $submission ) {
+	$error = new WP_Error();
+
+	$required = array_keys( get_pledge_meta_config( 'user_input' ) );
+
+	foreach ( $required as $key ) {
+		if ( ! isset( $submission[ $key ] ) || is_null( $submission[ $key ] ) ) {
+			$error->add(
+				'required_field_empty',
+				sprintf(
+					__( 'The <code>%s</code> field does not have a value.', 'wporg' ),
+					sanitize_key( $key )
+				)
+			);
+		} elseif ( false === $submission[ $key ] ) {
+			$error->add(
+				'required_field_invalid',
+				sprintf(
+					__( 'The <code>%s</code> field has an invalid value.', 'wporg' ),
+					sanitize_key( $key )
+				)
+			);
+		}
+	}
+
+	if ( ! empty( $error->get_error_messages() ) ) {
+		return $error;
+	}
+
+	return true;
+}
+
+/**
+ * Get the input filters for submitted content.
+ *
+ * @return array
+ */
+function get_input_filters() {
+	return array_merge(
+		// Inputs that correspond to meta values.
+		wp_list_pluck( get_pledge_meta_config( 'user_input' ), 'php_filter' ),
+		// Inputs with no corresponding meta value.
+		array(
+			'contributor-wporg-usernames' => [
+				'filter' => FILTER_SANITIZE_STRING,
+				'flags'  => FILTER_REQUIRE_ARRAY,
+			],
+			'pledge-agreement'            => FILTER_VALIDATE_BOOLEAN,
+		)
+	);
+}
+
+/**
+ * Get the metadata for a given pledge, or a default set if no pledge is provided.
+ *
+ * @param int    $pledge_id
+ * @param string $context
+ * @return array Pledge data
+ */
+function get_pledge_meta( $pledge_id = 0, $context = '' ) {
+	// Get existing pledge, if it exists.
+	$pledge = get_post( $pledge_id );
+
+	$keys = get_pledge_meta_config( $context );
+	$meta = array();
+
+	// Get POST'd submission, if it exists.
+	$submission = filter_input_array( INPUT_POST, get_input_filters() );
+
+	foreach ( $keys as $key => $config ) {
+		if ( isset( $submission[ $key ] ) ) {
+			$meta[ $key ] = $submission[ $key ];
+		} else if ( $pledge instanceof WP_Post ) {
+			$meta_key = META_PREFIX . $key;
+			$meta[ $key ] = get_post_meta( $pledge->ID, $meta_key, true );
+		} else {
+			$meta[ $key ] = $config['default'] ?: '';
+		}
+	}
+
+	return $meta;
+}
+
+/**
  * Isolate the domain from a given URL and remove the `www.` if necessary.
  *
  * @param string $url
@@ -291,4 +354,19 @@ function get_normalized_domain_from_url( $url ) {
 	$domain = preg_replace( '#^www\.#', '', $domain );
 
 	return $domain;
+}
+
+/**
+ * Enqueue CSS file for admin page.
+ *
+ * @return void
+ */
+function enqueue_assets() {
+	$ver = filemtime( FiveForTheFuture\PATH . '/assets/css/admin.css' );
+	wp_register_style( '5ftf-admin', plugins_url( 'assets/css/admin.css', __DIR__ ), [], $ver );
+
+	$current_page = get_current_screen();
+	if ( Pledge\CPT_ID === $current_page->id ) {
+		wp_enqueue_style( '5ftf-admin' );
+	}
 }

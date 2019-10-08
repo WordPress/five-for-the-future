@@ -1,11 +1,11 @@
 <?php
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/** @var bool $editable */
 /** @var array $data */
+/** @var bool  $readonly */
 ?>
 
-<div class="form-field">
+<div class="form-field form-field__agree">
 	<p>
 		<!-- Statement of agreement to pledge, link to further info maybe? -->
 	</p>

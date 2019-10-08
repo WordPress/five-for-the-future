@@ -1,1 +1,37 @@
-/* rounded corners on contributor avatar */
+.pledge-form .form-field {
+	margin-bottom: 16px;
+}
+
+.pledge-form .form-field label {
+	margin-bottom: 8px;
+	display: inline-block;
+}
+
+.pledge-form .form-field input[type=text],
+.pledge-form .form-field input[type=url],
+.pledge-form .form-field input[type=number],
+.pledge-form .form-field input[type=email],
+.pledge-form .form-field textarea {
+	display: block;
+	width: 100%;
+	padding: 8px;
+}
+
+.pledge-form .form-field input[type=number] {
+	max-width: 10em;
+	height: auto;
+}
+
+.pledge-form .form-field > p {
+	margin-top: 8px;
+	font-size: 0.9em;
+}
+
+.pledge-form .form-field__logo input {
+	padding: 8px 0;
+	line-height: 1;
+}
+
+.pledge-form .form-field__agree label {
+	margin-bottom: 0;
+}

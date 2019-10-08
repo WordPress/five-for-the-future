@@ -1,0 +1,59 @@
+.pledge-form {
+
+	.form-field {
+		margin-bottom: ms(4);
+
+		label {
+			margin-bottom: ms(-5);
+			display: inline-block;
+			font-weight: 600;
+			font-size: 16px;
+			color: $color__text-input;
+		}
+
+		input[type="text"],
+		input[type="url"],
+		input[type="number"],
+		input[type="email"],
+		textarea {
+			display: block;
+			width: 100%;
+			padding: ms(-5) ms(-2);
+			background: $color__background-input;
+			border: 1px solid $color__border-input;
+			box-shadow: none;
+		}
+
+		input[type="number"] {
+			max-width: 10em;
+			height: auto;
+		}
+
+		> p {
+			margin-top: ms(-5);
+			font-size: ms(-2);
+		}
+	}
+
+	.form-field__logo {
+
+		input {
+			padding: ms(-6) 0;
+			line-height: 1;
+		}
+	}
+
+	.form-field__agree {
+
+		label {
+			margin-bottom: 0;
+		}
+	}
+	
+	input[type="submit"] {
+		display: inline-block;
+		height: auto;
+		padding: ms(-3) ms(0);
+		font-weight: 600;
+	}
+}

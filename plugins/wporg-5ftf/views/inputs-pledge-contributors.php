@@ -1,9 +1,9 @@
 <?php
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/** @var bool $editable */
-/** @var array $data */
 /** @var array $contributors */
+/** @var array $data */
+/** @var bool  $readonly */
 ?>
 
 <?php if ( empty( $contributors ) ) : ?>
@@ -14,14 +14,14 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 	</label>
 	<input
 		type="text"
-		class="large-text"
 		id="5ftf-pledge-contributors"
 		name="pledge-contributors"
 		value=""
 		required
+		aria-describedby="5ftf-pledge-contributors-help"
 	/>
-	<p>
-		<!-- Instructions for inputting wporg usernames -->
+	<p id="5ftf-pledge-contributors-help">
+		<?php esc_html_e( 'Separate each username with a comma.', 'wordpressorg' ); ?>
 	</p>
 </div>
 
