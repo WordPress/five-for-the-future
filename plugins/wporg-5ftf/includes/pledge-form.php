@@ -50,7 +50,7 @@ function render_form_new() {
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
 function process_form_new() {
-	$submission = filter_input_array( INPUT_POST, get_input_filters() );
+	$submission = filter_input_array( INPUT_POST, PledgeMeta\get_input_filters() );
 
 	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
 
@@ -121,7 +121,7 @@ function render_form_manage() {
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
 function process_form_manage() {
-	$submission = filter_input_array( INPUT_POST, get_input_filters() );
+	$submission = filter_input_array( INPUT_POST, PledgeMeta\get_input_filters() );
 
 	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
 
@@ -137,26 +137,6 @@ function process_form_manage() {
 			__( 'A pledge already exists for this domain.', 'wporg' )
 		);
 	}
-}
-
-/**
- *
- *
- * @return array
- */
-function get_input_filters() {
-	return array_merge(
-		// Inputs that correspond to meta values.
-		wp_list_pluck( PledgeMeta\get_pledge_meta_config( 'user_input' ), 'php_filter' ),
-		// Inputs with no corresponding meta value.
-		array(
-			'contributor-wporg-usernames' => [
-				'filter' => FILTER_SANITIZE_STRING,
-				'flags'  => FILTER_REQUIRE_ARRAY,
-			],
-			'pledge-agreement'            => FILTER_VALIDATE_BOOLEAN,
-		)
-	);
 }
 
 /**

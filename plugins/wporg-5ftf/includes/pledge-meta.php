@@ -280,6 +280,26 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 }
 
 /**
+ * Get the input filters for submitted content.
+ *
+ * @return array
+ */
+function get_input_filters() {
+	return array_merge(
+		// Inputs that correspond to meta values.
+		wp_list_pluck( get_pledge_meta_config( 'user_input' ), 'php_filter' ),
+		// Inputs with no corresponding meta value.
+		array(
+			'contributor-wporg-usernames' => [
+				'filter' => FILTER_SANITIZE_STRING,
+				'flags'  => FILTER_REQUIRE_ARRAY,
+			],
+			'pledge-agreement'            => FILTER_VALIDATE_BOOLEAN,
+		)
+	);
+}
+
+/**
  * Get the metadata for a given pledge, or a default set if no pledge is provided.
  *
  * @param int    $pledge_id
