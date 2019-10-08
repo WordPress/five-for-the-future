@@ -5,7 +5,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 /** @var bool  $readonly */
 ?>
 
-<div class="form-field">
+<div class="form-field form-field__agree">
 	<p>
 		<!-- Statement of agreement to pledge, link to further info maybe? -->
 	</p>
