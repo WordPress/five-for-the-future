@@ -80,7 +80,7 @@ function process_form_new() {
 		return $created;
 	}
 
-	//PledgeMeta\save_pledge_meta( $created, $submission );
+	PledgeMeta\save_pledge_meta( $created, $submission );
 
 	return 'success';
 }
