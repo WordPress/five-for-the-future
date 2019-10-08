@@ -4,8 +4,6 @@
  * namespace, etc. once we have a better idea of what the CPT will be called.
  */
 
-// todo normalize text domain across all files
-
 namespace WordPressDotOrg\FiveForTheFuture\Pledge;
 
 use WordPressDotOrg\FiveForTheFuture;

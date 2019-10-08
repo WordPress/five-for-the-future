@@ -292,11 +292,3 @@ function get_normalized_domain_from_url( $url ) {
 
 	return $domain;
 }
-
-// maybe set the wporg username as the company author, so they can edit it themselves to keep it updated,
-// then make the user a contributor if they don't already have a role on the site
-// setup cron to automatically email once per quarter
-// "here's all the info we have: x, y, z"
-// is that still accurate? if not, click here to update it
-// if want to be removed from public listing, emailing support@wordcamp.org
-// don't let them edit the "featured" taxonomy, only admins
