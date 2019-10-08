@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * Render and process the pledge forms.
  */
 
 namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
@@ -25,6 +25,7 @@ function render_form_new() {
 	$action   = filter_input( INPUT_POST, 'action' );
 	$messages = [];
 	$complete = false;
+	$data     = PledgeMeta\get_pledge_meta();
 
 	if ( 'Submit Pledge' === $action ) {
 		$processed = process_form_new();
@@ -92,6 +93,9 @@ function render_form_manage() {
 	$action   = filter_input( INPUT_POST, 'action' );
 	$messages = [];
 	$updated  = false;
+
+	// @todo Get pledge ID from somewhere.
+	$data = PledgeMeta\get_pledge_meta();
 
 	if ( 'Update Pledge' === $action ) {
 		$processed = process_form_manage();

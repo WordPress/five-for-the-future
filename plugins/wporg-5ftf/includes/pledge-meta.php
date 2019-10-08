@@ -13,9 +13,9 @@ defined( 'WPINC' ) || die();
 
 const META_PREFIX = FiveForTheFuture\PREFIX . '_';
 
-add_action( 'init', __NAMESPACE__ . '\register_pledge_meta' );
-add_action( 'admin_init', __NAMESPACE__ . '\add_meta_boxes' );
-add_action( 'save_post', __NAMESPACE__ . '\save_pledge', 10, 2 );
+add_action( 'init',                               __NAMESPACE__ . '\register_pledge_meta' );
+add_action( 'admin_init',                         __NAMESPACE__ . '\add_meta_boxes' );
+add_action( 'save_post',                          __NAMESPACE__ . '\save_pledge',           10, 2 );
 add_action( 'updated_' . Pledge\CPT_ID . '_meta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
 
 /**
@@ -209,7 +209,7 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	if ( ! $pledge instanceof WP_Post || $pledge->post_type !== Pledge\CPT_ID ) {
+	if ( ! $pledge instanceof WP_Post || Pledge\CPT_ID !== $pledge->post_type ) {
 		return;
 	}
 
@@ -217,7 +217,7 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || $pledge->post_status === 'auto-draft' ) {
+	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || 'auto-draft' === $pledge->post_status ) {
 		return;
 	}
 
@@ -277,6 +277,31 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 			delete_post_meta( $object_id, META_PREFIX . 'pledge-email-confirmed' );
 			break;
 	}
+}
+
+/**
+ * Get the metadata for a given pledge, or a default set if no pledge is provided.
+ *
+ * @param int    $pledge_id
+ * @param string $context
+ * @return array Pledge data
+ */
+function get_pledge_meta( $pledge_id = 0, $context = '' ) {
+	$pledge = get_post( $pledge_id );
+
+	$keys = get_pledge_meta_config( $context );
+	$meta = array();
+
+	foreach ( $keys as $key => $config ) {
+		if ( ! $pledge instanceof WP_Post ) {
+			$meta[ $key ] = $config['default'] ?: '';
+		} else {
+			$meta_key = META_PREFIX . $key;
+			$meta[ $key ] = get_post_meta( $pledge->ID, $meta_key, true );
+		}
+	}
+
+	return $meta;
 }
 
 /**
