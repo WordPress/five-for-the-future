@@ -6,15 +6,15 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 ?>
 
 <div class="form-field">
-	<label for="5ftf-pledge-email" class="screen-reader-text">
-		<?php esc_html_e( 'Email', 'wordpressorg' ); ?>
+	<label for="5ftf-pledge-email">
+		<?php esc_html_e( 'Contact Email', 'wordpressorg' ); ?>
 	</label>
 	<input
 		type="email"
 		class="large-text"
 		id="5ftf-pledge-email"
 		name="org-pledge-email"
-		value="<?php echo esc_attr( $data['pledge-email'] ); ?>"
+		value="<?php echo esc_attr( $data['org-pledge-email'] ); ?>"
 		required
 		<?php echo $readonly ? 'readonly' : ''; ?>
 	/>

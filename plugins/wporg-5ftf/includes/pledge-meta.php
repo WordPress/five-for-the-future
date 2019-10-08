@@ -43,7 +43,7 @@ function get_pledge_meta_config( $context = '' ) {
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_VALIDATE_URL,
 		),
-		'pledge-email'    => array(
+		'org-pledge-email'    => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_email',
 			'show_in_rest'      => false,
