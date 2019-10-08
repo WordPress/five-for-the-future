@@ -157,43 +157,6 @@ function render_meta_boxes( $pledge, $box ) {
 }
 
 /**
- * Check that an array contains values for all required keys.
- *
- * @return bool|WP_Error True if all required values are present. Otherwise WP_Error.
- */
-function has_required_pledge_meta( array $submission ) {
-	$error = new WP_Error();
-
-	$required = array_keys( get_pledge_meta_config( 'user_input' ) );
-
-	foreach ( $required as $key ) {
-		if ( ! isset( $submission[ $key ] ) || is_null( $submission[ $key ] ) ) {
-			$error->add(
-				'required_field_empty',
-				sprintf(
-					__( 'The <code>%s</code> field does not have a value.', 'wporg' ),
-					sanitize_key( $key )
-				)
-			);
-		} elseif ( false === $submission[ $key ] ) {
-			$error->add(
-				'required_field_invalid',
-				sprintf(
-					__( 'The <code>%s</code> field has an invalid value.', 'wporg' ),
-					sanitize_key( $key )
-				)
-			);
-		}
-	}
-
-	if ( ! empty( $error->get_error_messages() ) ) {
-		return $error;
-	}
-
-	return true;
-}
-
-/**
  * Save the pledge data.
  *
  * This only fires when the pledge post itself is created or updated.
@@ -277,6 +240,43 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 			delete_post_meta( $object_id, META_PREFIX . 'pledge-email-confirmed' );
 			break;
 	}
+}
+
+/**
+ * Check that an array contains values for all required keys.
+ *
+ * @return bool|WP_Error True if all required values are present. Otherwise WP_Error.
+ */
+function has_required_pledge_meta( array $submission ) {
+	$error = new WP_Error();
+
+	$required = array_keys( get_pledge_meta_config( 'user_input' ) );
+
+	foreach ( $required as $key ) {
+		if ( ! isset( $submission[ $key ] ) || is_null( $submission[ $key ] ) ) {
+			$error->add(
+				'required_field_empty',
+				sprintf(
+					__( 'The <code>%s</code> field does not have a value.', 'wporg' ),
+					sanitize_key( $key )
+				)
+			);
+		} elseif ( false === $submission[ $key ] ) {
+			$error->add(
+				'required_field_invalid',
+				sprintf(
+					__( 'The <code>%s</code> field has an invalid value.', 'wporg' ),
+					sanitize_key( $key )
+				)
+			);
+		}
+	}
+
+	if ( ! empty( $error->get_error_messages() ) ) {
+		return $error;
+	}
+
+	return true;
 }
 
 /**
