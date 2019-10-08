@@ -17,13 +17,12 @@
 	<!-- Exclude 3rd-party files -->
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
-	<exclude-pattern>/plugins/*</exclude-pattern>
 
 	<!-- Exclude the wporg parent theme (for this project) -->
 	<exclude-pattern>/themes/pub/wporg</exclude-pattern>
 
-	<!-- Specifically include the plugins we're working on -->
-	<include-pattern>/plugins/wporg-5ftf</include-pattern>
+	<!-- Exclude all plugins except our pledge plugin -->
+	<exclude-pattern>/plugins/(?!wporg-5ftf)</exclude-pattern>
 
 	<!-- Show sniff codes in all reports -->
 	<arg value="ps" />
