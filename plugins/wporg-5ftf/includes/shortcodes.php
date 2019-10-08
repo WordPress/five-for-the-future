@@ -60,7 +60,7 @@ function enqueue_scripts() {
 		);
 	}
 
-	$inline_script = sprintf( "var fiveFutureCompanies = %s;", wp_json_encode( $companies ) );
+	$inline_script = sprintf( 'var fiveFutureCompanies = %s;', wp_json_encode( $companies ) );
 
 	wp_enqueue_style( '5ftf-front-end' );
 	wp_enqueue_script( '5ftf-list' );
@@ -78,7 +78,7 @@ function render_shortcode() {
 	// If this is reached, then refactor the page to lazy-load, etc.
 
 	ob_start();
-	require_once( dirname( __DIR__ ) . '/views/front-end.php' );
+	require_once dirname( __DIR__ ) . '/views/front-end.php';
 	return ob_get_clean();
 }
 

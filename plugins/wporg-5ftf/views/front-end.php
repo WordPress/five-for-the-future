@@ -18,7 +18,7 @@
 
 	<section class="people">
 		<h3>
-			<?php _e( "Thank you to all of the companies that participate in Five for the Future.", 'wordpressdotorg' ); ?>
+			<?php _e( 'Thank you to all of the companies that participate in Five for the Future.', 'wordpressdotorg' ); ?>
 		</h3>
 
 		<?php /*

@@ -1,7 +1,7 @@
 <?php
 /**
- * This file handles the operations related to setting up a custom post type. We change change the filename, namespace,
- * etc. once we have a better idea of what the CPT will be called.
+ * This file handles the operations related to setting up a custom post type. We change change the filename,
+ * namespace, etc. once we have a better idea of what the CPT will be called.
  */
 
 // todo normalize text domain across all files

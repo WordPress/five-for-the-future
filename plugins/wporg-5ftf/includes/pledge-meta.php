@@ -29,13 +29,13 @@ function get_pledge_meta_config( $context = '' ) {
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
-			'php_filter'        => FILTER_SANITIZE_STRING
+			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
 		'org-name'        => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
-			'php_filter'        => FILTER_SANITIZE_STRING
+			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
 		'org-url'         => array(
 			'single'            => true,
@@ -47,7 +47,7 @@ function get_pledge_meta_config( $context = '' ) {
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_email',
 			'show_in_rest'      => false,
-			'php_filter'        => FILTER_VALIDATE_EMAIL
+			'php_filter'        => FILTER_VALIDATE_EMAIL,
 		),
 	);
 
