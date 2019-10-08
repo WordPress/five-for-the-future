@@ -172,8 +172,10 @@ function has_existing_pledge( $domain, int $current_pledge_id = 0 ) {
 		'post_type'   => Pledge\CPT_ID,
 		'post_status' => array( 'pending', 'publish' ),
 		'meta_query'  => array(
-			'key'   => PledgeMeta\META_PREFIX . 'org-domain',
-			'value' => $domain,
+			array(
+				'key'   => PledgeMeta\META_PREFIX . 'org-domain',
+				'value' => $domain,
+			),
 		),
 	);
 
