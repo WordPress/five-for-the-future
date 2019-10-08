@@ -17,6 +17,7 @@ add_action( 'init',                               __NAMESPACE__ . '\register_ple
 add_action( 'admin_init',                         __NAMESPACE__ . '\add_meta_boxes' );
 add_action( 'save_post',                          __NAMESPACE__ . '\save_pledge',           10, 2 );
 add_action( 'updated_' . Pledge\CPT_ID . '_meta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
+add_action( 'admin_enqueue_scripts',              __NAMESPACE__ . '\enqueue_assets' );
 
 /**
  * Define pledge meta fields and their properties.
@@ -142,6 +143,8 @@ function render_meta_boxes( $pledge, $box ) {
 		$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
 	}
 
+	echo '<div class="pledge-form">';
+
 	switch ( $box['id'] ) {
 		case 'pledge-email':
 			require FiveForTheFuture\get_views_path() . 'inputs-pledge-org-email.php';
@@ -154,6 +157,8 @@ function render_meta_boxes( $pledge, $box ) {
 			require FiveForTheFuture\get_views_path() . 'inputs-pledge-contributors.php';
 			break;
 	}
+
+	echo '</div>';
 }
 
 /**
@@ -342,4 +347,19 @@ function get_normalized_domain_from_url( $url ) {
 	$domain = preg_replace( '#^www\.#', '', $domain );
 
 	return $domain;
+}
+
+/**
+ * Enqueue CSS file for admin page.
+ *
+ * @return void
+ */
+function enqueue_assets() {
+	$ver = filemtime( FiveForTheFuture\PATH . '/assets/css/admin.css' );
+	wp_register_style( '5ftf-admin', plugins_url( 'assets/css/admin.css', __DIR__ ), [], $ver );
+
+	$current_page = get_current_screen();
+	if ( Pledge\CPT_ID === $current_page->id ) {
+		wp_enqueue_style( '5ftf-admin' );
+	}
 }
