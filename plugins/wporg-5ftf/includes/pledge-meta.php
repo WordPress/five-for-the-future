@@ -26,29 +26,35 @@ add_action( 'admin_enqueue_scripts',              __NAMESPACE__ . '\enqueue_asse
  */
 function get_pledge_meta_config( $context = '' ) {
 	$user_input = array(
-		'org-description' => array(
+		'org-description'      => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
-		'org-name'        => array(
+		'org-name'             => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
-		'org-url'         => array(
+		'org-url'              => array(
 			'single'            => true,
 			'sanitize_callback' => 'esc_url_raw',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_VALIDATE_URL,
 		),
-		'org-pledge-email'    => array(
+		'org-pledge-email'     => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_email',
 			'show_in_rest'      => false,
 			'php_filter'        => FILTER_VALIDATE_EMAIL,
+		),
+		'org-number-employees' => array(
+			'single'            => true,
+			'sanitize_callback' => 'absint',
+			'show_in_rest'      => false,
+			'php_filter'        => FILTER_VALIDATE_INT,
 		),
 	);
 
@@ -149,6 +155,7 @@ function render_meta_boxes( $pledge, $box ) {
 		case 'pledge-email':
 			require FiveForTheFuture\get_views_path() . 'inputs-pledge-org-email.php';
 			break;
+
 		case 'org-info':
 			require FiveForTheFuture\get_views_path() . 'inputs-pledge-org-info.php';
 			break;
