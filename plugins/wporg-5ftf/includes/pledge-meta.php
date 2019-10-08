@@ -307,17 +307,23 @@ function get_input_filters() {
  * @return array Pledge data
  */
 function get_pledge_meta( $pledge_id = 0, $context = '' ) {
+	// Get existing pledge, if it exists.
 	$pledge = get_post( $pledge_id );
 
 	$keys = get_pledge_meta_config( $context );
 	$meta = array();
 
+	// Get POST'd submission, if it exists.
+	$submission = filter_input_array( INPUT_POST, get_input_filters() );
+
 	foreach ( $keys as $key => $config ) {
-		if ( ! $pledge instanceof WP_Post ) {
-			$meta[ $key ] = $config['default'] ?: '';
-		} else {
+		if ( isset( $submission[ $key ] ) ) {
+			$meta[ $key ] = $submission[ $key ];
+		} else if ( $pledge instanceof WP_Post ) {
 			$meta_key = META_PREFIX . $key;
 			$meta[ $key ] = get_post_meta( $pledge->ID, $meta_key, true );
+		} else {
+			$meta[ $key ] = $config['default'] ?: '';
 		}
 	}
 
