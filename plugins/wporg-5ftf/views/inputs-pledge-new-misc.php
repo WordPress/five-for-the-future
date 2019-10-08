@@ -1,8 +1,8 @@
 <?php
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/** @var bool $editable */
 /** @var array $data */
+/** @var bool  $readonly */
 ?>
 
 <div class="form-field">

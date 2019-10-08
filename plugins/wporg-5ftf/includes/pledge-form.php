@@ -38,6 +38,7 @@ function render_form_new() {
 	}
 
 	ob_start();
+	$readonly = false;
 	require FiveForTheFuture\PATH . 'views/form-pledge-new.php';
 
 	return ob_get_clean();
@@ -108,6 +109,7 @@ function render_form_manage() {
 	}
 
 	ob_start();
+	$readonly = false;
 	require FiveForTheFuture\PATH . 'views/form-pledge-manage.php';
 
 	return ob_get_clean();

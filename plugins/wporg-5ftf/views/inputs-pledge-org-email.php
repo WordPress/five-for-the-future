@@ -1,8 +1,8 @@
 <?php
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/** @var bool $editable */
 /** @var array $data */
+/** @var bool  $readonly */
 ?>
 
 <div class="form-field">
@@ -16,7 +16,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		name="org-pledge-email"
 		value="<?php echo esc_attr( $data['pledge-email'] ); ?>"
 		required
-		<?php echo ( $editable ) ? '' : 'readonly'; ?>
+		<?php echo $readonly ? 'readonly' : ''; ?>
 	/>
 
 	<?php if ( is_admin() ) : ?>

@@ -1,8 +1,8 @@
 <?php
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/** @var bool $editable */
 /** @var array $data */
+/** @var bool  $readonly */
 ?>
 
 <div class="form-field">
@@ -16,7 +16,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		name="org-name"
 		value="<?php echo esc_attr( $data['org-name'] ); ?>"
 		required
-		<?php echo ( $editable ) ? '' : 'readonly'; ?>
+		<?php echo $readonly ? 'readonly' : ''; ?>
 	/>
 </div>
 
@@ -31,20 +31,20 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		name="org-url"
 		value="<?php echo esc_attr( $data['org-url'] ); ?>"
 		required
-		<?php echo ( $editable ) ? '' : 'readonly'; ?>
+		<?php echo $readonly ? 'readonly' : ''; ?>
 	/>
 </div>
 
 <div class="form-field">
 	<label for="5ftf-org-description">
-		<?php _e( 'Organization Blurb', 'wordpressorg' ); ?>
+		<?php esc_html_e( 'Organization Blurb', 'wordpressorg' ); ?>
 	</label>
 	<textarea
 		class="large-text"
 		id="5ftf-org-description"
 		name="org-description"
 		required
-		<?php echo ( $editable ) ? '' : 'readonly'; ?>
+		<?php echo $readonly ? 'readonly' : ''; ?>
 	>
 		<?php echo esc_html( $data['org-description'] ); ?>
 	</textarea>

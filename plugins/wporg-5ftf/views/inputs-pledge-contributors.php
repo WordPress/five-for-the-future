@@ -1,9 +1,9 @@
 <?php
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/** @var bool $editable */
-/** @var array $data */
 /** @var array $contributors */
+/** @var array $data */
+/** @var bool  $readonly */
 ?>
 
 <?php if ( empty( $contributors ) ) : ?>

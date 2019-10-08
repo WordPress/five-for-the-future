@@ -135,7 +135,7 @@ function add_meta_boxes() {
  * @param array   $box
  */
 function render_meta_boxes( $pledge, $box ) {
-	$editable = current_user_can( 'edit_pledge', $pledge->ID );
+	$readonly = ! current_user_can( 'edit_page', $pledge->ID );
 	$data     = array();
 
 	foreach ( get_pledge_meta_config() as $key => $config ) {
