@@ -13,8 +13,6 @@ foreach ( PledgeMeta\get_pledge_meta_config() as $key => $config ) {
 	$data[ $key ] = get_post_meta( get_the_ID(), PledgeMeta\META_PREFIX . $key, $config['single'] );
 }
 
-$data['org-logo'] = 'https://5ftf.test/content/uploads/2019/10/uh.png';
-
 // @todo Get real contributors from the post.
 $contributors = array();
 $count        = count( $contributors );
@@ -32,9 +30,9 @@ $contributor_title = sprintf(
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<div class="entry-image">
-		<?php if ( $data['org-logo'] ) : ?>
+		<?php if ( has_post_thumbnail() ) : ?>
 			<div class="entry-image__logo">
-				<?php printf( '<img src="%s" />', esc_url( $data['org-logo'] ) ); ?>
+				<?php the_post_thumbnail(); ?>
 			</div>
 		<?php else : ?>
 			<div class="entry-image__placeholder"></div>
