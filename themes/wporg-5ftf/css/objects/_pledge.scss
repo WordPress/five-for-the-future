@@ -1,0 +1,72 @@
+article.type-5ftf_pledge {
+	/* Structure */
+	display: grid;
+	grid-template-columns: 330px auto;
+	margin-bottom: ms(12);
+
+	.entry-image {
+		grid-column: 1;
+		grid-row: 1 / span 2;
+		margin-right: ms(8);
+	}
+
+	.entry-header {
+		grid-column: 2;
+		grid-row: 1;
+	}
+
+	.entry-content {
+		grid-column: 2;
+		grid-row: 2;
+	}
+
+	/* Styles */
+
+	.entry-image__placeholder {
+		background: $color-gray-light-100;
+		width: 100%;
+		height: 100px;
+	}
+	
+	.entry-image__logo {
+		padding: ms(-2);
+		background: $color-gray-light-100;
+		text-align: center;
+
+		img {
+			display: inline-block;
+			vertical-align: middle;
+			max-height: 100px;
+		}
+	}
+
+	.entry-title {
+		margin-top: 0;
+		font-size: ms(2);
+		font-weight: 400;
+
+		a {
+			text-decoration: underline;
+		}
+	}
+	
+	.entry-content {
+		font-size: ms(-1);
+		color: $color__text-darker;
+	}
+
+	.pledge-contributors h3 {
+		margin-top: 0;
+		font-size: ms(-1);
+		color: $color__text-lighter;
+	}
+
+	.pledge-contributor__avatar {
+		display: inline-block;
+		background: $color-gray-light-700;
+
+		img {
+			vertical-align: middle;
+		}
+	}
+}
