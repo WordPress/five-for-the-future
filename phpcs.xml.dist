@@ -94,6 +94,12 @@
 		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_print_r" />
 	</rule>
 
+	<!-- Ignore the CPT template filename, since it is based on the CPT name, and can't change. -->
+	<rule ref="WordPress.Files.FileName.NotHyphenatedLowercase">
+		<exclude-pattern>*/template-parts/content-5ftf_pledge.php$</exclude-pattern>
+		<exclude-pattern>*/archive-5ftf_pledge.php$</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress-Docs">
 		<!-- If files/variables are given descriptive names like they should be, then an explicit description is usually unnecessary, so leave this as a judgement call. -->
 		<exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
