@@ -69,6 +69,12 @@ function get_pledge_meta_config( $context = '' ) {
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => false,
 		),
+		'org-logo'              => array(
+			'single'            => true,
+			'sanitize_callback' => 'esc_url_raw',
+			'show_in_rest'      => true,
+			'php_filter'        => FILTER_VALIDATE_URL,
+		),
 		'pledge-email-confirmed' => array(
 			'single'            => true,
 			'sanitize_callback' => 'wp_validate_boolean',
