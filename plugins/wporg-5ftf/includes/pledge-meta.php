@@ -230,6 +230,27 @@ function save_pledge( $pledge_id, $pledge ) {
 function save_pledge_meta( $pledge_id, $new_values ) {
 	$config = get_pledge_meta_config();
 
+	// Process image.
+	if ( ! function_exists('media_handle_upload') ) {
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once( ABSPATH . 'wp-admin/includes/media.php' );
+	}
+
+	$logo = isset( $_FILES['org-logo'] ) ? $_FILES['org-logo'] : false;
+	if (
+		$logo &&
+		in_array( $logo['type'], [ 'image/png', 'image/jpg' ] ) &&
+		( $logo['size'] < 5 * MB_IN_BYTES )
+	) {
+		$result = \media_handle_sideload( $logo, $pledge_id );
+
+		if ( ! is_wp_error( $result ) ) {
+			$new_values['org-logo'] = wp_get_attachment_url( $result );
+			set_post_thumbnail( $pledge_id, $result );
+		}
+	}
+
 	foreach ( $new_values as $key => $value ) {
 		if ( array_key_exists( $key, $config ) ) {
 			$meta_key = META_PREFIX . $key;
