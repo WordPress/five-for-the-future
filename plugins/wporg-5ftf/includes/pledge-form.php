@@ -45,7 +45,7 @@ function render_form_new() {
 }
 
 /**
- *
+ * Process a submission from the New Pledge form.
  *
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
@@ -58,11 +58,25 @@ function process_form_new() {
 		return $has_required;
 	}
 
+	$email = sanitize_meta(
+		PledgeMeta\META_PREFIX . 'org-pledge-email',
+		$submission['org-pledge-email'],
+		'post',
+		Pledge\CPT_ID
+	);
+
+	if ( has_existing_pledge( $email, 'email' ) ) {
+		return new WP_Error(
+			'existing_pledge_email',
+			__( 'This email address is already connected to an existing pledge.', 'wporg' )
+		);
+	}
+
 	$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
 
-	if ( has_existing_pledge( $domain ) ) {
+	if ( has_existing_pledge( $domain, 'domain' ) ) {
 		return new WP_Error(
-			'existing_pledge',
+			'existing_pledge_domain',
 			__( 'A pledge already exists for this domain.', 'wporg' )
 		);
 	}
@@ -116,7 +130,7 @@ function render_form_manage() {
 }
 
 /**
- *
+ * Process a submission from the Manage Existing Pledge form.
  *
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
@@ -129,9 +143,23 @@ function process_form_manage() {
 		return $has_required;
 	}
 
+	$email = sanitize_meta(
+		PledgeMeta\META_PREFIX . 'org-pledge-email',
+		$submission['org-pledge-email'],
+		'post',
+		Pledge\CPT_ID
+	);
+
+	if ( has_existing_pledge( $email, 'email' ) ) {
+		return new WP_Error(
+			'existing_pledge_email',
+			__( 'This email address is already connected to an existing pledge.', 'wporg' )
+		);
+	}
+
 	$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
 
-	if ( has_existing_pledge( $domain ) ) {
+	if ( has_existing_pledge( $domain, 'domain' ) ) {
 		return new WP_Error(
 			'existing_pledge',
 			__( 'A pledge already exists for this domain.', 'wporg' )
@@ -140,24 +168,38 @@ function process_form_manage() {
 }
 
 /**
+ * Check a key value against existing pledges to see if one already exists.
  *
- *
- * @param string $domain
- * @param int    $current_pledge_id
+ * @param string $key               The value to match against other pledges.
+ * @param string $key_type          The type of value being matched. `email` or `domain`.
+ * @param int    $current_pledge_id Optional. The post ID of the pledge to compare against others.
  *
  * @return bool
  */
-function has_existing_pledge( $domain, int $current_pledge_id = 0 ) {
+function has_existing_pledge( $key, $key_type, int $current_pledge_id = 0 ) {
 	$args = array(
 		'post_type'   => Pledge\CPT_ID,
 		'post_status' => array( 'pending', 'publish' ),
-		'meta_query'  => array(
-			array(
-				'key'   => PledgeMeta\META_PREFIX . 'org-domain',
-				'value' => $domain,
-			),
-		),
 	);
+
+	switch ( $key_type ) {
+		case 'email':
+			$args['meta_query'] = array(
+				array(
+					'key'   => PledgeMeta\META_PREFIX . 'org-pledge-email',
+					'value' => $key,
+				),
+			);
+			break;
+		case 'domain':
+			$args['meta_query'] = array(
+				array(
+					'key'   => PledgeMeta\META_PREFIX . 'org-domain',
+					'value' => $key,
+				),
+			);
+			break;
+	}
 
 	if ( $current_pledge_id ) {
 		$args['exclude'] = array( $current_pledge_id );
