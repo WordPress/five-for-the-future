@@ -25,7 +25,7 @@ function register_custom_post_type() {
 		'archives'              => __( 'Contributor Archives', 'wporg' ),
 		'attributes'            => __( 'Contributor Attributes', 'wporg' ),
 		'parent_item_colon'     => __( 'Parent Contributor:', 'wporg' ),
-		'all_items'             => __( 'All Contributors', 'wporg' ),
+		'all_items'             => __( 'Contributors', 'wporg' ),
 		'add_new_item'          => __( 'Add New Contributor', 'wporg' ),
 		'add_new'               => __( 'Add New', 'wporg' ),
 		'new_item'              => __( 'New Contributor', 'wporg' ),
