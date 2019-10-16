@@ -1,5 +1,5 @@
 <?php
-namespace WordPressDotOrg\FiveForTheFuture\Pledge;
+namespace WordPressDotOrg\FiveForTheFuture\Contributor;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
