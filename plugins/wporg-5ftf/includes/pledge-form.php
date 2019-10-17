@@ -8,7 +8,7 @@ namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
 use WordPressDotOrg\FiveForTheFuture\PledgeMeta;
-use WP_Error;
+use WP_Error, WP_Post, WP_User;
 
 defined( 'WPINC' ) || die();
 
@@ -23,9 +23,9 @@ add_shortcode( '5ftf_pledge_form_manage', __NAMESPACE__ . '\render_form_manage' 
  */
 function render_form_new() {
 	$action   = filter_input( INPUT_POST, 'action' );
+	$data     = get_form_submission();
 	$messages = [];
 	$complete = false;
-	$data     = PledgeMeta\get_pledge_meta();
 
 	if ( 'Submit Pledge' === $action ) {
 		$processed = process_form_new();
@@ -50,7 +50,7 @@ function render_form_new() {
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
 function process_form_new() {
-	$submission = filter_input_array( INPUT_POST, PledgeMeta\get_input_filters() );
+	$submission = get_form_submission();
 
 	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
 
@@ -81,6 +81,13 @@ function process_form_new() {
 		);
 	}
 
+	$contributors = parse_contributors( $submission['pledge-contributors'] );
+
+	if ( is_wp_error( $contributors ) ) {
+		return $contributors;
+	}
+
+	/*
 	$name = sanitize_meta(
 		PledgeMeta\META_PREFIX . 'org-name',
 		$submission['org-name'],
@@ -95,6 +102,7 @@ function process_form_new() {
 	}
 
 	PledgeMeta\save_pledge_meta( $created, $submission );
+	*/
 
 	return 'success';
 }
@@ -135,7 +143,7 @@ function render_form_manage() {
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
 function process_form_manage() {
-	$submission = filter_input_array( INPUT_POST, PledgeMeta\get_input_filters() );
+	$submission = get_form_submission();
 
 	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
 
@@ -165,6 +173,25 @@ function process_form_manage() {
 			__( 'A pledge already exists for this domain.', 'wporg' )
 		);
 	}
+}
+
+/**
+ * Get and sanitize $_POST values from a form submission.
+ *
+ * @return array|bool
+ */
+function get_form_submission() {
+	$input_filters = array_merge(
+		// Inputs that correspond to meta values.
+		wp_list_pluck( PledgeMeta\get_pledge_meta_config( 'user_input' ), 'php_filter' ),
+		// Inputs with no corresponding meta value.
+		array(
+			'pledge-contributors' => FILTER_SANITIZE_STRING,
+			'pledge-agreement'    => FILTER_VALIDATE_BOOLEAN,
+		)
+	);
+
+	return filter_input_array( INPUT_POST, $input_filters );
 }
 
 /**
@@ -208,6 +235,90 @@ function has_existing_pledge( $key, $key_type, int $current_pledge_id = 0 ) {
 	$matching_pledge = get_posts( $args );
 
 	return ! empty( $matching_pledge );
+}
+
+/**
+ * TODO Move this to the contributor cpt include file.
+ *
+ * @param int $pledge_id
+ *
+ * @return array
+ */
+function get_pledge_contributors( $pledge_id = 0 ) {
+	$contributors = array();
+
+	// Get POST'd submission, if it exists.
+	$submission = filter_input( INPUT_POST, 'pledge-contributors', FILTER_SANITIZE_STRING );
+
+	// Get existing pledge, if it exists.
+	$pledge = get_post( $pledge_id );
+
+	if ( ! empty( $submission ) ) {
+		$contributors = array_map( 'sanitize_user', explode( ',', $submission ) );
+	} elseif ( $pledge instanceof WP_Post ) {
+		// TODO the Contributor post type is being introduced in a separate PR. These details may change.
+
+		$contributor_posts = get_posts( array(
+			'post_type'   => '',
+			'post_status' => array( 'pending', 'publish' ),
+			'post_parent' => $pledge_id,
+			'numberposts' => -1,
+		) );
+
+		$contributors = wp_list_pluck( $contributor_posts, 'post_title' );
+	}
+
+	return $contributors;
+}
+
+/**
+ * Ensure each item in a list of usernames is valid and corresponds to a user.
+ *
+ * @param string $contributors A comma-separated list of username strings.
+ *
+ * @return array|WP_Error An array of sanitized wporg usernames on success. Otherwise WP_Error.
+ */
+function parse_contributors( $contributors ) {
+	$invalid_contributors   = array();
+	$sanitized_contributors = array();
+
+	$contributors = explode( ',', $contributors );
+
+	foreach ( $contributors as $wporg_username ) {
+		$sanitized_username = sanitize_user( $wporg_username );
+		$user               = get_user_by( 'login', $sanitized_username );
+
+		if ( $user instanceof WP_User ) {
+			$sanitized_contributors[] = $sanitized_username;
+		} else {
+			$invalid_contributors[] = $wporg_username;
+		}
+	}
+
+	if ( ! empty( $invalid_contributors ) ) {
+		/* translators: Used between sponsor names in a list, there is a space after the comma. */
+		$item_separator = _x( ', ', 'list item separator', 'wporg' );
+
+		return new WP_Error(
+			'invalid_contributor',
+			sprintf(
+				/* translators: %s is a list of usernames. */
+				__( 'The following contributor usernames are not valid: %s', 'wporg' ),
+				implode( $item_separator, $invalid_contributors )
+			)
+		);
+	}
+
+	if ( empty( $sanitized_contributors ) ) {
+		return new WP_Error(
+			'contributor_required',
+			__( 'The pledge must have at least one contributor username.', 'wporg' )
+		);
+	}
+
+	$sanitized_contributors = array_unique( $sanitized_contributors );
+
+	return $sanitized_contributors;
 }
 
 /**

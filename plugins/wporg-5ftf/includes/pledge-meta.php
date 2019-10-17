@@ -7,6 +7,7 @@ namespace WordPressDotOrg\FiveForTheFuture\PledgeMeta;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
+use WordPressDotOrg\FiveForTheFuture\PledgeForm;
 use WP_Post, WP_Error;
 
 defined( 'WPINC' ) || die();
@@ -292,26 +293,6 @@ function has_required_pledge_meta( array $submission ) {
 }
 
 /**
- * Get the input filters for submitted content.
- *
- * @return array
- */
-function get_input_filters() {
-	return array_merge(
-		// Inputs that correspond to meta values.
-		wp_list_pluck( get_pledge_meta_config( 'user_input' ), 'php_filter' ),
-		// Inputs with no corresponding meta value.
-		array(
-			'contributor-wporg-usernames' => [
-				'filter' => FILTER_SANITIZE_STRING,
-				'flags'  => FILTER_REQUIRE_ARRAY,
-			],
-			'pledge-agreement'            => FILTER_VALIDATE_BOOLEAN,
-		)
-	);
-}
-
-/**
  * Get the metadata for a given pledge, or a default set if no pledge is provided.
  *
  * @param int    $pledge_id
@@ -326,13 +307,13 @@ function get_pledge_meta( $pledge_id = 0, $context = '' ) {
 	$meta = array();
 
 	// Get POST'd submission, if it exists.
-	$submission = filter_input_array( INPUT_POST, get_input_filters() );
+	$submission = PledgeForm\get_form_submission();
 
 	foreach ( $keys as $key => $config ) {
 		if ( isset( $submission[ $key ] ) ) {
 			$meta[ $key ] = $submission[ $key ];
-		} else if ( $pledge instanceof WP_Post ) {
-			$meta_key = META_PREFIX . $key;
+		} elseif ( $pledge instanceof WP_Post ) {
+			$meta_key     = META_PREFIX . $key;
 			$meta[ $key ] = get_post_meta( $pledge->ID, $meta_key, true );
 		} else {
 			$meta[ $key ] = $config['default'] ?: '';
