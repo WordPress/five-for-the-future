@@ -252,6 +252,14 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 	}
 
 	switch ( $meta_key ) {
+		case META_PREFIX . 'org-name':
+			if ( 'updated_postmeta' === current_action() ) {
+				wp_update_post( array(
+					'post_title' => $_meta_value,
+				) );
+			}
+			break;
+
 		case META_PREFIX . 'org-url':
 			$domain = get_normalized_domain_from_url( $_meta_value );
 			update_post_meta( $object_id, META_PREFIX . 'org-domain', $domain );
