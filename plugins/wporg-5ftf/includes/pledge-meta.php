@@ -16,7 +16,7 @@ const META_PREFIX = FiveForTheFuture\PREFIX . '_';
 
 add_action( 'init',                  __NAMESPACE__ . '\register_pledge_meta' );
 add_action( 'admin_init',            __NAMESPACE__ . '\add_meta_boxes' );
-add_action( 'save_post',             __NAMESPACE__ . '\save_pledge',           10, 2 );
+add_action( 'save_post',             __NAMESPACE__ . '\save_pledge', 10, 2 );
 add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_assets' );
 
 // Both hooks must be used because `updated` doesn't fire if the post meta didn't previously exist.
@@ -200,8 +200,7 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	$definitions    = wp_list_pluck( get_pledge_meta_config( 'user_input' ), 'php_filter' );
-	$submitted_meta = filter_input_array( INPUT_POST, $definitions );
+	$submitted_meta = PledgeForm\get_form_submission();
 
 	if ( is_wp_error( has_required_pledge_meta( $submitted_meta ) ) ) {
 		return;
