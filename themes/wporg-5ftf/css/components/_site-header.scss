@@ -4,7 +4,7 @@
 		text-align: left;
 	}
 
-	.home & {
+	 &.home {
 		background: #0073aa;
 
 		@include breakpoint( $ms-breakpoint ) {
@@ -14,16 +14,17 @@
 		.site-title {
 			color: #fff;
 			display: block;
-			font-size: ms( 10 );
+			font-size: 1.4rem;
 			font-weight: 300;
 			line-height: 1;
-			margin: 2rem 0 1rem;
+			margin: 2rem 0 .6rem;
 
 			@include breakpoint( $ms-breakpoint ) {
 				font-size: ms( 12 );
 			}
 
 			@include breakpoint( $breakpoint-tablet ) {
+				font-size: 3.75rem;
 				text-align: center;
 			}
 		}
@@ -32,8 +33,10 @@
 			color: #fff;
 			max-width: 100%;
 			padding: 11px 0;
+			font-size: 1rem;
 
 			@include breakpoint( $breakpoint-tablet ) {
+				font-size: 1.25rem;
 				text-align: center;
 			}
 		}

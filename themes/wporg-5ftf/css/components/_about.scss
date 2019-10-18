@@ -2,6 +2,7 @@ body.page-about .entry-content {
 
 	@include breakpoint( $breakpoint-tablet ) {
 		> p,
+		> ul,
 		> h1,
 		> h2,
 		> h3,
@@ -10,7 +11,8 @@ body.page-about .entry-content {
 		> h6,
 		> .wp-block-quote,
 		> .wp-block-media-text,
-		> .wp-block-button {
+		> .wp-block-button,
+		> .wp-block-group {
 			margin-left: 40%;
 		}
 

@@ -78,6 +78,24 @@ function setup() {
 				'style_handle' => 'wporg-style',
 			)
 		);
+
+		register_block_style(
+			'core/image',
+			array(
+				'name'         => 'wporg-hero',
+				'label'        => __( 'Hero (full width on mobile)', 'wporg-5ftf' ),
+				'style_handle' => 'wporg-style',
+			)
+		);
+
+		$hero_properties = array(
+			'name'         => 'wporg-hero',
+			'label'        => __( 'Hero (full width on mobile)', 'wporg-5ftf' ),
+			'style_handle' => 'wporg-style',
+		);
+
+		register_block_style( 'core/image', $hero_properties );
+		register_block_style( 'core/group', $hero_properties );
 	}
 
 	// todo also setup block styles for other things, like the quote symbol, etc.
@@ -100,7 +118,7 @@ add_action( 'after_setup_theme', __NAMESPACE__ . '\content_width', 0 );
  * Enqueue scripts and styles.
  */
 function scripts() {
-	wp_enqueue_style( 'wporg-style', get_theme_file_uri( '/css/style.css' ), [ 'dashicons', 'open-sans' ], '20190703' );
+	wp_enqueue_style( 'wporg-style', get_theme_file_uri( '/css/style.css' ), [ 'dashicons', 'open-sans' ], '20191017' );
 
 	wp_enqueue_script( 'wporg-navigation', get_template_directory_uri() . '/js/navigation.js', array(), '20181209', true );
 	wp_enqueue_script( 'wporg-skip-link-focus-fix', get_template_directory_uri() . '/js/skip-link-focus-fix.js', array(), '20151215', true );
