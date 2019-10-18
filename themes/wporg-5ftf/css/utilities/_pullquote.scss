@@ -1,18 +1,33 @@
-.wp-block-pullquote.is-style-solid-color  {
-	background-color: $color__wporg-blue;
+.wp-block-pullquote.is-style-wporg-home-pullquote {
+	padding: 0;
+	margin-bottom: 0;
+	border: none;
 
 	blockquote {
 		max-width: 100%;
+		margin: 0;
+		padding: 0;
 		border: none;
-		color: $color__text-on-dark;
+		text-align: left;
 	}
 
 	@include breakpoint( $breakpoint-tablet ) {
-		background-color: $color__text-on-dark;
+		position: absolute;
+		top: 0;
+		left: -255px;
+		max-width: 250px;
 
 		blockquote {
 			border-left: none;
 			color: $color__text-heading;
+		}
+
+		p {
+			font-size: 2.8rem;
+
+			&:first-child {
+				margin-top: 0;
+			}
 		}
 	}
 }

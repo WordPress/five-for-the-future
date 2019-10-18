@@ -38,5 +38,11 @@
 	}
 }
 
+// Undo the positioning because it's coupled to the front end layout. Use mobile positioning in the editor.
+.wp-block-pullquote.is-style-wporg-home-pullquote {
+	position: relative;
+	top: 0;
+	width: auto;
+}
 
 // font-family and face, etc?

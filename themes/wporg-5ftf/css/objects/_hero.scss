@@ -1,0 +1,19 @@
+// Defined here so we can use `ms`.
+$size__spacing-unit: ms( 4 );
+
+/* Fills 100% of the screen on mobile, and 100% of the content area on desktop */
+.is-style-wporg-hero {
+	position: relative;
+	left: -#{ $size__spacing-unit };
+	width: calc( 100% + ( 2 * #{ $size__spacing-unit } ) );
+	max-width: calc( 100% + ( 2 * #{ $size__spacing-unit} ) );
+	clear: both;
+
+	@include breakpoint( $breakpoint-tablet ) {
+		position: inherit;
+		left: inherit;
+		width: inherit;
+		max-width: inherit;
+		clear: inherit;
+	}
+}

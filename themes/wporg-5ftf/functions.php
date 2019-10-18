@@ -79,11 +79,12 @@ function setup() {
 			)
 		);
 
+		// FYI, this is affected by https://github.com/WordPress/gutenberg/issues/16429.
 		register_block_style(
-			'core/image',
+			'core/pullquote',
 			array(
-				'name'         => 'wporg-hero',
-				'label'        => __( 'Hero (full width on mobile)', 'wporg-5ftf' ),
+				'name'         => 'wporg-home-pullquote',
+				'label'        => __( 'Homepage Pullquote', 'wporg-5ftf' ),
 				'style_handle' => 'wporg-style',
 			)
 		);
