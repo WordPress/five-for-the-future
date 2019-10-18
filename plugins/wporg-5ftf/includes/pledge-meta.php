@@ -14,11 +14,14 @@ defined( 'WPINC' ) || die();
 
 const META_PREFIX = FiveForTheFuture\PREFIX . '_';
 
-add_action( 'init',                               __NAMESPACE__ . '\register_pledge_meta' );
-add_action( 'admin_init',                         __NAMESPACE__ . '\add_meta_boxes' );
-add_action( 'save_post',                          __NAMESPACE__ . '\save_pledge',           10, 2 );
-add_action( 'updated_' . Pledge\CPT_ID . '_meta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
-add_action( 'admin_enqueue_scripts',              __NAMESPACE__ . '\enqueue_assets' );
+add_action( 'init',                  __NAMESPACE__ . '\register_pledge_meta' );
+add_action( 'admin_init',            __NAMESPACE__ . '\add_meta_boxes' );
+add_action( 'save_post',             __NAMESPACE__ . '\save_pledge',           10, 2 );
+add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_assets' );
+
+// Both hooks must be used because `updated` doesn't fire if the post meta didn't previously exist.
+add_action( 'updated_postmeta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
+add_action( 'added_post_meta',  __NAMESPACE__ . '\update_generated_meta', 10, 4 );
 
 /**
  * Define pledge meta fields and their properties.
@@ -243,6 +246,12 @@ function save_pledge_meta( $pledge_id, $new_values ) {
  * @return void
  */
 function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) {
+	$post_type = get_post_type( $object_id );
+
+	if ( Pledge\CPT_ID !== $post_type ) {
+		return;
+	}
+
 	switch ( $meta_key ) {
 		case META_PREFIX . 'org-url':
 			$domain = get_normalized_domain_from_url( $_meta_value );
