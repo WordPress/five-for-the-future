@@ -202,7 +202,7 @@ function get_form_submission() {
 function has_existing_pledge( $key, $key_type, int $current_pledge_id = 0 ) {
 	$args = array(
 		'post_type'   => Pledge\CPT_ID,
-		'post_status' => array( 'pending', 'publish' ),
+		'post_status' => array( 'draft', 'pending', 'publish' ),
 	);
 
 	switch ( $key_type ) {
