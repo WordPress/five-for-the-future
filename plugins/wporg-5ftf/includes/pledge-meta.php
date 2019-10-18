@@ -7,17 +7,21 @@ namespace WordPressDotOrg\FiveForTheFuture\PledgeMeta;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
+use WordPressDotOrg\FiveForTheFuture\PledgeForm;
 use WP_Post, WP_Error;
 
 defined( 'WPINC' ) || die();
 
 const META_PREFIX = FiveForTheFuture\PREFIX . '_';
 
-add_action( 'init',                               __NAMESPACE__ . '\register_pledge_meta' );
-add_action( 'admin_init',                         __NAMESPACE__ . '\add_meta_boxes' );
-add_action( 'save_post',                          __NAMESPACE__ . '\save_pledge',           10, 2 );
-add_action( 'updated_' . Pledge\CPT_ID . '_meta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
-add_action( 'admin_enqueue_scripts',              __NAMESPACE__ . '\enqueue_assets' );
+add_action( 'init',                  __NAMESPACE__ . '\register_pledge_meta' );
+add_action( 'admin_init',            __NAMESPACE__ . '\add_meta_boxes' );
+add_action( 'save_post',             __NAMESPACE__ . '\save_pledge', 10, 2 );
+add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_assets' );
+
+// Both hooks must be used because `updated` doesn't fire if the post meta didn't previously exist.
+add_action( 'updated_postmeta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
+add_action( 'added_post_meta',  __NAMESPACE__ . '\update_generated_meta', 10, 4 );
 
 /**
  * Define pledge meta fields and their properties.
@@ -196,8 +200,7 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	$definitions    = wp_list_pluck( get_pledge_meta_config( 'user_input' ), 'php_filter' );
-	$submitted_meta = filter_input_array( INPUT_POST, $definitions );
+	$submitted_meta = PledgeForm\get_form_submission();
 
 	if ( is_wp_error( has_required_pledge_meta( $submitted_meta ) ) ) {
 		return;
@@ -242,7 +245,21 @@ function save_pledge_meta( $pledge_id, $new_values ) {
  * @return void
  */
 function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) {
+	$post_type = get_post_type( $object_id );
+
+	if ( Pledge\CPT_ID !== $post_type ) {
+		return;
+	}
+
 	switch ( $meta_key ) {
+		case META_PREFIX . 'org-name':
+			if ( 'updated_postmeta' === current_action() ) {
+				wp_update_post( array(
+					'post_title' => $_meta_value,
+				) );
+			}
+			break;
+
 		case META_PREFIX . 'org-url':
 			$domain = get_normalized_domain_from_url( $_meta_value );
 			update_post_meta( $object_id, META_PREFIX . 'org-domain', $domain );
@@ -292,26 +309,6 @@ function has_required_pledge_meta( array $submission ) {
 }
 
 /**
- * Get the input filters for submitted content.
- *
- * @return array
- */
-function get_input_filters() {
-	return array_merge(
-		// Inputs that correspond to meta values.
-		wp_list_pluck( get_pledge_meta_config( 'user_input' ), 'php_filter' ),
-		// Inputs with no corresponding meta value.
-		array(
-			'contributor-wporg-usernames' => [
-				'filter' => FILTER_SANITIZE_STRING,
-				'flags'  => FILTER_REQUIRE_ARRAY,
-			],
-			'pledge-agreement'            => FILTER_VALIDATE_BOOLEAN,
-		)
-	);
-}
-
-/**
  * Get the metadata for a given pledge, or a default set if no pledge is provided.
  *
  * @param int    $pledge_id
@@ -326,13 +323,13 @@ function get_pledge_meta( $pledge_id = 0, $context = '' ) {
 	$meta = array();
 
 	// Get POST'd submission, if it exists.
-	$submission = filter_input_array( INPUT_POST, get_input_filters() );
+	$submission = PledgeForm\get_form_submission();
 
 	foreach ( $keys as $key => $config ) {
 		if ( isset( $submission[ $key ] ) ) {
 			$meta[ $key ] = $submission[ $key ];
-		} else if ( $pledge instanceof WP_Post ) {
-			$meta_key = META_PREFIX . $key;
+		} elseif ( $pledge instanceof WP_Post ) {
+			$meta_key     = META_PREFIX . $key;
 			$meta[ $key ] = get_post_meta( $pledge->ID, $meta_key, true );
 		} else {
 			$meta[ $key ] = $config['default'] ?: '';

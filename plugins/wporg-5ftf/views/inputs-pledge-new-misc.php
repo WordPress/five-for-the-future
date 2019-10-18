@@ -12,11 +12,12 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 	<input
 		type="checkbox"
-		id="5ftf-pledge-agree"
-		name="pledge-agree"
+		id="5ftf-pledge-agreement"
+		name="pledge-agreement"
 		required
+		<?php checked( $data['pledge-agreement'] ); ?>
 	/>
-	<label for="5ftf-pledge-agree">
+	<label for="5ftf-pledge-agreement">
 		<?php esc_html_e( 'I agree', 'wordpressorg' ); ?>
 	</label>
 </div>
