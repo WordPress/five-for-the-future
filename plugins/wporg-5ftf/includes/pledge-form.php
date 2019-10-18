@@ -87,7 +87,6 @@ function process_form_new() {
 		return $contributors;
 	}
 
-	/*
 	$name = sanitize_meta(
 		PledgeMeta\META_PREFIX . 'org-name',
 		$submission['org-name'],
@@ -100,9 +99,6 @@ function process_form_new() {
 	if ( is_wp_error( $created ) ) {
 		return $created;
 	}
-
-	PledgeMeta\save_pledge_meta( $created, $submission );
-	*/
 
 	return 'success';
 }
