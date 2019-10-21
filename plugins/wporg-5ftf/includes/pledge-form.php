@@ -8,6 +8,7 @@ namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
 use WordPressDotOrg\FiveForTheFuture\PledgeMeta;
+use WordPressDotOrg\FiveForTheFuture\Contributor;
 use WP_Error, WP_Post, WP_User;
 
 defined( 'WPINC' ) || die();
@@ -94,10 +95,14 @@ function process_form_new() {
 		Pledge\CPT_ID
 	);
 
-	$created = create_new_pledge( $name );
+	$new_pledge_id = Pledge\create_new_pledge( $name );
 
-	if ( is_wp_error( $created ) ) {
-		return $created;
+	if ( is_wp_error( $new_pledge_id ) ) {
+		return $new_pledge_id;
+	}
+
+	foreach ( $contributors as $wporg_username ) {
+		Contributor\create_new_contributor( $wporg_username, $new_pledge_id );
 	}
 
 	return 'success';
@@ -317,21 +322,4 @@ function parse_contributors( $contributors ) {
 	$sanitized_contributors = array_unique( $sanitized_contributors );
 
 	return $sanitized_contributors;
-}
-
-/**
- *
- *
- * @param string $name The name of the company to use as the post title.
- *
- * @return int|WP_Error Post ID on success. Otherwise WP_Error.
- */
-function create_new_pledge( $name ) {
-	$args = [
-		'post_type'   => Pledge\CPT_ID,
-		'post_title'  => $name,
-		'post_status' => 'draft',
-	];
-
-	return wp_insert_post( $args, true );
 }

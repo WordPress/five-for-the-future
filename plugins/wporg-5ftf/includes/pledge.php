@@ -7,6 +7,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\Pledge;
 
 use WordPressDotOrg\FiveForTheFuture;
+use WP_Error;
 
 defined( 'WPINC' ) || die();
 
@@ -99,4 +100,21 @@ function register_custom_post_status() {
 			CPT_ID        => true, // Custom parameter to streamline its use with the Pledge CPT.
 		)
 	);
+}
+
+/**
+ * Create a new pledge post.
+ *
+ * @param string $name The name of the company to use as the post title.
+ *
+ * @return int|WP_Error Post ID on success. Otherwise WP_Error.
+ */
+function create_new_pledge( $name ) {
+	$args = array(
+		'post_type'   => CPT_ID,
+		'post_title'  => $name,
+		'post_status' => 'draft',
+	);
+
+	return wp_insert_post( $args, true );
 }
