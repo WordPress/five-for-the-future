@@ -8,6 +8,7 @@ namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
 use WordPressDotOrg\FiveForTheFuture\PledgeMeta;
+use WordPressDotOrg\FiveForTheFuture\Contributor;
 use WP_Error, WP_Post, WP_User;
 
 defined( 'WPINC' ) || die();
@@ -81,7 +82,7 @@ function process_form_new() {
 		);
 	}
 
-	$contributors = parse_contributors( $submission['org-pledge-contributors'] );
+	$contributors = parse_contributors( $submission['pledge-contributors'] );
 
 	if ( is_wp_error( $contributors ) ) {
 		return $contributors;
@@ -94,10 +95,14 @@ function process_form_new() {
 		Pledge\CPT_ID
 	);
 
-	$created = create_new_pledge( $name );
+	$new_pledge_id = Pledge\create_new_pledge( $name );
 
-	if ( is_wp_error( $created ) ) {
-		return $created;
+	if ( is_wp_error( $new_pledge_id ) ) {
+		return $new_pledge_id;
+	}
+
+	foreach ( $contributors as $wporg_username ) {
+		Contributor\create_new_contributor( $wporg_username, $new_pledge_id );
 	}
 
 	return 'success';
@@ -184,7 +189,7 @@ function get_form_submission() {
 		wp_list_pluck( PledgeMeta\get_pledge_meta_config( 'user_input' ), 'php_filter' ),
 		// Inputs with no corresponding meta value.
 		array(
-			'org-pledge-contributors' => FILTER_SANITIZE_STRING,
+			'pledge-contributors' => FILTER_SANITIZE_STRING,
 			'pledge-agreement'    => FILTER_VALIDATE_BOOLEAN,
 		)
 	);
@@ -236,40 +241,6 @@ function has_existing_pledge( $key, $key_type, int $current_pledge_id = 0 ) {
 }
 
 /**
- * TODO Move this to the contributor cpt include file.
- *
- * @param int $pledge_id
- *
- * @return array
- */
-function get_pledge_contributors( $pledge_id = 0 ) {
-	$contributors = array();
-
-	// Get POST'd submission, if it exists.
-	$submission = filter_input( INPUT_POST, 'org-pledge-contributors', FILTER_SANITIZE_STRING );
-
-	// Get existing pledge, if it exists.
-	$pledge = get_post( $pledge_id );
-
-	if ( ! empty( $submission ) ) {
-		$contributors = array_map( 'sanitize_user', explode( ',', $submission ) );
-	} elseif ( $pledge instanceof WP_Post ) {
-		// TODO the Contributor post type is being introduced in a separate PR. These details may change.
-
-		$contributor_posts = get_posts( array(
-			'post_type'   => '',
-			'post_status' => array( 'pending', 'publish' ),
-			'post_parent' => $pledge_id,
-			'numberposts' => -1,
-		) );
-
-		$contributors = wp_list_pluck( $contributor_posts, 'post_title' );
-	}
-
-	return $contributors;
-}
-
-/**
  * Ensure each item in a list of usernames is valid and corresponds to a user.
  *
  * @param string $contributors A comma-separated list of username strings.
@@ -317,21 +288,4 @@ function parse_contributors( $contributors ) {
 	$sanitized_contributors = array_unique( $sanitized_contributors );
 
 	return $sanitized_contributors;
-}
-
-/**
- *
- *
- * @param string $name The name of the company to use as the post title.
- *
- * @return int|WP_Error Post ID on success. Otherwise WP_Error.
- */
-function create_new_pledge( $name ) {
-	$args = [
-		'post_type'   => Pledge\CPT_ID,
-		'post_title'  => $name,
-		'post_status' => 'draft',
-	];
-
-	return wp_insert_post( $args, true );
 }

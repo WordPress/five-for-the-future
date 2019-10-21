@@ -7,6 +7,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\Pledge;
 
 use WordPressDotOrg\FiveForTheFuture;
+use WP_Error;
 
 defined( 'WPINC' ) || die();
 
@@ -15,6 +16,7 @@ const SLUG_PL = 'pledges';
 const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
 
 add_action( 'init', __NAMESPACE__ . '\register', 0 );
+add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu' );
 
 /**
  * Register all the things.
@@ -24,6 +26,15 @@ add_action( 'init', __NAMESPACE__ . '\register', 0 );
 function register() {
 	register_custom_post_type();
 	register_custom_post_status();
+}
+
+/**
+ * Adjustments to the Five for the Future admin menu.
+ *
+ * @return void
+ */
+function admin_menu() {
+	remove_submenu_page( 'edit.php?post_type=' . CPT_ID, 'post-new.php?post_type=' . CPT_ID );
 }
 
 /**
@@ -39,7 +50,7 @@ function register_custom_post_type() {
 		'archives'              => __( 'Pledge Archives', 'wporg' ),
 		'attributes'            => __( 'Pledge Attributes', 'wporg' ),
 		'parent_item_colon'     => __( 'Parent Pledge:', 'wporg' ),
-		'all_items'             => __( 'All Pledges', 'wporg' ),
+		'all_items'             => __( 'Pledges', 'wporg' ),
 		'add_new_item'          => __( 'Add New Pledge', 'wporg' ),
 		'add_new'               => __( 'Add New', 'wporg' ),
 		'new_item'              => __( 'New Pledge', 'wporg' ),
@@ -99,4 +110,21 @@ function register_custom_post_status() {
 			CPT_ID        => true, // Custom parameter to streamline its use with the Pledge CPT.
 		)
 	);
+}
+
+/**
+ * Create a new pledge post.
+ *
+ * @param string $name The name of the company to use as the post title.
+ *
+ * @return int|WP_Error Post ID on success. Otherwise WP_Error.
+ */
+function create_new_pledge( $name ) {
+	$args = array(
+		'post_type'   => CPT_ID,
+		'post_title'  => $name,
+		'post_status' => 'draft',
+	);
+
+	return wp_insert_post( $args, true );
 }

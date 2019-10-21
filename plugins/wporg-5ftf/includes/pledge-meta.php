@@ -8,6 +8,7 @@ namespace WordPressDotOrg\FiveForTheFuture\PledgeMeta;
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
 use WordPressDotOrg\FiveForTheFuture\PledgeForm;
+use WordPressDotOrg\FiveForTheFuture\Contributor;
 use WP_Post, WP_Error;
 
 defined( 'WPINC' ) || die();
@@ -59,12 +60,6 @@ function get_pledge_meta_config( $context = '' ) {
 			'sanitize_callback' => 'absint',
 			'show_in_rest'      => false,
 			'php_filter'        => FILTER_VALIDATE_INT,
-		),
-		'org-pledge-contributors' => array(
-			'single'            => true,
-			'sanitize_callback' => 'sanitize_text_field',
-			'show_in_rest'      => false,
-			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
 	);
 
@@ -153,11 +148,13 @@ function add_meta_boxes() {
  */
 function render_meta_boxes( $pledge, $box ) {
 	$readonly = ! current_user_can( 'edit_page', $pledge->ID );
-	$data     = array();
 
+	$data = array();
 	foreach ( get_pledge_meta_config() as $key => $config ) {
 		$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
 	}
+
+	$contributors = Contributor\get_pledge_contributors( $pledge->ID, 'all' );
 
 	echo '<div class="pledge-form">';
 
