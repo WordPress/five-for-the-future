@@ -16,6 +16,7 @@ const SLUG_PL = 'pledges';
 const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
 
 add_action( 'init', __NAMESPACE__ . '\register', 0 );
+add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu' );
 
 /**
  * Register all the things.
@@ -25,6 +26,15 @@ add_action( 'init', __NAMESPACE__ . '\register', 0 );
 function register() {
 	register_custom_post_type();
 	register_custom_post_status();
+}
+
+/**
+ * Adjustments to the Five for the Future admin menu.
+ *
+ * @return void
+ */
+function admin_menu() {
+	remove_submenu_page( 'edit.php?post_type=' . CPT_ID, 'post-new.php?post_type=' . CPT_ID );
 }
 
 /**
@@ -40,7 +50,7 @@ function register_custom_post_type() {
 		'archives'              => __( 'Pledge Archives', 'wporg' ),
 		'attributes'            => __( 'Pledge Attributes', 'wporg' ),
 		'parent_item_colon'     => __( 'Parent Pledge:', 'wporg' ),
-		'all_items'             => __( 'All Pledges', 'wporg' ),
+		'all_items'             => __( 'Pledges', 'wporg' ),
 		'add_new_item'          => __( 'Add New Pledge', 'wporg' ),
 		'add_new'               => __( 'Add New', 'wporg' ),
 		'new_item'              => __( 'New Pledge', 'wporg' ),
