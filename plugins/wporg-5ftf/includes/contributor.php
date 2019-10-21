@@ -3,6 +3,7 @@ namespace WordPressDotOrg\FiveForTheFuture\Contributor;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
+use WP_Error, WP_Post;
 
 defined( 'WPINC' ) || die();
 
@@ -10,7 +11,9 @@ const SLUG    = 'contributor';
 const SLUG_PL = 'contributors';
 const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
 
-add_action( 'init', __NAMESPACE__ . '\register_custom_post_type', 0 );
+add_action( 'init',                                      __NAMESPACE__ . '\register_custom_post_type', 0 );
+add_filter( 'manage_edit-' . CPT_ID . '_columns',        __NAMESPACE__ . '\add_list_table_columns' );
+add_action( 'manage_' . CPT_ID . '_posts_custom_column', __NAMESPACE__ . '\populate_list_table_columns', 10, 2 );
 
 /**
  * Register the post type(s).
@@ -63,4 +66,112 @@ function register_custom_post_type() {
 	);
 
 	register_post_type( CPT_ID, $args );
+}
+
+/**
+ * Add columns to the Contributors list table.
+ *
+ * @param array $columns
+ *
+ * @return array
+ */
+function add_list_table_columns( $columns ) {
+	$first = array_slice( $columns, 0, 2, true );
+	$last  = array_slice( $columns, 2, null, true );
+
+	$new_columns = array(
+		'pledge' => __( 'Pledge', 'wporg' ),
+	);
+
+	return array_merge( $first, $new_columns, $last );
+}
+
+/**
+ * Render content in the custom columns added to the Contributors list table.
+ *
+ * @param string $column
+ * @param int    $post_id
+ *
+ * @return void
+ */
+function populate_list_table_columns( $column, $post_id ) {
+	switch ( $column ) {
+		case 'pledge':
+			$contributor = get_post( $post_id );
+			$pledge      = get_post( $contributor->post_parent );
+
+			$pledge_name = get_the_title( $pledge );
+
+			if ( current_user_can( 'edit_post', $pledge->ID ) ) {
+				$pledge_name = sprintf(
+					'<a href="%1$s">%2$s</a>',
+					get_edit_post_link( $pledge ),
+					$pledge_name
+				);
+			}
+
+			echo $pledge_name;
+			break;
+	}
+}
+
+/**
+ * Create a contributor post as a child of a pledge post.
+ *
+ * @param string $wporg_username
+ * @param int    $pledge_id
+ *
+ * @return int|WP_Error Post ID on success. Otherwise WP_Error.
+ */
+function create_new_contributor( $wporg_username, $pledge_id ) {
+	$args = array(
+		'post_type'   => CPT_ID,
+		'post_title'  => sanitize_user( $wporg_username ),
+		'post_parent' => $pledge_id,
+		'post_status' => 'pending',
+	);
+
+	return wp_insert_post( $args, true );
+}
+
+/**
+ * Get the contributor posts associated with a particular pledge post.
+ *
+ * @param int    $pledge_id The post ID of the pledge.
+ * @param string $status    Optional. 'all', 'pending', or 'publish'.
+ *
+ * @return array An array of contributor posts. If $status is set to 'all', will be
+ *               a multidimensional array with keys for each status.
+ */
+function get_pledge_contributors( $pledge_id, $status = 'publish' ) {
+	$args = array(
+		'post_type'   => CPT_ID,
+		'post_parent' => $pledge_id,
+		'numberposts' => -1,
+		'orderby'     => 'title',
+		'order'       => 'asc',
+	);
+
+	if ( 'all' === $status ) {
+		$args['post_status'] = array( 'pending', 'publish' );
+	} else {
+		$args['post_status'] = sanitize_key( $status );
+	}
+
+	$posts = get_posts( $args );
+
+	if ( 'all' === $status && ! empty( $posts ) ) {
+		$initial = array(
+			'publish' => array(),
+			'pending' => array(),
+		);
+
+		$posts = array_reduce( $posts, function( $carry, WP_Post $item ) {
+			$carry[ $item->post_status ][] = $item;
+
+			return $carry;
+		}, $initial );
+	}
+
+	return $posts;
 }

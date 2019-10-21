@@ -241,40 +241,6 @@ function has_existing_pledge( $key, $key_type, int $current_pledge_id = 0 ) {
 }
 
 /**
- * TODO Move this to the contributor cpt include file.
- *
- * @param int $pledge_id
- *
- * @return array
- */
-function get_pledge_contributors( $pledge_id = 0 ) {
-	$contributors = array();
-
-	// Get POST'd submission, if it exists.
-	$submission = filter_input( INPUT_POST, 'org-pledge-contributors', FILTER_SANITIZE_STRING );
-
-	// Get existing pledge, if it exists.
-	$pledge = get_post( $pledge_id );
-
-	if ( ! empty( $submission ) ) {
-		$contributors = array_map( 'sanitize_user', explode( ',', $submission ) );
-	} elseif ( $pledge instanceof WP_Post ) {
-		// TODO the Contributor post type is being introduced in a separate PR. These details may change.
-
-		$contributor_posts = get_posts( array(
-			'post_type'   => '',
-			'post_status' => array( 'pending', 'publish' ),
-			'post_parent' => $pledge_id,
-			'numberposts' => -1,
-		) );
-
-		$contributors = wp_list_pluck( $contributor_posts, 'post_title' );
-	}
-
-	return $contributors;
-}
-
-/**
  * Ensure each item in a list of usernames is valid and corresponds to a user.
  *
  * @param string $contributors A comma-separated list of username strings.
