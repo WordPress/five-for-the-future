@@ -193,7 +193,8 @@ function save_pledge( $pledge_id, $pledge ) {
 	}
 
 	if ( ! current_user_can( 'edit_pledge', $pledge_id ) ) {
-		return;
+		// todo re-enable once setup cap mapping or whatever
+		//return;
 	}
 
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || 'auto-draft' === $pledge->post_status ) {
