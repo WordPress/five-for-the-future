@@ -136,6 +136,8 @@ function render_form_manage() {
 /**
  * Process a submission from the Manage Existing Pledge form.
  *
+ * TODO This doesn't actually update any data yet when the form is submitted.
+ *
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
 function process_form_manage() {
