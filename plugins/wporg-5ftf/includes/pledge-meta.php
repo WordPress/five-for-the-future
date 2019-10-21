@@ -60,6 +60,12 @@ function get_pledge_meta_config( $context = '' ) {
 			'show_in_rest'      => false,
 			'php_filter'        => FILTER_VALIDATE_INT,
 		),
+		'org-pledge-contributors' => array(
+			'single'            => true,
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => false,
+			'php_filter'        => FILTER_SANITIZE_STRING,
+		),
 	);
 
 	$generated = array(

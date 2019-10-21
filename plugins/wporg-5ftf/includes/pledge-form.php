@@ -81,7 +81,7 @@ function process_form_new() {
 		);
 	}
 
-	$contributors = parse_contributors( $submission['pledge-contributors'] );
+	$contributors = parse_contributors( $submission['org-pledge-contributors'] );
 
 	if ( is_wp_error( $contributors ) ) {
 		return $contributors;
@@ -184,7 +184,7 @@ function get_form_submission() {
 		wp_list_pluck( PledgeMeta\get_pledge_meta_config( 'user_input' ), 'php_filter' ),
 		// Inputs with no corresponding meta value.
 		array(
-			'pledge-contributors' => FILTER_SANITIZE_STRING,
+			'org-pledge-contributors' => FILTER_SANITIZE_STRING,
 			'pledge-agreement'    => FILTER_VALIDATE_BOOLEAN,
 		)
 	);
@@ -246,7 +246,7 @@ function get_pledge_contributors( $pledge_id = 0 ) {
 	$contributors = array();
 
 	// Get POST'd submission, if it exists.
-	$submission = filter_input( INPUT_POST, 'pledge-contributors', FILTER_SANITIZE_STRING );
+	$submission = filter_input( INPUT_POST, 'org-pledge-contributors', FILTER_SANITIZE_STRING );
 
 	// Get existing pledge, if it exists.
 	$pledge = get_post( $pledge_id );
