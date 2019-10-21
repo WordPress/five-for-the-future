@@ -60,7 +60,10 @@ function enqueue_scripts() {
 		);
 	}
 
-	$inline_script = sprintf( 'var fiveFutureCompanies = %s;', wp_json_encode( $companies ) );
+	$inline_script = sprintf(
+		'var fiveFutureCompanies = JSON.parse( decodeURIComponent( \'%s\' ) );',
+		rawurlencode( wp_json_encode( $companies ) )
+	);
 
 	wp_enqueue_style( '5ftf-front-end' );
 	wp_enqueue_script( '5ftf-list' );
