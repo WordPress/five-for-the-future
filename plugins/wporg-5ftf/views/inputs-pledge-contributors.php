@@ -15,8 +15,8 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 	<input
 		type="text"
 		id="5ftf-pledge-contributors"
-		name="org-pledge-contributors"
-		value="<?php echo esc_attr( $data['org-pledge-contributors'] ); ?>"
+		name="pledge-contributors"
+		value="<?php echo esc_attr( $data['pledge-contributors'] ); ?>"
 		required
 		aria-describedby="5ftf-pledge-contributors-help"
 	/>
