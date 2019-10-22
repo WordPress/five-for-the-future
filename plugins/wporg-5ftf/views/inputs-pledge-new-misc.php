@@ -7,7 +7,15 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 <div class="form-field form-field__agree">
 	<p>
-		<!-- Statement of agreement to pledge, link to further info maybe? -->
+		<?php
+		printf(
+			wp_kses_post( '
+				I understand and agree to the <a href="%s">expectations</a> for
+				inclusion in the Five for the Future acknowledgement program.
+			' ),
+			'https://wordpress.org/five-for-the-future/expectations/' // TODO Change this URL?
+		);
+		?>
 	</p>
 
 	<input
@@ -18,6 +26,6 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		<?php checked( $data['pledge-agreement'] ); ?>
 	/>
 	<label for="5ftf-pledge-agreement">
-		<?php esc_html_e( 'I agree', 'wordpressorg' ); ?>
+		<?php esc_html_e( 'Yes', 'wordpressorg' ); ?>
 	</label>
 </div>
