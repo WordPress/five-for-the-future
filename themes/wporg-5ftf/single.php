@@ -1,6 +1,7 @@
 <?php
-
 namespace WordPressDotOrg\FiveForTheFuture\Theme;
+
+$post_type = get_post_type(); // 5ftf_pledge
 
 get_header(); ?>
 
@@ -9,7 +10,7 @@ get_header(); ?>
 		<?php while ( have_posts() ) :
 			the_post();
 
-			get_template_part( 'template-parts/plugin', 'single' );
+			get_template_part( 'template-parts/' . $post_type, 'single' );
 		endwhile; ?>
 
 	</main><!-- #main -->
