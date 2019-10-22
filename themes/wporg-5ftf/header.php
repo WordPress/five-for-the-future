@@ -1,6 +1,6 @@
 <?php
 
-namespace WordPressdotorg\Five_for_the_Future\Theme;
+namespace WordPressDotOrg\FiveForTheFuture\Theme;
 
 global $wporg_global_header_options;
 $GLOBALS['pagetitle'] = wp_get_document_title();

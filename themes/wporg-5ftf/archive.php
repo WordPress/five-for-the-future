@@ -1,6 +1,6 @@
 <?php
 
-namespace WordPressdotorg\Five_for_the_Future\Theme;
+namespace WordPressDotOrg\FiveForTheFuture\Theme;
 
 // If we don't have any posts to display for the archive, then send a 404 status. See #meta4151.
 if ( ! have_posts() ) {
