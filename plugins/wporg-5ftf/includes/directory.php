@@ -7,7 +7,7 @@
 
 // TODO are we actually using any of this?
 
-namespace WordPressDotOrg\FiveForTheFuture\Blocks;
+namespace WordPressDotOrg\FiveForTheFuture\Pledge_Directory;
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
 

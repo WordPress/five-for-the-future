@@ -27,7 +27,7 @@ function load() {
 	require_once get_includes_path() . 'pledge.php';
 	require_once get_includes_path() . 'pledge-meta.php';
 	require_once get_includes_path() . 'pledge-form.php';
-	require_once get_includes_path() . 'shortcodes.php';
+	require_once get_includes_path() . 'directory.php';
 }
 
 /**
