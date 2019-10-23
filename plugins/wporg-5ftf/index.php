@@ -24,6 +24,7 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\load' );
  */
 function load() {
 	require_once get_includes_path() . 'contributor.php';
+	require_once get_includes_path() . 'email.php';
 	require_once get_includes_path() . 'pledge.php';
 	require_once get_includes_path() . 'pledge-meta.php';
 	require_once get_includes_path() . 'pledge-form.php';
