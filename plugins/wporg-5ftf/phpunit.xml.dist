@@ -1,0 +1,17 @@
+<phpunit
+	bootstrap="tests/bootstrap.php"
+	backupGlobals="false"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	>
+
+	<testsuites>
+		<testsuite name="Five for the Future plugin">
+			<directory prefix="test-" suffix=".php">
+				./tests/
+			</directory>
+		</testsuite>
+	</testsuites>
+</phpunit>
