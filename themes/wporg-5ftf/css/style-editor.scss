@@ -6,6 +6,7 @@
 @import "settings/colors";
 @import "../../pub/wporg/css/settings/structure";
 @import "settings/structure";
+@import "settings/typography";
 @import "../../pub/wporg/css/tools/breakpoint";
 @import "../../pub/wporg/css/settings/_modular-scale.scss";
 @import "../../pub/wporg/css/objects/buttons";
@@ -42,7 +43,9 @@
 .wp-block-pullquote.is-style-wporg-home-pullquote {
 	position: relative;
 	top: 0;
+	left: 0;
 	width: auto;
+	max-width: 100%;
 }
 
 // font-family and face, etc?

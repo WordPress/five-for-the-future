@@ -8,6 +8,7 @@ $size__spacing-unit: ms( 4 );
 	width: calc( 100% + ( 2 * #{ $size__spacing-unit } ) );
 	max-width: calc( 100% + ( 2 * #{ $size__spacing-unit} ) );
 	clear: both;
+	margin-bottom: 0;
 
 	@include breakpoint( $breakpoint-tablet ) {
 		position: inherit;
@@ -15,5 +16,10 @@ $size__spacing-unit: ms( 4 );
 		width: inherit;
 		max-width: inherit;
 		clear: inherit;
+		margin-bottom: 1em;
+
+		&.wp-block-group {
+			margin-top: -8rem;
+		}
 	}
 }

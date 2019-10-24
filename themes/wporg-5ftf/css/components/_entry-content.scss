@@ -13,13 +13,3 @@
 		color: $color__text-heading;
 	}
 }
-
-p.has-background,
-.wp-block-group.has-background,
-.wp-block-pullquote.has-wporg-blue-background-color {
-	/*
-	 * Remove the gaps between consecutive paragraphs that have the same background color, and make it fill 100%
-	 * of the screen on the mobile view.
-	 */
-	//margin: 0 - ms( 4 );	this is buggy, affects surrounding elements, see notes in parallelogram file
-}

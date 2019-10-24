@@ -1,6 +1,7 @@
 .wp-block-pullquote.is-style-wporg-home-pullquote {
 	padding: 0;
 	margin-bottom: 0;
+	font-family: $font__serif;
 	border: none;
 
 	blockquote {
@@ -13,9 +14,9 @@
 
 	@include breakpoint( $breakpoint-tablet ) {
 		position: absolute;
-		top: 0;
-		left: -255px;
-		max-width: 250px;
+		top: 14rem;
+		left: -17.5rem;
+		max-width: 16rem;
 
 		blockquote {
 			border-left: none;
