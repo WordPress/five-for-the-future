@@ -108,6 +108,34 @@ function process_form_new() {
 		Contributor\create_new_contributor( $wporg_username, $new_pledge_id );
 	}
 
+	// Process image.
+	if ( ! function_exists('media_handle_upload') ) {
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once( ABSPATH . 'wp-admin/includes/media.php' );
+	}
+
+	$logo = isset( $_FILES['org-logo'] ) ? $_FILES['org-logo'] : false;
+	if ( $logo ) {
+		if ( ! in_array( $logo['type'], [ 'image/png', 'image/jpg' ] ) ) {
+			return new WP_Error(
+				'invalid_image_type',
+				__( 'Logo file must be a png or jpg.', 'wporg' )
+			);
+		}
+		if ( ( $logo['size'] > 5 * MB_IN_BYTES ) ) {
+			return new WP_Error(
+				'invalid_image_size',
+				__( 'Logo file must be less than 5MB.', 'wporg' )
+			);
+		}
+
+		$result = \media_handle_sideload( $logo, $new_pledge_id );
+		if ( ! is_wp_error( $result ) ) {
+			set_post_thumbnail( $new_pledge_id, $result );
+		}
+	}
+
 	return 'success';
 }
 
