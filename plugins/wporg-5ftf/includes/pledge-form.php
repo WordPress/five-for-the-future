@@ -67,12 +67,16 @@ function process_form_new() {
 		Pledge\CPT_ID
 	);
 
+	// todo make this validation DRY w/ process_form_manage().
+
 	if ( has_existing_pledge( $email, 'email' ) ) {
 		return new WP_Error(
 			'existing_pledge_email',
 			__( 'This email address is already connected to an existing pledge.', 'wporg' )
 		);
 	}
+
+	// todo should probably verify that email address is for the same domain as URL. do here and for manage.
 
 	$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
 

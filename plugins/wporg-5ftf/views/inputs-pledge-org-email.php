@@ -7,7 +7,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 <div class="form-field">
 	<label for="5ftf-pledge-email">
-		<?php esc_html_e( 'Administrator Email', 'wordpressorg' ); ?>
+		<?php esc_html_e( 'Administrator Email Address', 'wordpressorg' ); ?>
 	</label>
 	<input
 		type="email"
@@ -19,7 +19,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		<?php echo $readonly ? 'readonly' : ''; ?>
 	/>
 	<p id="5ftf-pledge-email-help">
-		<?php esc_html_e( 'This email will be used to verify your organization’s contribution profile, and later manage any changes.', 'wordpressorg' ); ?>
+		<?php esc_html_e( "This address will be used to confirm your organization’s contribution profile, and later manage any changes. Please make sure that it's a group address (e.g., wp-contributors@example.com) so that it persists across employee transitions.", 'wordpressorg' ); ?>
 	</p>
 
 	<?php if ( is_admin() ) : ?>
