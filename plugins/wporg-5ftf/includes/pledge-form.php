@@ -131,9 +131,10 @@ function process_form_new() {
 		}
 
 		$result = \media_handle_sideload( $logo, $new_pledge_id );
-		if ( ! is_wp_error( $result ) ) {
-			set_post_thumbnail( $new_pledge_id, $result );
+		if ( is_wp_error( $result ) ) {
+			return $result;
 		}
+		set_post_thumbnail( $new_pledge_id, $result );
 	}
 
 	return 'success';
