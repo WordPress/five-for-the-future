@@ -22,7 +22,11 @@
 	},
 
 	"scripts" : {
-		"test"       : "vendor/bin/phpunit",
+		"test" : "vendor/bin/phpunit",
+
+		"_comment"   : "Input won't work when running this via `composer test:watch`. If you want to use",
+		"_comment"   : "PHPUnit Watcher's interactive options then you'll need to call it directly in your terminal.",
+		"_comment"   : "See https://github.com/composer/composer/issues/5856",
 		"test:watch" : "vendor/bin/phpunit-watcher watch"
 	}
 }
