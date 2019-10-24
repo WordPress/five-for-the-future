@@ -2,7 +2,14 @@
 namespace WordPressDotOrg\FiveForTheFuture\Theme;
 
 use WordPressDotOrg\FiveForTheFuture\Contributor;
+use WordPressDotOrg\FiveForTheFuture\XProfile;
 use WP_Post;
+
+$contribution_data = XProfile\get_aggregate_contributor_data_for_pledge( get_the_ID() );
+
+$contributors = Contributor\get_contributor_user_objects(
+	Contributor\get_pledge_contributors( get_the_ID(), 'pending' ) // TODO set to 'publish' when finished testing
+);
 
 /** @var WP_Post $post */
 ?>
@@ -26,31 +33,63 @@ use WP_Post;
 
 		<?php echo wp_kses_post( wpautop( $post->{'5ftf_org-description'} ) ) ?>
 
-		<h3><?php esc_html_e( 'Contributions', 'wporg' ); ?></h3>
+		<?php if ( ! empty( $contributors ) ) : ?>
+			<h3><?php esc_html_e( 'Contributions', 'wporg' ); ?></h3>
 
-		<!-- TODO Pull info from xprofile -->
+			<p>
+				<?php
+				printf(
+					wp_kses_post( __( '%1$s sponsors %2$s for a total of <strong>%3$s</strong> hours per week.', 'wporg' ) ),
+					get_the_title(),
+					sprintf(
+						_n( '<strong>%d</strong> contributor', '<strong>%d</strong> contributors', $contribution_data['contributors'], 'wporg' ),
+						number_format_i18n( absint( $contribution_data['contributors'] ) )
+					),
+					number_format_i18n( absint( $contribution_data['hours'] ) )
+				);
+				?>
+			</p>
+			<p>
+				<?php
+				printf(
+					wp_kses_post( __( 'Contributors from %s work on the following teams:', 'wporg' ) ),
+					get_the_title()
+				);
+				?>
+			</p>
+			<ul class="team-grid">
+				<?php foreach ( $contribution_data['teams'] as $team ) : ?>
+					<li>
+						<span class="team-badge team-<?php echo esc_attr( strtolower( $team ) ); ?>"></span>
+						<?php echo esc_html( $team ); ?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
 
 		<h3><?php esc_html_e( 'Contributors', 'wporg' ); ?></h3>
 
-		<ul class="contributor-grid">
-			<?php foreach ( Contributor\get_pledge_contributors( get_the_ID(), 'publish' ) as $contributor_post ) :
-				$contributor = get_user_by( 'login', $contributor_post->post_title );
-				?>
-				<li>
-					<?php echo get_avatar( $contributor->user_email, 280 ); ?>
-					<?php
-					printf(
-						'<a href="%1$s">%2$s</a>',
-						sprintf(
-							'https://profiles.wordpress.org/%s/',
-							sanitize_key( $contributor->user_login )
-						),
-						esc_html( $contributor->display_name )
-					);
-					?>
-				</li>
-			<?php endforeach; ?>
-		</ul>
+		<?php if ( ! empty( $contributors ) ) : ?>
+			<ul class="contributor-grid">
+				<?php foreach ( $contributors as $contributor ) : ?>
+					<li>
+						<?php echo get_avatar( $contributor->user_email, 280 ); ?>
+						<?php
+						printf(
+							'<a href="%1$s">%2$s</a>',
+							sprintf(
+								'https://profiles.wordpress.org/%s/',
+								sanitize_key( $contributor->user_login )
+							),
+							esc_html( $contributor->display_name )
+						);
+						?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		<?php else : ?>
+			<p><?php esc_html_e( 'No confirmed contributors yet.', 'wporg' ); ?></p>
+		<?php endif; ?>
 	</div>
 
 	<footer class="entry-footer">
