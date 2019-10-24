@@ -196,7 +196,7 @@ function save_pledge( $pledge_id, $pledge ) {
 	}
 
 	if ( ! current_user_can( 'edit_pledge', $pledge_id ) ) {
-		// todo re-enable once setup cap mapping or whatever
+		// todo re-enable once setup cap mapping or whatever.
 		//return;
 	}
 
@@ -227,6 +227,7 @@ function save_pledge_meta( $pledge_id, $new_values ) {
 	foreach ( $new_values as $key => $value ) {
 		if ( array_key_exists( $key, $config ) ) {
 			$meta_key = META_PREFIX . $key;
+
 			// Since the sanitize callback is called during this function, it could still end up
 			// saving an empty value to the database.
 			update_post_meta( $pledge_id, $meta_key, $value );

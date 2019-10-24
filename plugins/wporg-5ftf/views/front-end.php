@@ -1,5 +1,5 @@
 <?php // todo i18n
-//// change all id/class prefixes to fftf (or something better) b/c not valid to start w/ number
+//// change all id/class prefixes to fftf (or something better) b/c not valid to start w/ number.
 
 // TODO are we using this, or is all the front end stuff happening in the 5ftF theme now?
 ?>
@@ -7,29 +7,34 @@
 <article class="5ftf">
 	<section class="about">
 		<h3>
-			<?php _e( 'Five for the Future', 'wordpressdotorg' ); ?>
+			<?php esc_html_e( 'Five for the Future', 'wporg-5ftf' ); ?>
 		</h3>
 
 		<p>
-			<?php _e( 'Many companies in the WordPress ecosystem choose to contribute 5% of their time back towards sustaining and improving the WordPress project. This helps to ensure that WordPress remains a vibrant platform to build a business on, and prevents a <a href="">tragedy of the commons</a>.', 'wordpressdotorg' ); ?>
-			<?php // link to CTA page ?>
+			<?php wp_kses_post(
+				__( 'Many companies in the WordPress ecosystem choose to contribute 5% of their time back towards sustaining and improving the WordPress project. This helps to ensure that WordPress remains a vibrant platform to build a business on, and prevents a <a href="todo">tragedy of the commons</a>.', 'wporg-5ftf' )
+			); ?>
+			<?php // todo link to CTA page. ?>
 		</p>
 	</section>
 
 	<section class="people">
 		<h3>
-			<?php _e( 'Thank you to all of the companies that participate in Five for the Future.', 'wordpressdotorg' ); ?>
+			<?php esc_html_e( 'Thank you to all of the companies that participate in Five for the Future.', 'wporg-5ftf' ); ?>
 		</h3>
 
-		<?php /*
-		// sort filter options
-		// this should be js - backbone or react? react
-		// in page or api? start in page, can iterate later to add infinite scroll or something
-		*/ ?>
+		<?php
+		/*
+		 * todo.
+		 * sort filter options.
+		 * this should be js - backbone or react? react.
+		 * in page or api? start in page, can iterate later to add infinite scroll or something.
+		 */
+		?>
 
 		<form>
 			<label for="5ftf-search">
-				<?php _e( 'Search:' ); ?>
+				<?php esc_html_e( 'Search:', 'wporg-5ftf' ); ?>
 			</label>
 
 			<input type="text" id="5ftf-search" name="5ftf-search" />
@@ -56,7 +61,7 @@
 					</th>
 					<th>
 						Teams Contributing To
-						<?php // This can't really be sorted in a meaningful way, since multiple teams are listed here ?>
+						<?php // This can't really be sorted in a meaningful way, since multiple teams are listed here. ?>
 					</th>
 				</tr>
 			</thead>
@@ -64,7 +69,7 @@
 			<tbody id="5ftf-companies-body">
 				<tr>
 					<td colspan="5">
-						<?php _e( 'Loading&hellip;' ); ?>
+						<?php esc_html_e( 'Loading&hellip;', 'wporg-5ftf' ); ?>
 					</td>
 				</tr>
 			</tbody>
@@ -96,6 +101,6 @@
 
 		<p>Have a question? Ready to get started? Get in touch and we'll help you find where you're needed the most.</p>
 
-		<?php // link to pledge form ?>
+		<?php // todo link to pledge form. ?>
 	</section>
 </article>

@@ -106,11 +106,11 @@ function populate_list_table_columns( $column, $post_id ) {
 				$pledge_name = sprintf(
 					'<a href="%1$s">%2$s</a>',
 					get_edit_post_link( $pledge ),
-					$pledge_name
+					esc_html( $pledge_name )
 				);
 			}
 
-			echo $pledge_name;
+			echo wp_kses_post( $pledge_name );
 			break;
 	}
 }

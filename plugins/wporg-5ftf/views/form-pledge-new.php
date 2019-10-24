@@ -1,6 +1,6 @@
 <?php
-namespace WordPressDotOrg\FiveForTheFuture\View;
 
+namespace WordPressDotOrg\FiveForTheFuture\View;
 use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 
 /**

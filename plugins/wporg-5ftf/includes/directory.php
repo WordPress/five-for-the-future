@@ -13,6 +13,9 @@ use WordPressDotOrg\FiveForTheFuture\Pledge;
 
 defined( 'WPINC' ) || die();
 
+/**
+ * Enqueue scripts and styles.
+ */
 function enqueue_scripts() {
 	global $post;
 
@@ -36,8 +39,12 @@ function enqueue_scripts() {
 	}
 
 	$params = array(
-		// explain 100 is just sanity limit to keep page size performant. might need to lazy-load more in the future
-		// maybe order by donated_employees, or rand, to ensure the top companies are always displayed first, or to make sure treta everyone equal
+		/*
+		 * todo explain 100 is just sanity limit to keep page size performant. might need to lazy-load more in the
+		 * future.
+		 * maybe order by donated_employees, or rand, to ensure the top companies are always displayed first, or
+		 * to make sure treat everyone equal.
+		 */
 		'post_type'      => Pledge\CPT_ID,
 		'post_status'    => 'publish',
 		'posts_per_page' => 100,
@@ -72,7 +79,7 @@ function enqueue_scripts() {
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_scripts' );
 
 /**
- * todo
+ * Todo.
  *
  * @return string
  */
@@ -87,9 +94,12 @@ function render_shortcode() {
 
 add_shortcode( 'five_for_the_future_companies', __NAMESPACE__ . '\render_shortcode' );
 
-// shortcode for pledge form
-// form handler for pledge form
+// todo shortcode for pledge form.
+// todo form handler for pledge form.
 
+/**
+ * Todo.
+ */
 function register() {
 	//register_block_type();
 }

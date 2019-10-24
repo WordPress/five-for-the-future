@@ -28,11 +28,11 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 <?php else : ?>
 
 <div class="5ftf-contributors">
-	<?php foreach ( $contributors as $status => $group ) : ?>
+	<?php foreach ( $contributors as $contributor_status => $group ) : ?>
 		<?php if ( ! empty( $group ) ) : ?>
 			<h3 class="contributor-list-heading">
 				<?php
-				switch ( $status ) {
+				switch ( $contributor_status ) {
 					case 'pending':
 						esc_html_e( 'Unconfirmed', 'wporg' );
 						break;
@@ -43,13 +43,13 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 				?>
 			</h3>
 
-			<ul class="contributor-list <?php echo esc_attr( $status ); ?>">
+			<ul class="contributor-list <?php echo esc_attr( $contributor_status ); ?>">
 				<?php foreach ( $group as $contributor_post ) :
 					$contributor = get_user_by( 'login', $contributor_post->post_title );
 					?>
 					<li>
 						<?php echo get_avatar( $contributor->user_email, 32 ); ?>
-						<?php echo $contributor_post->post_title; ?>
+						<?php echo esc_html( $contributor_post->post_title ); ?>
 						<!-- TODO These buttons don't do anything yet.
 						<button class="button-primary" data-action="remove" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>">
 							<?php esc_html_e( 'Remove', 'wporg' ); ?>

@@ -34,6 +34,7 @@ function register() {
  * @return void
  */
 function admin_menu() {
+	// New pledges should only be created through the front end form.
 	remove_submenu_page( 'edit.php?post_type=' . CPT_ID, 'post-new.php?post_type=' . CPT_ID );
 }
 

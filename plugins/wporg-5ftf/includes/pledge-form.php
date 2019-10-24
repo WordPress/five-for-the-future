@@ -6,10 +6,8 @@
 namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\Pledge;
-use WordPressDotOrg\FiveForTheFuture\PledgeMeta;
-use WordPressDotOrg\FiveForTheFuture\Contributor;
-use WP_Error, WP_Post, WP_User;
+use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeMeta, Contributor };
+use WP_Error, WP_User;
 
 defined( 'WPINC' ) || die();
 
@@ -23,11 +21,11 @@ add_shortcode( '5ftf_pledge_form_manage', __NAMESPACE__ . '\render_form_manage' 
  * @return false|string
  */
 function render_form_new() {
-	$action   = filter_input( INPUT_POST, 'action' );
-	$data     = get_form_submission();
-	$messages = [];
-	$complete = false;
-	$directory_url = get_permalink( get_page_by_path( 'pledges') );
+	$action        = filter_input( INPUT_POST, 'action' );
+	$data          = get_form_submission();
+	$messages      = [];
+	$complete      = false;
+	$directory_url = get_permalink( get_page_by_path( 'pledges' ) );
 
 	if ( 'Submit Pledge' === $action ) {
 		$processed = process_form_new();

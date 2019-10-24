@@ -19,11 +19,11 @@ if ( ! $core_tests_directory ) {
 	return;
 }
 
-require_once( $core_tests_directory . '/includes/functions.php' );
-require_once( dirname( dirname( $core_tests_directory ) ) . '/build/wp-admin/includes/plugin.php' );
+require_once $core_tests_directory . '/includes/functions.php';
+require_once dirname( dirname( $core_tests_directory ) ) . '/build/wp-admin/includes/plugin.php';
 
 tests_add_filter( 'muplugins_loaded', function() {
-	require_once( dirname( __DIR__ )  . '/index.php' );
+	require_once dirname( __DIR__ )  . '/index.php';
 } );
 
-require_once( $core_tests_directory . '/includes/bootstrap.php' );
+require_once $core_tests_directory . '/includes/bootstrap.php';

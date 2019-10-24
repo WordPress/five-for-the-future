@@ -13,7 +13,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 				I understand and agree to the <a href="%s">expectations</a> for
 				inclusion in the Five for the Future acknowledgement program.
 			' ),
-			get_permalink( get_page_by_path( 'expectations' ) ) // TODO Change this URL?
+			esc_url( get_permalink( get_page_by_path( 'expectations' ) ) ) // TODO Change this URL?
 		);
 		?>
 	</p>

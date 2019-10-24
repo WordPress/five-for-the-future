@@ -20,7 +20,7 @@ const PREFIX = '5ftf';
 add_action( 'plugins_loaded', __NAMESPACE__ . '\load' );
 
 /**
- *
+ * Include the rest of the plugin.
  */
 function load() {
 	require_once get_includes_path() . 'contributor.php';
