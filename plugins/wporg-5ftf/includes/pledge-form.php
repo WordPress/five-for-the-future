@@ -27,6 +27,7 @@ function render_form_new() {
 	$data     = get_form_submission();
 	$messages = [];
 	$complete = false;
+	$directory_url = get_permalink( get_page_by_path( 'pledges') );
 
 	if ( 'Submit Pledge' === $action ) {
 		$processed = process_form_new();

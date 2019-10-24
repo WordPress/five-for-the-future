@@ -3,8 +3,12 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 
-/** @var array $messages */
-/** @var bool  $complete */
+/**
+ * @var array  $messages
+ * @var bool   $complete
+ * @var string $directory_url
+ */
+
 ?>
 
 <p>
@@ -24,11 +28,20 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 <?php if ( true === $complete ) : ?>
 
 	<div class="notice notice-success notice-alt">
-		<p><?php esc_html_e( 'Thanks for pledging Five for the Future! Your new pledge profile has been created, and we’ve emailed you a link you can use to edit your pledge in the future. Your contributors have also been emailed a link to confirm their contributions with your organization.', 'wporg' ); ?></p>
+		<p><?php esc_html_e( 'Thanks for pledging to Five for the Future! Your new pledge profile has been created, and we’ve emailed you a link to confirm your address. Your contributors have also been emailed a link to confirm their participation with your organization.', 'wporg' ); ?></p>
 
-		<p><?php esc_html_e( 'Once your pledge has been approved by a moderator, it will appear in the pledges list.', 'wporg' ); ?></p>
+		<p>
+			<?php echo wp_kses_post( sprintf(
+				__( 'After those steps are completed, your pledge will appear in <a href="%s">the directory</a>.', 'wporg' ),
+				esc_url( $directory_url )
+			) ); ?>
+		</p>
 
-		<p><?php esc_html_e( 'Want to hire additional employees to contribute to WordPress? Post a job listing on jobs.wordpress.net.', 'wporg' ); ?></p>
+		<p>
+			<?php echo wp_kses_post(
+				__( 'Do you want to hire additional employees to contribute to WordPress? <a href="https://jobs.wordpress.net">Post a job listing on jobs.wordpress.net</a>.', 'wporg' )
+			); ?>
+		</p>
 	</div>
 
 <?php else : ?>
