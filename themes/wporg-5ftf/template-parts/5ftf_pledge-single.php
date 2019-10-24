@@ -58,9 +58,11 @@ $contributors = Contributor\get_contributor_user_objects(
 				?>
 			</p>
 			<ul class="team-grid">
-				<?php foreach ( $contribution_data['teams'] as $team ) : ?>
+				<?php foreach ( $contribution_data['teams'] as $team ) :
+					$badge_classes = get_badge_classes( $team );
+					?>
 					<li>
-						<span class="team-badge team-<?php echo esc_attr( strtolower( $team ) ); ?>"></span>
+						<div class="badge item dashicons <?php echo esc_attr( implode( ' ', $badge_classes ) ); ?>"></div>
 						<?php echo esc_html( $team ); ?>
 					</li>
 				<?php endforeach; ?>

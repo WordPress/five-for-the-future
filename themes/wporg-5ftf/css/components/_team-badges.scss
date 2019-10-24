@@ -1,0 +1,170 @@
+/**
+ * Copied from the profiles.wordpress.org theme stylesheet.
+ */
+
+.team-grid div.dashicons:before {
+	position: relative;
+	top: 2px;
+	font-size: 24px;
+}
+
+.badge {
+	margin: 4px;
+	width: 32px;
+	height: 32px;
+	border: 2px solid white;
+	border-radius: 50%;
+	box-sizing: border-box;
+	position: relative;
+	//position: absolute;
+	//top: 8px;
+	//left: 0;
+}
+
+.badge-themes-reviewer {
+	background: rgba(78, 50, 136, 0.25);
+	box-shadow: 0 0 0 4px rgb(78, 50, 136);
+}
+.badge-themes-reviewer:before {
+	color: rgb(78, 50, 136);
+}
+
+.badge-plugins-reviewer {
+	background: rgba(240, 103, 35, 0.25);
+	box-shadow: 0 0 0 4px rgb(240, 103, 35);
+}
+.badge-plugins-reviewer:before {
+	color: rgb(240, 103, 35);
+}
+
+.badge-community {
+	background: rgba(17, 121, 157, 0.25);
+	box-shadow: 0 0 0 4px rgb(17, 121, 157);
+}
+.badge-community:before {
+	color: rgb(17, 121, 157);
+}
+
+.badge-meta {
+	background: rgba(174, 173, 173, 0.25);
+	box-shadow: 0 0 0 4px rgb(174, 173, 173);
+}
+.badge-meta:before {
+	color: rgb(174, 173, 173);
+}
+
+.badge-code-committer {
+	background: rgba(205, 0, 0, 0.25);
+	box-shadow: 0 0 0 4px rgb(205, 0, 0);
+}
+.badge-code-committer:before {
+	color: rgb(205, 0, 0);
+}
+
+.badge-support {
+	background: rgba(51, 180, 206, 0.25);
+	box-shadow: 0 0 0 4px rgb(51, 180, 206);
+}
+.badge-support:before {
+	color: rgb(51, 180, 206);
+}
+
+.badge-wordpress-tv {
+	background: rgba(115, 173, 48, 0.25);
+	box-shadow: 0 0 0 4px rgb(115, 173, 48);
+}
+.badge-wordpress-tv:before {
+	color: rgb(115, 173, 48);
+}
+
+.badge-accessibility {
+	background: rgba(17, 121, 157, 0.25);
+	box-shadow: 0 0 0 4px rgb(17, 121, 157);
+}
+.badge-accessibility:before {
+	color: rgb(17, 121, 157);
+}
+
+.badge-documentation {
+	background: rgba(59, 114, 54, 0.25);
+	box-shadow: 0 0 0 4px rgb(59, 114, 54);
+}
+.badge-documentation:before {
+	color: rgb(59, 114, 54);
+}
+
+.badge-mobile {
+	background: rgba(251, 161, 108, 0.25);
+	box-shadow: 0 0 0 4px rgb(251, 161, 108);
+}
+.badge-mobile:before {
+	color: rgb(251, 161, 108);
+}
+
+.badge-training{
+	background: rgba(233, 192, 45, 0.25);
+	box-shadow: 0 0 0 4px rgb(233, 192, 45);
+}
+.badge-training:before {
+	color: rgb(233, 192, 45);
+}
+
+.badge-translation-editor {
+	background: rgba(195, 34, 131, 0.25);
+	box-shadow: 0 0 0 4px rgb(195, 34, 131);
+}
+.badge-translation-editor:before {
+	color: rgb(195, 34, 131);
+}
+
+.badge-design {
+	background: rgba(238, 194, 106, 0.25);
+	box-shadow: 0 0 0 4px rgb(238, 194, 106);
+}
+.badge-design:before {
+	color: rgb(238, 194, 106);
+}
+
+.badge-marketing {
+	background: rgba(71, 190, 167, 0.25);
+	box-shadow: 0 0 0 4px rgb(71, 190, 167);
+}
+.badge-marketing:before {
+	color: rgb(71, 190, 167);
+}
+
+.badge-wp-cli {
+	background: rgba(66, 66, 66, 0.25);
+	box-shadow: 0 0 0 4px rgb(66, 66, 66);
+}
+.badge-wp-cli:before {
+	color: rgb(66, 66, 66);
+}
+
+.badge-hosting {
+	background: rgba(83, 88, 166, 0.25);
+	box-shadow: 0 0 0 4px rgb(83, 88, 166);
+}
+.badge-hosting:before {
+	color: rgb(83, 88, 166);
+}
+
+.badge-tide {
+	background: rgb(197, 201, 255);
+	box-shadow: 0 0 0 4px rgb(21, 38, 255);
+}
+.badge-tide:before {
+	color: rgb(21, 38, 255);
+}
+
+.badge-security-team {
+	background: rgba(0, 204, 58, 0.25);
+	box-shadow: 0 0 0 4px rgb(0, 204, 58);
+}
+.badge-security-team:before {
+	color: rgb(0, 204, 58);
+}
+
+.badge-test {
+	// TODO
+}
