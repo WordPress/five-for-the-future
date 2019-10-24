@@ -5,6 +5,7 @@
 
 namespace WordPressdotorg\Five_for_the_Future\Theme;
 
+use WordPressDotOrg\FiveForTheFuture\Contributor;
 use WordPressDotOrg\FiveForTheFuture\PledgeMeta;
 
 $data = array();
@@ -13,8 +14,7 @@ foreach ( PledgeMeta\get_pledge_meta_config() as $key => $config ) {
 	$data[ $key ] = get_post_meta( get_the_ID(), PledgeMeta\META_PREFIX . $key, $config['single'] );
 }
 
-// @todo Get real contributors from the post.
-$contributors = array();
+$contributors = Contributor\get_pledge_contributors( get_the_ID() );
 $count        = count( $contributors );
 
 $content = apply_filters( 'the_content', $data['org-description'] );
@@ -60,11 +60,17 @@ $contributor_title = sprintf(
 			<?php /* phpcs:ignore -- escaped above */ ?>
 			<h3><?php echo $contributor_title ?></h3>
 
-			<?php foreach ( $contributors as $contrib_email ) : ?>
-				<span class="pledge-contributor__avatar">
-					<?php echo get_avatar( $contrib_email, 30, 'blank' ); ?>
-				</span>
-			<?php endforeach; ?>
+			<?php
+			foreach ( $contributors as $contrib_post ) {
+				$contrib = get_user_by( 'login', $contrib_post->post_title );
+				if ( $contrib ) {
+					printf(
+						'<span class="pledge-contributor__avatar">%s</span>',
+						get_avatar( $contrib->user_email, 30, 'blank' )
+					);
+				}
+			}
+			?>
 		</div><!-- .pledge-contributors -->
 
 	</div><!-- .entry-content -->
