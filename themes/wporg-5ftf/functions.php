@@ -273,7 +273,7 @@ function get_badge_classes( $team ) {
 			break;
 
 		case 'test':
-			$classes = array( 'badge-test' ); // TODO
+			$classes = array( 'badge-test-team', 'dashicons-desktop' );
 			break;
 
 		case 'themes':

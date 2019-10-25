@@ -165,6 +165,10 @@
 	color: rgb(0, 204, 58);
 }
 
-.badge-test {
-	// TODO
+.badge-test-team {
+	background: rgba(136, 79, 174, 0.25);
+	box-shadow: 0 0 0 4px rgb(136, 79, 174);
+}
+.badge-test-team:before {
+	color: rgb(136, 79, 174);
 }
