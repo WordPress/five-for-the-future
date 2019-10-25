@@ -100,6 +100,11 @@ function populate_list_table_columns( $column, $post_id ) {
 			$contributor = get_post( $post_id );
 			$pledge      = get_post( $contributor->post_parent );
 
+			if ( ! $pledge ) {
+				esc_html_e( 'Unattached', 'wordpressorg' );
+				break;
+			}
+
 			$pledge_name = get_the_title( $pledge );
 
 			if ( current_user_can( 'edit_post', $pledge->ID ) ) {
