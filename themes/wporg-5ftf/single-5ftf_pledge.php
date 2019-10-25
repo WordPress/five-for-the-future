@@ -46,23 +46,23 @@ get_header(); ?>
 
 					<p>
 						<?php
-						printf(
-							wp_kses_post( __( '%1$s sponsors %2$s for a total of <strong>%3$s</strong> hours per week.', 'wporg' ) ),
+						echo wp_kses_post( sprintf(
+							__( '%1$s sponsors %2$s for a total of <strong>%3$s</strong> hours per week.', 'wporg' ),
 							get_the_title(),
 							sprintf(
 								_n( '<strong>%d</strong> contributor', '<strong>%d</strong> contributors', $contribution_data['contributors'], 'wporg' ),
 								number_format_i18n( absint( $contribution_data['contributors'] ) )
 							),
 							number_format_i18n( absint( $contribution_data['hours'] ) )
-						);
+						) );
 						?>
 					</p>
 					<p>
 						<?php
-						printf(
-							wp_kses_post( __( 'Contributors from %s work on the following teams:', 'wporg' ) ),
+						echo wp_kses_post( sprintf(
+							__( 'Contributors from %s work on the following teams:', 'wporg' ),
 							get_the_title()
-						);
+						) );
 						?>
 					</p>
 					<ul class="team-grid">
@@ -89,7 +89,7 @@ get_header(); ?>
 									'<a href="%1$s">%2$s</a>',
 									sprintf(
 										'https://profiles.wordpress.org/%s/',
-										sanitize_key( $contributor->user_login )
+										sanitize_key( $contributor->user_login ) // phpcs:ignore WordPress.Security.EscapeOutput -- sanitize_key will catch any security issues.
 									),
 									esc_html( $contributor->display_name )
 								);

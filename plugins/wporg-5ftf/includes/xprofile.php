@@ -38,7 +38,7 @@ function get_xprofile_contribution_data( array $user_ids ) {
 		implode( ', ', array_map( 'absint', $field_ids ) )
 	);
 
-	return $wpdb->get_results( $sql, ARRAY_A );
+	return $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL -- prepare called above.
 }
 
 /**
@@ -50,7 +50,8 @@ function get_xprofile_contribution_data( array $user_ids ) {
  */
 function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 	$contributors = Contributor\get_contributor_user_objects(
-		Contributor\get_pledge_contributors( $pledge_id, 'pending' ) // TODO set to 'publish' when finished testing
+		// TODO set to 'publish' when finished testing.
+		Contributor\get_pledge_contributors( $pledge_id, 'pending' )
 	);
 	$user_ids     = wp_list_pluck( $contributors, 'ID' );
 
@@ -63,7 +64,7 @@ function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 	);
 
 	$aggregate_data = array_reduce( $data, function( $carry, $item ) {
-		switch( $item['field_id'] ) {
+		switch ( $item['field_id'] ) {
 			case 29: // Hours.
 				$carry['hours'] += absint( $item['value'] );
 				break;

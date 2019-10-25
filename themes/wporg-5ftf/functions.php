@@ -217,7 +217,7 @@ add_filter( 'script_loader_src', __NAMESPACE__ . '\loader_src', 10, 2 );
  * @return array
  */
 function get_badge_classes( $team ) {
-	switch( strtolower( $team ) ) {
+	switch ( strtolower( $team ) ) {
 		case 'accessibility':
 			$classes = array( 'badge-accessibility', 'dashicons-universal-access' );
 			break;
