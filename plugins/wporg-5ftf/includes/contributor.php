@@ -140,6 +140,20 @@ function create_new_contributor( $wporg_username, $pledge_id ) {
 }
 
 /**
+ * Remove a contributor post from a pledge.
+ *
+ * This wrapper function ensures we have a standardized way of removing a contributor that will still
+ * transition a post status (see PledgeMeta\update_confirmed_contributor_count).
+ *
+ * @param int $contributor_post_id
+ *
+ * @return false|WP_Post|null
+ */
+function remove_contributor( $contributor_post_id ) {
+	return wp_trash_post( $contributor_post_id );
+}
+
+/**
  * Get the contributor posts associated with a particular pledge post.
  *
  * @param int    $pledge_id The post ID of the pledge.

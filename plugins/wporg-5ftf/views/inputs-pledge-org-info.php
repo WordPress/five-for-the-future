@@ -60,17 +60,3 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		echo esc_html( $data['org-description'] );
 	/* phpcs:ignore */ ?></textarea>
 </div>
-
-<div class="form-field">
-	<label for="5ftf-org-number-employees">
-		<?php esc_html_e( 'Number of Employees Being Contributed', 'wordpressorg' ); ?>
-	</label>
-	<input
-		type="number"
-		id="5ftf-org-number-employees"
-		name="org-number-employees"
-		value="<?php echo esc_attr( $data['org-number-employees'] ); ?>"
-		required
-		<?php echo $readonly ? 'readonly' : ''; ?>
-	/>
-</div>

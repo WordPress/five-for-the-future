@@ -15,10 +15,11 @@ defined( 'WPINC' ) || die();
 
 const META_PREFIX = FiveForTheFuture\PREFIX . '_';
 
-add_action( 'init',                  __NAMESPACE__ . '\register_pledge_meta' );
-add_action( 'admin_init',            __NAMESPACE__ . '\add_meta_boxes' );
-add_action( 'save_post',             __NAMESPACE__ . '\save_pledge', 10, 2 );
-add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\enqueue_assets' );
+add_action( 'init',                   __NAMESPACE__ . '\register_pledge_meta' );
+add_action( 'admin_init',             __NAMESPACE__ . '\add_meta_boxes' );
+add_action( 'save_post',              __NAMESPACE__ . '\save_pledge', 10, 2 );
+add_action( 'admin_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
+add_action( 'transition_post_status', __NAMESPACE__ . '\update_confirmed_contributor_count', 10, 3 );
 
 // Both hooks must be used because `updated` doesn't fire if the post meta didn't previously exist.
 add_action( 'updated_postmeta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
@@ -31,47 +32,46 @@ add_action( 'added_post_meta',  __NAMESPACE__ . '\update_generated_meta', 10, 4 
  */
 function get_pledge_meta_config( $context = '' ) {
 	$user_input = array(
-		'org-description'      => array(
+		'org-description'  => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
-		'org-name'             => array(
+		'org-name'         => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
-		'org-url'              => array(
+		'org-url'          => array(
 			'single'            => true,
 			'sanitize_callback' => 'esc_url_raw',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_VALIDATE_URL,
 		),
-		'org-pledge-email'     => array(
+		'org-pledge-email' => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_email',
 			'show_in_rest'      => false,
 			'php_filter'        => FILTER_VALIDATE_EMAIL,
 		),
-		'org-number-employees' => array(
-			'single'            => true,
-			'sanitize_callback' => 'absint',
-			'show_in_rest'      => false,
-			'php_filter'        => FILTER_VALIDATE_INT,
-		),
 	);
 
 	$generated = array(
-		'org-domain'             => array(
+		'org-domain'                    => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => false,
 		),
-		'pledge-email-confirmed' => array(
+		'pledge-email-confirmed'        => array(
 			'single'            => true,
 			'sanitize_callback' => 'wp_validate_boolean',
+			'show_in_rest'      => false,
+		),
+		'pledge-confirmed-contributors' => array(
+			'single'            => true,
+			'sanitize_callback' => 'absint',
 			'show_in_rest'      => false,
 		),
 	);
@@ -282,6 +282,36 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 		case META_PREFIX . 'pledge-email':
 			delete_post_meta( $object_id, META_PREFIX . 'pledge-email-confirmed' );
 			break;
+	}
+}
+
+/**
+ * Update the cached count of confirmed contributors for a pledge when a contributor post changes statuses.
+ *
+ * Note that contributor posts should always be trashed instead of deleted completely when a contributor is
+ * removed from a pledge.
+ *
+ * @param string  $new_status
+ * @param string  $old_status
+ * @param WP_Post $post
+ *
+ * @return void
+ */
+function update_confirmed_contributor_count( $new_status, $old_status, WP_Post $post ) {
+	if ( Contributor\CPT_ID !== get_post_type( $post ) ) {
+		return;
+	}
+
+	if ( $new_status === $old_status ) {
+		return;
+	}
+
+	$pledge = get_post( $post->post_parent );
+
+	if ( $pledge instanceof WP_Post ) {
+		$confirmed_contributors = Contributor\get_pledge_contributors( $pledge->ID, 'publish' );
+
+		update_post_meta( $pledge->ID, META_PREFIX . 'pledge-confirmed-contributors', count( $confirmed_contributors ) );
 	}
 }
 
