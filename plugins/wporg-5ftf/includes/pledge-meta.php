@@ -32,35 +32,29 @@ add_action( 'added_post_meta',  __NAMESPACE__ . '\update_generated_meta', 10, 4 
  */
 function get_pledge_meta_config( $context = '' ) {
 	$user_input = array(
-		'org-description'      => array(
+		'org-description'  => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
-		'org-name'             => array(
+		'org-name'         => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
-		'org-url'              => array(
+		'org-url'          => array(
 			'single'            => true,
 			'sanitize_callback' => 'esc_url_raw',
 			'show_in_rest'      => true,
 			'php_filter'        => FILTER_VALIDATE_URL,
 		),
-		'org-pledge-email'     => array(
+		'org-pledge-email' => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_email',
 			'show_in_rest'      => false,
 			'php_filter'        => FILTER_VALIDATE_EMAIL,
-		),
-		'org-number-employees' => array(
-			'single'            => true,
-			'sanitize_callback' => 'absint',
-			'show_in_rest'      => false,
-			'php_filter'        => FILTER_VALIDATE_INT,
 		),
 	);
 
