@@ -100,6 +100,11 @@ function populate_list_table_columns( $column, $post_id ) {
 			$contributor = get_post( $post_id );
 			$pledge      = get_post( $contributor->post_parent );
 
+			if ( ! $pledge ) {
+				esc_html_e( 'Unattached', 'wordpressorg' );
+				break;
+			}
+
 			$pledge_name = get_the_title( $pledge );
 
 			if ( current_user_can( 'edit_post', $pledge->ID ) ) {
@@ -132,6 +137,20 @@ function create_new_contributor( $wporg_username, $pledge_id ) {
 	);
 
 	return wp_insert_post( $args, true );
+}
+
+/**
+ * Remove a contributor post from a pledge.
+ *
+ * This wrapper function ensures we have a standardized way of removing a contributor that will still
+ * transition a post status (see PledgeMeta\update_confirmed_contributor_count).
+ *
+ * @param int $contributor_post_id
+ *
+ * @return false|WP_Post|null
+ */
+function remove_contributor( $contributor_post_id ) {
+	return wp_trash_post( $contributor_post_id );
 }
 
 /**
