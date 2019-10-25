@@ -11,6 +11,8 @@ $contributors = Contributor\get_contributor_user_objects(
 	Contributor\get_pledge_contributors( get_the_ID(), 'pending' ) // TODO set to 'publish' when finished testing
 );
 
+$report_page = get_page_by_path( 'report' );
+
 /** @var WP_Post $post */
 ?>
 
@@ -95,7 +97,6 @@ $contributors = Contributor\get_contributor_user_objects(
 	</div>
 
 	<footer class="entry-footer">
-		<!-- TODO Determine URL for reporting a pledge -->
-		<a href="#"><?php esc_html_e( 'Report a problem', 'wporg' ); ?></a>
+		<a href="<?php the_permalink( $report_page ); ?>"><?php esc_html_e( 'Report a problem', 'wporg' ); ?></a>
 	</footer>
 </article>
