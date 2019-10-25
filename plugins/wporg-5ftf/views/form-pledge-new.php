@@ -30,7 +30,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 <?php if ( true === $complete ) : ?>
 
 	<div class="notice notice-success notice-alt">
-		<p><?php esc_html_e( 'Thanks for pledging to Five for the Future! Your new pledge profile has been created, and we’ve emailed you a link to confirm your address. Your contributors have also been emailed a link to confirm their participation with your organization.', 'wporg' ); ?></p>
+		<p><?php esc_html_e( "Thanks for pledging to Five for the Future! Your new pledge profile has been created, and we’ve emailed you a link to confirm your address. Once that's done, we'll also email confirmation links to your contributors.", 'wporg' ); ?></p>
 
 		<p>
 			<?php echo wp_kses_post( sprintf(
@@ -42,6 +42,9 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 		<p>
 			<?php echo wp_kses_post(
 				__( 'Do you want to hire additional employees to contribute to WordPress? <a href="https://jobs.wordpress.net">Post a job listing on jobs.wordpress.net</a>.', 'wporg' )
+				// todo ask mel about moving this outside the `notice-success`, since it's not really part of the success notification, and distracts from it.
+				// many users have notification fatigue and no longer trust them or pay attention to them, because they're so often misused for non-critical information,
+				// and the jobs thing is more of an "ad" in this context than something directly related to the process the user wants to complete
 			); ?>
 		</p>
 	</div>

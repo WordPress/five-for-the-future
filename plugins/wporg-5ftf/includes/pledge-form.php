@@ -6,7 +6,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeMeta, Contributor };
+use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeMeta, Contributor, Email };
 use WP_Error, WP_User;
 
 defined( 'WPINC' ) || die();
@@ -21,11 +21,12 @@ add_shortcode( '5ftf_pledge_form_manage', __NAMESPACE__ . '\render_form_manage' 
  * @return false|string
  */
 function render_form_new() {
-	$action        = filter_input( INPUT_POST, 'action' );
+	$action        = isset( $_GET['action'] ) ? filter_input( INPUT_GET, 'action' ) : filter_input( INPUT_POST, 'action' );
 	$data          = get_form_submission();
 	$messages      = [];
 	$complete      = false;
 	$directory_url = get_permalink( get_page_by_path( 'pledges' ) );
+	$view          = 'form-pledge-new.php';
 
 	if ( 'Submit Pledge' === $action ) {
 		$processed = process_form_new();
@@ -35,11 +36,16 @@ function render_form_new() {
 		} elseif ( 'success' === $processed ) {
 			$complete = true;
 		}
+	} else if ( 'confirm_pledge_email' === $action ) {
+		$view             = 'form-pledge-confirm-email.php';
+		$pledge_id        = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
+		$unverified_token = filter_input( INPUT_GET, 'auth_token', FILTER_SANITIZE_STRING );
+		$email_confirmed  = process_email_confirmation( $pledge_id, $action, $unverified_token );
 	}
 
 	ob_start();
 	$readonly = false;
-	require FiveForTheFuture\PATH . 'views/form-pledge-new.php';
+	require FiveForTheFuture\get_views_path() . $view;
 
 	return ob_get_clean();
 }
@@ -112,6 +118,40 @@ function process_form_new() {
 }
 
 /**
+ * Process a request to confirm a company's email address.
+ *
+ * @param int    $pledge_id
+ * @param string $action
+ * @param array  $unverified_token
+ *
+ * @return bool
+ */
+function process_email_confirmation( $pledge_id, $action, $unverified_token ) {
+	$meta_key          = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
+	$already_confirmed = get_post( $pledge_id )->$meta_key;
+
+	if ( $already_confirmed ) {
+		/*
+		 * If they refresh the page after confirming, they'd otherwise get an error because the token had been
+		 * used, and might be confused and think that the address wasn't confirmed.
+		 *
+		 * This leaks the fact that the address is confirmed, because it will return true even if the token is
+		 * invalid, but there aren't any security/privacy implications of that.
+		 */
+		return true;
+	}
+
+	$email_confirmed = Email\is_valid_authentication_token( $pledge_id, $action, $unverified_token );
+
+	if ( $email_confirmed ) {
+		update_post_meta( $pledge_id, $meta_key, true );
+		wp_update_post( array( 'ID' => $pledge_id, 'post_status' => 'publish' ) );
+	}
+
+	return $email_confirmed;
+}
+
+/**
  * Render the form(s) for managing existing pledges.
  *
  * @return false|string
@@ -179,6 +219,12 @@ function process_form_manage() {
 			__( 'A pledge already exists for this domain.', 'wporg' )
 		);
 	}
+
+	// todo email any new contributors for confirmation
+	// notify any removed contributors?
+		// ask them to update their profiles?
+	// automatically update contributor profiles?
+	// anything else?
 }
 
 /**

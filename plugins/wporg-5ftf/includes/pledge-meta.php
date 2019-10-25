@@ -184,10 +184,19 @@ function render_meta_boxes( $pledge, $box ) {
  * @param WP_Post $pledge
  */
 function save_pledge( $pledge_id, $pledge ) {
-	$action          = filter_input( INPUT_GET, 'action' );
+	$get_action      = filter_input( INPUT_GET, 'action' );
+	$post_action     = filter_input( INPUT_POST, 'action' );
 	$ignored_actions = array( 'trash', 'untrash', 'restore' );
 
-	if ( $action && in_array( $action, $ignored_actions, true ) ) {
+	/*
+	 * This is only intended to run when the front end form and wp-admin forms are submitted, not when posts are
+	 * programmatically updated.
+	 */
+	if ( 'Submit Pledge' !== $post_action && 'editpost' !== $get_action ) {
+		return;
+	}
+
+	if ( $get_action && in_array( $get_action, $ignored_actions, true ) ) {
 		return;
 	}
 

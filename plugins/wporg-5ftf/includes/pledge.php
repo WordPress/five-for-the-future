@@ -5,6 +5,7 @@
  */
 
 namespace WordPressDotOrg\FiveForTheFuture\Pledge;
+use WordPressDotOrg\FiveForTheFuture\Email;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WP_Error;
@@ -127,5 +128,42 @@ function create_new_pledge( $name ) {
 		'post_status' => 'draft',
 	);
 
-	return wp_insert_post( $args, true );
+
+	$pledge_id = wp_insert_post( $args, true );
+	// The pledge's meta data is saved at this point via `save_pledge_meta()`, which is a `save_post` callback.
+
+	if ( ! is_wp_error( $pledge_id ) ) {
+		send_pledge_verification_email( $pledge_id, get_post()->ID );
+	}
+
+	return $pledge_id;
+}
+
+/**
+ * Email pledge manager to confirm their email address.
+ *
+ * @param int $pledge_id      The ID of the pledge.
+ * @param int $action_page_id The ID of the page that the user will be taken back to, in order to process their
+ *                            verification request.
+ *
+ * @return bool
+ */
+function send_pledge_verification_email( $pledge_id, $action_page_id ) {
+	$pledge = get_post( $pledge_id );
+
+	$message =
+		'Thanks for committing to help keep WordPress sustainable! Please confirm this email address ' .
+		'so that we can accept your pledge:' . "\n\n" .
+		Email\get_authentication_url( $pledge_id, 'confirm_pledge_email', $action_page_id )
+	;
+
+	// todo include a notice that the link will expire in X hours, so they know what to expect
+		// need to make that value DRY across all emails with links
+	// should probably say that on the front end form success message as well, so they know to go check their email now instead of after lunch.
+
+	return Email\send_email(
+		$pledge->{'5ftf_org-pledge-email'},
+		'Please confirm your email address',
+		$message
+	);
 }
