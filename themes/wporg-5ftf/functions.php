@@ -113,7 +113,7 @@ add_action( 'after_setup_theme', __NAMESPACE__ . '\setup' );
  * @global int $content_width
  */
 function content_width() {
-	$GLOBALS['content_width'] = apply_filters( 'wporg_plugins_content_width', 640 );
+	$GLOBALS['content_width'] = 960;
 }
 add_action( 'after_setup_theme', __NAMESPACE__ . '\content_width', 0 );
 
