@@ -185,7 +185,7 @@ function render_meta_boxes( $pledge, $box ) {
  */
 function save_pledge( $pledge_id, $pledge ) {
 	$get_action      = filter_input( INPUT_GET, 'action' );
-	$post_action     = $_POST['action'] ?? null;
+	$post_action     = filter_input( INPUT_POST, 'action' );
 	$ignored_actions = array( 'trash', 'untrash', 'restore' );
 
 	/*

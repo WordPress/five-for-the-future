@@ -13,7 +13,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 	<div class="notice notice-success notice-alt">
 		<p>
-			Thank you for confirming your address! Your pledge will show up in <a href="<?php echo esc_url( $directory_url ); ?>">the directory</a> once one of your contributors confirms their participation.
+			Thank you for confirming your address! We've emailed confirmation links to your contributors, and your pledge will show up in <a href="<?php echo esc_url( $directory_url ); ?>">the directory</a> once one of them confirms their participation.
 		</p>
 	</div>
 

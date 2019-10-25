@@ -134,7 +134,6 @@ function create_new_pledge( $name ) {
 
 	if ( ! is_wp_error( $pledge_id ) ) {
 		send_pledge_verification_email( $pledge_id, get_post()->ID );
-		send_contributor_verification_email();
 	}
 
 	return $pledge_id;
@@ -167,9 +166,4 @@ function send_pledge_verification_email( $pledge_id, $action_page_id ) {
 		'Please confirm your email address',
 		$message
 	);
-}
-
-// todo
-function send_contributor_verification_email() {
-	// todo
 }
