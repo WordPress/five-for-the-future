@@ -18,16 +18,18 @@ $report_page = get_page_by_path( 'report' );
 
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
-		<?php the_title( '<h2 class="entry-title">', '</h2>' ); ?>
-		<span>
-			<?php
-			printf(
-				'<a href="%1$s">%1$s</a>',
-				esc_url( $post->{'5ftf_org-url'} )
-			);
-			?>
-		</span>
-		<!-- TODO logo -->
+		<div class="">
+			<?php the_title( '<h2 class="entry-title">', '</h2>' ); ?>
+			<span>
+				<?php
+				printf(
+					'<a href="%1$s">%1$s</a>',
+					esc_url( $post->{'5ftf_org-url'} )
+				);
+				?>
+			</span>
+		</div>
+		<?php the_post_thumbnail( array( 288, 288 ) ); ?>
 	</header>
 
 	<div class="entry-content">
