@@ -11,9 +11,11 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 
 ?>
 
+<!-- TODO Reveal this once managing an existing pledge is actually possible.
 <p>
 	<a href="#">Manage an existing pledge</a>
 </p>
+-->
 
 <?php if ( ! empty( $messages ) ) : ?>
 
