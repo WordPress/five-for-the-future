@@ -285,6 +285,7 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 		case META_PREFIX . 'org-name':
 			if ( 'updated_postmeta' === current_action() ) {
 				wp_update_post( array(
+					'ID'         => $object_id,
 					'post_title' => $_meta_value,
 				) );
 			}
