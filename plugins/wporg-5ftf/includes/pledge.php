@@ -143,9 +143,23 @@ function filter_query( $query ) {
 		return;
 	}
 
+	// Set up meta queries to include the "valid pledge" check, added to both search and any pledge requests.
+	$meta_queries = (array) $query->get( 'meta_query' );
+	$meta_queries[] = array(
+		'key' => META_PREFIX . 'org-number-employees',
+		'value' => 0,
+		'compare' => '>',
+		'type' => 'NUMERIC',
+	);
+
+	if ( CPT_ID === $query->get( 'post_type' ) ) {
+		$query->set( 'meta_query', $meta_queries );
+	}
+
 	// Searching is restricted to pledges only.
 	if ( $query->is_search ) {
 		$query->set( 'post_type', CPT_ID );
+		$query->set( 'meta_query', $meta_queries );
 	}
 
 	// Use the custom order param to sort the archive page.
