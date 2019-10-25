@@ -1,0 +1,58 @@
+body.archive.post-type-archive-5ftf_pledge {
+
+	// Expand archive content area to full-width of header.
+	.site-content .site-main {
+		padding: 0 10px;
+		max-width: $size__site-main;
+	}
+
+	.page-header {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		align-items: center;
+		margin: ms(12) 0;
+
+		.page-title {
+			grid-column: 1;
+			grid-row: 1;
+			margin: 0;
+		}
+
+		.page-header-callout {
+			grid-column: 2;
+			grid-row: 1;
+		}
+
+		.page-header-controls {
+			grid-column: 1 / span 2;
+			grid-row: 2;
+
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			margin-top: ms(2);
+			border-top: 1px solid $color-gray-light-500;
+			padding-top: ms(2);
+
+			form:nth-of-type(2n+1) {
+				grid-column: 1;
+				grid-row: 1;
+			}
+
+			form:nth-of-type(2n) {
+				grid-column: 2;
+				grid-row: 1;
+				text-align: right;
+			}
+		}
+	}
+	
+	.page-header-controls {
+		font-size: ms(-2);
+
+		label {
+			display: inline-block;
+			font-size: 1em;
+			font-weight: 700;
+		}
+	}
+}

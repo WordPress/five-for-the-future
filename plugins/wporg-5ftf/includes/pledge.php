@@ -9,6 +9,7 @@ use WordPressDotOrg\FiveForTheFuture\Email;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WP_Error;
+use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 defined( 'WPINC' ) || die();
 
@@ -18,6 +19,7 @@ const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
 
 add_action( 'init', __NAMESPACE__ . '\register', 0 );
 add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu' );
+add_action( 'pre_get_posts', __NAMESPACE__ . '\filter_query' );
 
 /**
  * Register all the things.
@@ -166,4 +168,54 @@ function send_pledge_verification_email( $pledge_id, $action_page_id ) {
 		'Please confirm your email address',
 		$message
 	);
+}
+
+/**
+ * Filter query for archive & search pages to ensure we're only showing the expected data.
+ *
+ * @param WP_Query $query The WP_Query instance (passed by reference).
+ * @return void
+ */
+function filter_query( $query ) {
+	if ( is_admin() || ! $query->is_main_query() ) {
+		return;
+	}
+
+	$contributor_count_key = META_PREFIX . 'pledge-confirmed-contributors';
+
+	// Set up meta queries to include the "valid pledge" check, added to both search and any pledge requests.
+	$meta_queries = (array) $query->get( 'meta_query' );
+	$meta_queries[] = array(
+		'key' => $contributor_count_key,
+		'value' => 0,
+		'compare' => '>',
+		'type' => 'NUMERIC',
+	);
+
+	if ( CPT_ID === $query->get( 'post_type' ) ) {
+		$query->set( 'meta_query', $meta_queries );
+	}
+
+	// Searching is restricted to pledges only.
+	if ( $query->is_search ) {
+		$query->set( 'post_type', CPT_ID );
+		$query->set( 'meta_query', $meta_queries );
+	}
+
+	// Use the custom order param to sort the archive page.
+	if ( $query->is_archive && CPT_ID === $query->get( 'post_type' ) ) {
+		$order = isset( $_GET['order'] ) ? $_GET['order'] : '';
+		switch ( $order ) {
+			case 'alphabetical':
+				$query->set( 'orderby', 'name' );
+				$query->set( 'order', 'ASC' );
+				break;
+
+			case 'contributors':
+				$query->set( 'meta_key', $contributor_count_key );
+				$query->set( 'orderby', 'meta_value_num' );
+				$query->set( 'order', 'DESC' );
+				break;
+		}
+	}
 }
