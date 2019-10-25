@@ -8,6 +8,7 @@ namespace WordPressDotOrg\FiveForTheFuture\Pledge;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WP_Error;
+use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 defined( 'WPINC' ) || die();
 
@@ -17,6 +18,7 @@ const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
 
 add_action( 'init', __NAMESPACE__ . '\register', 0 );
 add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu' );
+add_action( 'pre_get_posts', __NAMESPACE__ . '\filter_query' );
 
 /**
  * Register all the things.
@@ -128,4 +130,38 @@ function create_new_pledge( $name ) {
 	);
 
 	return wp_insert_post( $args, true );
+}
+
+/**
+ * Filter query for archive & search pages to ensure we're only showing the expected data.
+ *
+ * @param WP_Query $query The WP_Query instance (passed by reference).
+ * @return void
+ */
+function filter_query( $query ) {
+	if ( is_admin() || ! $query->is_main_query() ) {
+		return;
+	}
+
+	// Searching is restricted to pledges only.
+	if ( $query->is_search ) {
+		$query->set( 'post_type', CPT_ID );
+	}
+
+	// Use the custom order param to sort the archive page.
+	if ( $query->is_archive && CPT_ID === $query->get( 'post_type' ) ) {
+		$order = isset( $_GET['order'] ) ? $_GET['order'] : '';
+		switch ( $order ) {
+			case 'alphabetical':
+				$query->set( 'orderby', 'name' );
+				$query->set( 'order', 'ASC' );
+				break;
+
+			case 'contributors':
+				$query->set( 'meta_key', META_PREFIX . 'org-number-employees' );
+				$query->set( 'orderby', 'meta_value_num' );
+				$query->set( 'order', 'DESC' );
+				break;
+		}
+	}
 }
