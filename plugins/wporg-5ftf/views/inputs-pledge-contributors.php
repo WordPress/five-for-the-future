@@ -7,7 +7,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 <div class="form-field">
 	<label for="5ftf-pledge-contributors">
-		<?php esc_html_e( 'Contributors', 'wordpressorg' ); ?>
+		<?php esc_html_e( 'Contributor Usernames', 'wordpressorg' ); ?>
 	</label>
 	<input
 		type="text"
@@ -18,6 +18,6 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		aria-describedby="5ftf-pledge-contributors-help"
 	/>
 	<p id="5ftf-pledge-contributors-help">
-		<?php esc_html_e( 'Separate each username with a comma.', 'wordpressorg' ); ?>
+		<?php esc_html_e( 'Separate each WordPress.org username with a comma.', 'wordpressorg' ); ?>
 	</p>
 </div>
