@@ -61,19 +61,9 @@ function process_form_new() {
 		return $contributors;
 	}
 
-	// Process image.
-	if ( ! function_exists('media_handle_upload') ) {
-		require_once( ABSPATH . 'wp-admin/includes/image.php' );
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
-		require_once( ABSPATH . 'wp-admin/includes/media.php' );
-	}
-
-	$logo = isset( $_FILES['org-logo'] ) ? $_FILES['org-logo'] : false;
-	if ( $logo ) {
-		$logo_id = \media_handle_sideload( $logo, 0 );
-		if ( is_wp_error( $logo_id ) ) {
-			return $logo_id;
-		}
+	$logo_attachment_id = upload_image( $_FILES['org-logo'] );
+	if ( is_wp_error( $logo_attachment_id ) ) {
+		return $logo_attachment_id;
 	}
 
 	$name = sanitize_meta(
@@ -93,7 +83,12 @@ function process_form_new() {
 		Contributor\create_new_contributor( $wporg_username, $new_pledge_id );
 	}
 
-	set_post_thumbnail( $new_pledge_id, $logo_id );
+	// Attach logo to the pledge.
+	wp_update_post( array(
+		'ID'          => $logo_attachment_id,
+		'post_parent' => $new_pledge_id,
+	) );
+	set_post_thumbnail( $new_pledge_id, $logo_attachment_id );
 
 	return 'success';
 }
@@ -290,4 +285,65 @@ function validate_submission( $submission ) {
 	}
 
 	return false;
+}
+
+/**
+ * Upload the logo image into the media library.
+ *
+ * @param array $logo $_FILES array for the uploaded logo.
+ * @return int|WP_Error Upload attachment ID, or WP_Error if there was an error.
+ */
+function upload_image( $logo ) {
+	if ( ! $logo ) {
+		return false;
+	}
+
+	// Process image.
+	if ( ! function_exists('media_handle_upload') ) {
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+	}
+
+	if ( ! function_exists('check_upload_size') ) {
+		require_once ABSPATH . 'wp-includes/ms-functions.php';
+		require_once ABSPATH . 'wp-admin/includes/ms.php';
+	}
+
+	add_filter( 'upload_mimes', __NAMESPACE__ . '\safelist_image_mimes' );
+	add_filter( 'pre_site_option_fileupload_maxk', __NAMESPACE__ . '\restrict_file_size' );
+	add_filter( 'wp_handle_sideload_prefilter', 'check_upload_size' );
+
+	$logo_id = \media_handle_sideload( $logo, 0 );
+
+	remove_filter( 'upload_mimes', __NAMESPACE__ . '\safelist_image_mimes' );
+	remove_filter( 'pre_site_option_fileupload_maxk', __NAMESPACE__ . '\restrict_file_size' );
+	remove_filter( 'wp_handle_sideload_prefilter', 'check_upload_size' );
+
+	return $logo_id;
+}
+
+/**
+ * Only allow image mime types.
+ *
+ * @param array $mimes Mime types keyed by the file extension regex corresponding to those types.
+ */
+function safelist_image_mimes( $mimes ) {
+	return array(
+		'jpg|jpeg|jpe' => 'image/jpeg',
+		'gif'          => 'image/gif',
+		'png'          => 'image/png',
+		'bmp'          => 'image/bmp',
+		'tiff|tif'     => 'image/tiff',
+		'ico'          => 'image/x-icon',
+	);
+}
+
+/**
+ * Restrict images uploaded by this form to be less than 5MB.
+ *
+ * @param bool $value Null– returning a value will short-circuit the option lookup.
+ */
+function restrict_file_size( $value ) {
+	return 5 * MB_IN_BYTES;
 }
