@@ -18,12 +18,16 @@ get_header(); ?>
 
 		<header class="page-header">
 			<h1 class="page-title"><?php esc_html_e( 'Pledges', 'wordpressorg' ); ?></h1>
-			<a href="/for-organizations/" class="button"><?php esc_html_e( 'Pledge your company', 'wordpressorg' ); ?></a>
+			<div class="page-header-callout">
+				<a class="button" href="/for-organizations/" >
+					<?php esc_html_e( 'Pledge your company', 'wordpressorg' ); ?>
+				</a>
+			</div>
 
 			<div class="page-header-controls">
 				<form method="get" action="<?php echo esc_url( get_post_type_archive_link( CPT_ID ) ); ?>">
 					<label for="pledge-sort"><?php esc_html_e( 'Sort pledges by', 'wordpressorg' ); ?></label>
-					<select id="pledge-sort" name="order">
+					<select class="custom-select" id="pledge-sort" name="order">
 						<option value="" <?php selected( $_GET['order'], '' ); ?>>
 							<?php esc_html_e( 'All Pledges', 'wordpressorg' ); ?>
 						</option>
