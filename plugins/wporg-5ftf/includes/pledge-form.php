@@ -51,44 +51,29 @@ function render_form_new() {
  */
 function process_form_new() {
 	$submission = get_form_submission();
-
-	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
-
-	if ( is_wp_error( $has_required ) ) {
-		return $has_required;
-	}
-
-	$email = sanitize_meta(
-		PledgeMeta\META_PREFIX . 'org-pledge-email',
-		$submission['org-pledge-email'],
-		'post',
-		Pledge\CPT_ID
-	);
-
-	// todo make this validation DRY w/ process_form_manage().
-
-	if ( has_existing_pledge( $email, 'email' ) ) {
-		return new WP_Error(
-			'existing_pledge_email',
-			__( 'This email address is already connected to an existing pledge.', 'wporg' )
-		);
-	}
-
-	// todo should probably verify that email address is for the same domain as URL. do here and for manage.
-
-	$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
-
-	if ( has_existing_pledge( $domain, 'domain' ) ) {
-		return new WP_Error(
-			'existing_pledge_domain',
-			__( 'A pledge already exists for this domain.', 'wporg' )
-		);
+	$has_error = validate_submission( $submission );
+	if ( $has_error ) {
+		return $has_error;
 	}
 
 	$contributors = parse_contributors( $submission['pledge-contributors'] );
-
 	if ( is_wp_error( $contributors ) ) {
 		return $contributors;
+	}
+
+	// Process image.
+	if ( ! function_exists('media_handle_upload') ) {
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		require_once( ABSPATH . 'wp-admin/includes/file.php' );
+		require_once( ABSPATH . 'wp-admin/includes/media.php' );
+	}
+
+	$logo = isset( $_FILES['org-logo'] ) ? $_FILES['org-logo'] : false;
+	if ( $logo ) {
+		$logo_id = \media_handle_sideload( $logo, 0 );
+		if ( is_wp_error( $logo_id ) ) {
+			return $logo_id;
+		}
 	}
 
 	$name = sanitize_meta(
@@ -108,34 +93,7 @@ function process_form_new() {
 		Contributor\create_new_contributor( $wporg_username, $new_pledge_id );
 	}
 
-	// Process image.
-	if ( ! function_exists('media_handle_upload') ) {
-		require_once( ABSPATH . 'wp-admin/includes/image.php' );
-		require_once( ABSPATH . 'wp-admin/includes/file.php' );
-		require_once( ABSPATH . 'wp-admin/includes/media.php' );
-	}
-
-	$logo = isset( $_FILES['org-logo'] ) ? $_FILES['org-logo'] : false;
-	if ( $logo ) {
-		if ( ! in_array( $logo['type'], [ 'image/png', 'image/jpg' ] ) ) {
-			return new WP_Error(
-				'invalid_image_type',
-				__( 'Logo file must be a png or jpg.', 'wporg' )
-			);
-		}
-		if ( ( $logo['size'] > 5 * MB_IN_BYTES ) ) {
-			return new WP_Error(
-				'invalid_image_size',
-				__( 'Logo file must be less than 5MB.', 'wporg' )
-			);
-		}
-
-		$result = \media_handle_sideload( $logo, $new_pledge_id );
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-		set_post_thumbnail( $new_pledge_id, $result );
-	}
+	set_post_thumbnail( $new_pledge_id, $logo_id );
 
 	return 'success';
 }
@@ -179,34 +137,9 @@ function render_form_manage() {
  */
 function process_form_manage() {
 	$submission = get_form_submission();
-
-	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
-
-	if ( is_wp_error( $has_required ) ) {
-		return $has_required;
-	}
-
-	$email = sanitize_meta(
-		PledgeMeta\META_PREFIX . 'org-pledge-email',
-		$submission['org-pledge-email'],
-		'post',
-		Pledge\CPT_ID
-	);
-
-	if ( has_existing_pledge( $email, 'email' ) ) {
-		return new WP_Error(
-			'existing_pledge_email',
-			__( 'This email address is already connected to an existing pledge.', 'wporg' )
-		);
-	}
-
-	$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
-
-	if ( has_existing_pledge( $domain, 'domain' ) ) {
-		return new WP_Error(
-			'existing_pledge',
-			__( 'A pledge already exists for this domain.', 'wporg' )
-		);
+	$has_error = validate_submission( $submission );
+	if ( $has_error ) {
+		return $has_error;
 	}
 }
 
@@ -320,4 +253,41 @@ function parse_contributors( $contributors ) {
 	$sanitized_contributors = array_unique( $sanitized_contributors );
 
 	return $sanitized_contributors;
+}
+
+/**
+ * Check the submission for valid data.
+ *
+ * @return false|WP_Error
+ */
+function validate_submission( $submission ) {
+	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
+	if ( is_wp_error( $has_required ) ) {
+		return $has_required;
+	}
+
+	$email = sanitize_meta(
+		PledgeMeta\META_PREFIX . 'org-pledge-email',
+		$submission['org-pledge-email'],
+		'post',
+		Pledge\CPT_ID
+	);
+
+	if ( has_existing_pledge( $email, 'email' ) ) {
+		return new WP_Error(
+			'existing_pledge_email',
+			__( 'This email address is already connected to an existing pledge.', 'wporg' )
+		);
+	}
+
+	$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
+
+	if ( has_existing_pledge( $domain, 'domain' ) ) {
+		return new WP_Error(
+			'existing_pledge_domain',
+			__( 'A pledge already exists for this domain.', 'wporg' )
+		);
+	}
+
+	return false;
 }
