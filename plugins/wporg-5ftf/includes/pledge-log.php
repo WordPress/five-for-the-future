@@ -146,14 +146,15 @@ function capture_updated_postmeta( $meta_id, $object_id, $meta_key, $meta_value 
 		return;
 	}
 
-	$valid_keys = array_keys( PledgeMeta\get_pledge_meta_config( 'user_input' ) );
+	$valid_keys       = array_keys( PledgeMeta\get_pledge_meta_config( 'user_input' ) );
+	$trimmed_meta_key = str_replace( PledgeMeta\META_PREFIX, '', $meta_key );
 
-	if ( in_array( $meta_key, $valid_keys, true ) ) {
+	if ( in_array( $trimmed_meta_key, $valid_keys, true ) ) {
 		add_log_entry(
 			$object_id,
 			sprintf(
-				'Changed <code>%1$s</code>code> to <code>%2$s</code>.',
-				esc_html( $meta_key ),
+				'Changed <code>%1$s</code> to <code>%2$s</code>.',
+				esc_html( $trimmed_meta_key ),
 				esc_html( $meta_value )
 			),
 			array(
