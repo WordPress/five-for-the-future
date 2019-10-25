@@ -28,9 +28,11 @@ add_action( 'added_post_meta',  __NAMESPACE__ . '\update_generated_meta', 10, 4 
 /**
  * Define pledge meta fields and their properties.
  *
+ * @param string $context Optional. The part of the config to return. 'user_input', 'generated', or 'all'.
+ *
  * @return array
  */
-function get_pledge_meta_config( $context = '' ) {
+function get_pledge_meta_config( $context = 'all' ) {
 	$user_input = array(
 		'org-description'  => array(
 			'single'            => true,
