@@ -128,7 +128,11 @@ function is_valid_authentication_token( $pledge_id, $action, $unverified_token )
 		return false;
 	}
 
-	if ( $valid_token && $valid_token['expiration'] > time() && $unverified_token === $valid_token['value'] ) {
+	if ( ! is_string( $unverified_token ) || TOKEN_LENGTH !== strlen( $unverified_token ) ) {
+		return false;
+	}
+
+	if ( $valid_token && $valid_token['expiration'] > time() && hash_equals( $valid_token['value'], $unverified_token ) ) {
 		$verified = true;
 
 		// Tokens should not be reusable, to increase security.
