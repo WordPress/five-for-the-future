@@ -10,7 +10,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 <form class="pledge-form" id="5ftf-form-pledge-manage" action="" method="post">
 	<?php
 	require get_views_path() . 'inputs-pledge-org-info.php';
-	require get_views_path() . 'inputs-pledge-contributors.php';
+	require get_views_path() . 'manage-contributors.php';
 	require get_views_path() . 'inputs-pledge-org-email.php';
 	?>
 

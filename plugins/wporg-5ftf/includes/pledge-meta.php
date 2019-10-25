@@ -168,7 +168,7 @@ function render_meta_boxes( $pledge, $box ) {
 			break;
 
 		case 'pledge-contributors':
-			require FiveForTheFuture\get_views_path() . 'inputs-pledge-contributors.php';
+			require FiveForTheFuture\get_views_path() . 'manage-contributors.php';
 			break;
 	}
 
