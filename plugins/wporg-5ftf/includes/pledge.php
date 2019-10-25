@@ -143,10 +143,12 @@ function filter_query( $query ) {
 		return;
 	}
 
+	$contributor_count_key = META_PREFIX . 'pledge-confirmed-contributors';
+
 	// Set up meta queries to include the "valid pledge" check, added to both search and any pledge requests.
 	$meta_queries = (array) $query->get( 'meta_query' );
 	$meta_queries[] = array(
-		'key' => META_PREFIX . 'org-number-employees',
+		'key' => $contributor_count_key,
 		'value' => 0,
 		'compare' => '>',
 		'type' => 'NUMERIC',
@@ -172,7 +174,7 @@ function filter_query( $query ) {
 				break;
 
 			case 'contributors':
-				$query->set( 'meta_key', META_PREFIX . 'org-number-employees' );
+				$query->set( 'meta_key', $contributor_count_key );
 				$query->set( 'orderby', 'meta_value_num' );
 				$query->set( 'order', 'DESC' );
 				break;
