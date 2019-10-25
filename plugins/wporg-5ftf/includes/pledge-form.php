@@ -51,7 +51,7 @@ function render_form_new() {
  */
 function process_form_new() {
 	$submission = get_form_submission();
-	$has_error = validate_submission( $submission );
+	$has_error = check_invalid_submission( $submission );
 	if ( $has_error ) {
 		return $has_error;
 	}
@@ -132,7 +132,7 @@ function render_form_manage() {
  */
 function process_form_manage() {
 	$submission = get_form_submission();
-	$has_error = validate_submission( $submission );
+	$has_error = check_invalid_submission( $submission );
 	if ( $has_error ) {
 		return $has_error;
 	}
@@ -253,9 +253,9 @@ function parse_contributors( $contributors ) {
 /**
  * Check the submission for valid data.
  *
- * @return false|WP_Error
+ * @return false|WP_Error Return any errors in the submission, or false if no errors.
  */
-function validate_submission( $submission ) {
+function check_invalid_submission( $submission ) {
 	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
 	if ( is_wp_error( $has_required ) ) {
 		return $has_required;
