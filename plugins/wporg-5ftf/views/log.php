@@ -27,7 +27,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 								<?php echo wp_kses_data( $entry['message'] ); ?>
 							</summary>
 							<?php if ( ! empty( $entry['data'] ) ) : ?>
-								<pre><?php echo esc_html( print_r( $entry['data'] ) ); ?></pre>
+								<pre><?php echo esc_html( print_r( $entry['data'], true ) ); ?></pre>
 							<?php endif; ?>
 						</details>
 					</td>
