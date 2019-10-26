@@ -189,12 +189,9 @@ function capture_added_post_meta( $meta_id, $object_id, $meta_key, $meta_value )
 			if ( true === $meta_value ) {
 				add_log_entry(
 					$object_id,
-					sprintf(
-						'Pledge email address <code>%s</code> confirmed.',
-						esc_html( get_post_meta( $object_id, PledgeMeta\META_PREFIX . 'org-pledge-email', true ) )
-					),
+					'Pledge email address confirmed.',
 					array(
-
+						'email' => get_post_meta( $object_id, PledgeMeta\META_PREFIX . 'org-pledge-email', true )
 					),
 					get_current_user_id()
 				);
