@@ -158,12 +158,14 @@ function remove_contributor( $contributor_post_id ) {
  *
  * @param int    $pledge_id The post ID of the pledge.
  * @param string $status    Optional. 'all', 'pending', or 'publish'.
+ * @param int    $contributor_id Optional. Retrieve a specific contributor instead of all.
  *
  * @return array An array of contributor posts. If $status is set to 'all', will be
  *               a multidimensional array with keys for each status.
  */
-function get_pledge_contributors( $pledge_id, $status = 'publish' ) {
+function get_pledge_contributors( $pledge_id, $status = 'publish', $contributor_id = null ) {
 	$args = array(
+		'page_id'     => $contributor_id,
 		'post_type'   => CPT_ID,
 		'post_parent' => $pledge_id,
 		'numberposts' => -1,

@@ -31,15 +31,19 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 							<?php echo get_avatar( $contributor->user_email, 32 ); ?>
 							<?php echo esc_html( $contributor_post->post_title ); ?>
 							<!-- TODO These buttons don't do anything yet.
-							<button class="button-primary" data-action="remove" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>">
+							<button class="button-primary" data-action="remove-contributor" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>">
 								<?php esc_html_e( 'Remove', 'wporg' ); ?>
 							</button>
-							<?php if ( 'pending' === $contributor_post->post_status ) : ?>
-								<button class="button-secondary" data-action="resend-confirmation" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>">
-									<?php esc_html_e( 'Resend confirmation', 'wporg' ); ?>
-								</button>
-							<?php endif; ?>
 							-->
+							<?php if ( 'pending' === $contributor_post->post_status ) : ?>
+								<?php submit_button(
+									'Resend Confirmation',
+									'secondary',
+									'resend-contributor-confirmation',
+									false,
+									array( 'formaction' => add_query_arg( 'resend-contributor-id', $contributor_post->ID ) )
+								); ?>
+							<?php endif; ?>
 						</li>
 					<?php endforeach; ?>
 				</ul>

@@ -220,6 +220,13 @@ function save_pledge( $pledge_id, $pledge ) {
 	}
 
 	save_pledge_meta( $pledge_id, $submitted_meta );
+
+	if ( filter_input( INPUT_POST, 'resend-contributor-confirmation' ) ) {
+		PledgeForm\send_contributor_confirmation_emails(
+			$pledge_id,
+			filter_input( INPUT_GET, 'resend-contributor-id', FILTER_VALIDATE_INT )
+		);
+	}
 }
 
 /**
