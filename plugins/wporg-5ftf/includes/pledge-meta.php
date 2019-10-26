@@ -192,7 +192,7 @@ function save_pledge( $pledge_id, $pledge ) {
 	 * This is only intended to run when the front end form and wp-admin forms are submitted, not when posts are
 	 * programmatically updated.
 	 */
-	if ( 'Submit Pledge' !== $post_action && 'editpost' !== $get_action ) {
+	if ( 'Submit Pledge' !== $post_action && 'editpost' !== $post_action ) {
 		return;
 	}
 
