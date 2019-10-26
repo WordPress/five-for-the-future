@@ -146,9 +146,58 @@ function process_pledge_confirmation_email( $pledge_id, $action, $unverified_tok
 	if ( $email_confirmed ) {
 		update_post_meta( $pledge_id, $meta_key, true );
 		wp_update_post( array( 'ID' => $pledge_id, 'post_status' => 'publish' ) );
+		send_contributor_confirmation_emails( $pledge_id );
 	}
 
 	return $email_confirmed;
+}
+
+/**
+ * Send contributors an email to confirm their participation.
+ *
+ * @param int      $pledge_id
+ * @param int|null $contributor_id Optional. Send to a specific contributor instead of all.
+ */
+function send_contributor_confirmation_emails( $pledge_id, $contributor_id = null ) {
+	$pledge  = get_post( $pledge_id );
+	$subject = "Confirm your {$pledge->post_title} sponsorship";
+
+	/*
+	 * Only fetch unconfirmed ones, because we might be resending confirmation emails, and we shouldn't resend to
+	 * confirmed contributors.
+	 */
+	$unconfirmed_contributors = Contributor\get_pledge_contributors( $pledge->ID, 'pending', $contributor_id );
+
+	foreach ( $unconfirmed_contributors as $contributor ) {
+		$user = get_user_by( 'login', $contributor->post_title );
+
+		/*
+		 * Their first name is ideal, but their username is the best fallback because `nickname`, `display_name`,
+		 * etc are too formal.
+		 */
+		$name = $user->first_name ? $user->first_name : '@' . $user->user_nicename;
+
+		/*
+		 * This uses w.org login accounts instead of `Email\get_authentication_url()`, because the reasons for using
+		 * tokens for pledges don't apply to contributors, accounts are more secure, and they provide a better UX
+		 * because there's no expiration.
+		 */
+		$message =
+			"Hi $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of " .
+			"the contributors that they pay to contribute back to WordPress. You can view their pledge at: " . "\n\n" .
+			get_permalink( $pledge_id ) . "\n\n" .
+			// todo ^ page not found? probably just because https://github.com/WordPress/five-for-the-future/issues/9 isn't ready yet
+
+			"To confirm that they're paying you to contribute, please review your pledges at:" . "\n\n" .
+			get_permalink( get_page_by_path( 'my-pledges' ) ) . "\n\n" .
+
+			"If they aren't paying you to contribute, then you can ignore this email and you won't be listed as one " .
+			'of their contributors.'
+		;
+
+		$user = get_user_by( 'login', $contributor->post_title );
+		Email\send_email( $user->user_email, $subject, $message );
+	}
 }
 
 /**
