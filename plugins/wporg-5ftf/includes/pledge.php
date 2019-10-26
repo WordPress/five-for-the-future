@@ -5,10 +5,11 @@
  */
 
 namespace WordPressDotOrg\FiveForTheFuture\Pledge;
-use WordPressDotOrg\FiveForTheFuture\Email;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WP_Error;
+use WordPressDotOrg\FiveForTheFuture\Email;
+use WP_Error, WP_Query;
+
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 defined( 'WPINC' ) || die();
