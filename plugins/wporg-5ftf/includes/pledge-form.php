@@ -40,7 +40,7 @@ function render_form_new() {
 		$view             = 'form-pledge-confirm-email.php';
 		$pledge_id        = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
 		$unverified_token = filter_input( INPUT_GET, 'auth_token', FILTER_SANITIZE_STRING );
-		$email_confirmed  = process_email_confirmation( $pledge_id, $action, $unverified_token );
+		$email_confirmed  = process_pledge_confirmation_email( $pledge_id, $action, $unverified_token );
 	}
 
 	ob_start();
@@ -126,7 +126,7 @@ function process_form_new() {
  *
  * @return bool
  */
-function process_email_confirmation( $pledge_id, $action, $unverified_token ) {
+function process_pledge_confirmation_email( $pledge_id, $action, $unverified_token ) {
 	$meta_key          = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
 	$already_confirmed = get_post( $pledge_id )->$meta_key;
 

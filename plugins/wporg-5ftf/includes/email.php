@@ -61,7 +61,7 @@ function send_email( $to, $subject, $message ) {
  * @param int    $pledge_id
  * @param string $action
  * @param int    $action_page_id The ID of the page that the user will be taken back to, in order to process their
- *                               verification request.
+ *                               confirmation request.
  *
  * @return string
  */

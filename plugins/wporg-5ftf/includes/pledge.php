@@ -135,7 +135,7 @@ function create_new_pledge( $name ) {
 	// The pledge's meta data is saved at this point via `save_pledge_meta()`, which is a `save_post` callback.
 
 	if ( ! is_wp_error( $pledge_id ) ) {
-		send_pledge_verification_email( $pledge_id, get_post()->ID );
+		send_pledge_confirmation_email( $pledge_id, get_post()->ID );
 	}
 
 	return $pledge_id;
@@ -146,11 +146,11 @@ function create_new_pledge( $name ) {
  *
  * @param int $pledge_id      The ID of the pledge.
  * @param int $action_page_id The ID of the page that the user will be taken back to, in order to process their
- *                            verification request.
+ *                            confirmation request.
  *
  * @return bool
  */
-function send_pledge_verification_email( $pledge_id, $action_page_id ) {
+function send_pledge_confirmation_email( $pledge_id, $action_page_id ) {
 	$pledge = get_post( $pledge_id );
 
 	$message =
