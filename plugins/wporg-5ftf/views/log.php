@@ -22,14 +22,16 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 						<?php echo esc_html( date( 'Y-m-d H:i:s', $entry['timestamp'] ) ); ?>
 					</td>
 					<td>
-						<details>
-							<summary>
-								<?php echo wp_kses_data( $entry['message'] ); ?>
-							</summary>
-							<?php if ( ! empty( $entry['data'] ) ) : ?>
+						<?php if ( ! empty( $entry['data'] ) ) : ?>
+							<details>
+								<summary>
+									<?php echo wp_kses_data( $entry['message'] ); ?>
+								</summary>
 								<pre><?php echo esc_html( print_r( $entry['data'], true ) ); ?></pre>
-							<?php endif; ?>
-						</details>
+							</details>
+						<?php else : ?>
+							<?php echo wp_kses_data( $entry['message'] ); ?>
+						<?php endif; ?>
 					</td>
 					<td>
 						<?php
