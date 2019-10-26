@@ -95,7 +95,7 @@ function get_pledge_log( $pledge_id ) {
  *
  * @return void
  */
-function add_log_entry( $pledge_id, $message, array $data, $user_id ) {
+function add_log_entry( $pledge_id, $message, array $data = array(), $user_id = 0 ) {
 	$entry = get_log_entry_template();
 
 	$entry['message'] = $message;
