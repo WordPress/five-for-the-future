@@ -15,6 +15,7 @@ add_action( 'admin_init', __NAMESPACE__ . '\add_log_meta_box' );
 // Log capture.
 add_action( 'save_post_' . Pledge\CPT_ID, __NAMESPACE__ . '\capture_save_post', 99, 3 );
 add_action( 'updated_postmeta', __NAMESPACE__ . '\capture_updated_postmeta', 99, 4 );
+add_action( 'added_post_meta', __NAMESPACE__ . '\capture_added_post_meta', 99, 4 );
 
 /**
  * Adds a meta box for the log on the custom post type.
@@ -162,5 +163,41 @@ function capture_updated_postmeta( $meta_id, $object_id, $meta_key, $meta_value 
 			),
 			get_current_user_id()
 		);
+	}
+}
+
+/**
+ * Record logs for events when new postmeta values are added (not changed).
+ *
+ * @param int    $meta_id    Unused. ID of updated metadata entry.
+ * @param int    $object_id  Post ID.
+ * @param string $meta_key   Meta key.
+ * @param mixed  $meta_value Meta value.
+ *
+ * @return void
+ */
+function capture_added_post_meta( $meta_id, $object_id, $meta_key, $meta_value ) {
+	$post_type = get_post_type( $object_id );
+
+	if ( Pledge\CPT_ID !== $post_type ) {
+		return;
+	}
+
+	switch ( $meta_key ) {
+		case PledgeMeta\META_PREFIX . 'pledge-email-confirmed':
+			if ( true === $meta_value ) {
+				add_log_entry(
+					$object_id,
+					sprintf(
+						'Pledge email address <code>%s</code> confirmed.',
+						esc_html( get_post_meta( $object_id, PledgeMeta\META_PREFIX . 'org-pledge-email', true ) )
+					),
+					array(
+
+					),
+					get_current_user_id()
+				);
+			}
+			break;
 	}
 }
