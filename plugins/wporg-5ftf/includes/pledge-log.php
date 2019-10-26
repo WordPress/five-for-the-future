@@ -16,6 +16,7 @@ add_action( 'admin_init', __NAMESPACE__ . '\add_log_meta_box' );
 add_action( 'save_post_' . Pledge\CPT_ID, __NAMESPACE__ . '\capture_save_post', 99, 3 );
 add_action( 'updated_postmeta', __NAMESPACE__ . '\capture_updated_postmeta', 99, 4 );
 add_action( 'added_post_meta', __NAMESPACE__ . '\capture_added_post_meta', 99, 4 );
+add_action( 'transition_post_status', __NAMESPACE__ . '\capture_transition_post_status', 99, 3 );
 
 /**
  * Adds a meta box for the log on the custom post type.
@@ -200,4 +201,26 @@ function capture_added_post_meta( $meta_id, $object_id, $meta_key, $meta_value )
 			}
 			break;
 	}
+}
+
+
+function capture_transition_post_status( $new_status, $old_status, WP_Post $post ) {
+	if ( Pledge\CPT_ID !== get_post_type( $post ) ) {
+		return;
+	}
+
+	if ( $new_status === $old_status ) {
+		return;
+	}
+
+	add_log_entry(
+		$post->ID,
+		sprintf(
+			'Pledge status changed from <code>%1$s</code> to <code>%2$s</code>.',
+			esc_html( $old_status ),
+			esc_html( $new_status )
+		),
+		array(),
+		get_current_user_id()
+	);
 }
