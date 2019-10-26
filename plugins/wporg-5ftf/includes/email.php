@@ -67,9 +67,12 @@ function send_email( $to, $subject, $message ) {
  */
 function get_authentication_url( $pledge_id, $action, $action_page_id ) {
 	$auth_token = array(
-		// This will create a CSPRN and is similar to how `get_password_reset_key()` works.
+		/*
+		 * This will create a CSPRN and is similar to how `get_password_reset_key()` and
+		 * `generate_recovery_mode_token()` work.
+		 */
 		'value'      => wp_generate_password( TOKEN_LENGTH, false ),
-			// todo should encrypt at rest? core doesn't but others do
+			// todo Ideally should encrypt at rest, see https://core.trac.wordpress.org/ticket/24783.
 		'expiration' => time() + ( 2 * HOUR_IN_SECONDS ),
 	);
 
