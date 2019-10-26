@@ -19,7 +19,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 			<?php foreach ( $log as $entry ) : ?>
 				<tr>
 					<td>
-						<?php echo esc_html( date( 'Y-m-d G:i:s', $entry['timestamp'] ) ); ?>
+						<?php echo esc_html( date( 'Y-m-d H:i:s', $entry['timestamp'] ) ); ?>
 					</td>
 					<td>
 						<details>
