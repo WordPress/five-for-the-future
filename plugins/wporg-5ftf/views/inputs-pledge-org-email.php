@@ -1,8 +1,14 @@
 <?php
-namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/** @var array $data */
-/** @var bool  $readonly */
+namespace WordPressDotOrg\FiveForTheFuture\View;
+use WP_Post;
+
+/**
+ * @var array   $data
+ * @var bool    $readonly
+ * @var WP_Post $pledge
+ */
+
 ?>
 
 <div class="form-field">
@@ -29,9 +35,13 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		<?php else : ?>
 			<span class="dashicons dashicons-warning" aria-hidden="true"></span>
 			<?php esc_html_e( 'Unconfirmed', 'wporg' ); ?>
-			<button class="button-secondary">
-				<?php esc_html_e( 'Resend confirmation', 'wporg' ); ?>
-			</button>
+			<?php submit_button(
+				'Resend Confirmation',
+				'secondary',
+				'resend-pledge-confirmation',
+				false,
+				array( 'formaction' => add_query_arg( 'resend-pledge-id', $pledge->ID ) )
+			); ?>
 		<?php endif; ?>
 	<?php endif; ?>
 </div>

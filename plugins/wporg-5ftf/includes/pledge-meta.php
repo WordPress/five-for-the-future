@@ -221,6 +221,13 @@ function save_pledge( $pledge_id, $pledge ) {
 
 	save_pledge_meta( $pledge_id, $submitted_meta );
 
+	if ( filter_input( INPUT_POST, 'resend-pledge-confirmation' ) ) {
+		Pledge\send_pledge_confirmation_email(
+			filter_input( INPUT_GET, 'resend-pledge-id', FILTER_VALIDATE_INT ),
+			get_page_by_path( 'for-organizations' )->ID
+		);
+	}
+
 	if ( filter_input( INPUT_POST, 'resend-contributor-confirmation' ) ) {
 		PledgeForm\send_contributor_confirmation_emails(
 			$pledge_id,

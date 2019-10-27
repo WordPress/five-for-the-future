@@ -156,7 +156,7 @@ function send_pledge_confirmation_email( $pledge_id, $action_page_id ) {
 
 	$message =
 		'Thanks for committing to help keep WordPress sustainable! Please confirm this email address ' .
-		'so that we can accept your pledge:' . "\n\n" .
+		'in order to publish your pledge:' . "\n\n" .
 		Email\get_authentication_url( $pledge_id, 'confirm_pledge_email', $action_page_id )
 	;
 

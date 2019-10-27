@@ -41,6 +41,11 @@ function render_form_new() {
 		$pledge_id        = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
 		$unverified_token = filter_input( INPUT_GET, 'auth_token', FILTER_SANITIZE_STRING );
 		$email_confirmed  = process_pledge_confirmation_email( $pledge_id, $action, $unverified_token );
+	} else if ( filter_input( INPUT_GET, 'resend_pledge_confirmation' ) ) {
+		$pledge_id = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
+		$complete  = true;
+
+		Pledge\send_pledge_confirmation_email( $pledge_id, get_post()->ID );
 	}
 
 	ob_start();

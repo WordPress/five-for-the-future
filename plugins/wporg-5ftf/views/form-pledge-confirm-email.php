@@ -5,6 +5,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 /**
  * @var bool   $email_confirmed
  * @var string $directory_url
+ * @var int    $pledge_id
  */
 
 ?>
@@ -31,12 +32,17 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 			Your confirmation link has expired, please obtain a new one:
 		</p>
 
-		<p>
-			<button class="button-secondary">
-				<?php esc_html_e( 'Resend confirmation email', 'wporg' ); ?>
-				<?php // todo make ^ work when making the other 2 work ?>
-			</button>
-		</p>
+		<form action="" method="get">
+			<input type="hidden" name="pledge_id" value="<?php echo esc_attr( $pledge_id ); ?>" />
+
+			<p>
+				<input
+					type="submit"
+					name="resend_pledge_confirmation"
+					value="Resend Confirmation"
+				/>
+			</p>
+		</form>
 	</div>
 
 <?php endif; ?>
