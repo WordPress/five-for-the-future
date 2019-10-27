@@ -2,10 +2,35 @@
  * Copied from the profiles.wordpress.org theme stylesheet.
  */
 
-.team-grid div.dashicons:before {
-	position: relative;
-	top: 2px;
-	font-size: 24px;
+.team-grid {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0;
+	list-style: none;
+	
+	li {
+		display: flex;
+		align-items: center;
+		margin: 0 0 1em;
+		width: 25%;
+		min-width: 10em;
+	}
+
+	div.dashicons {
+		margin-right: 0.5em;
+
+		&:before {
+			position: relative;
+			top: 2px;
+			font-size: 24px;
+		}
+	}
+
+	@include breakpoint( 0, $breakpoint-small ) {
+		li {
+			width: 100%;
+		}
+	}
 }
 
 .badge {
@@ -16,9 +41,6 @@
 	border-radius: 50%;
 	box-sizing: border-box;
 	position: relative;
-	//position: absolute;
-	//top: 8px;
-	//left: 0;
 }
 
 .badge-themes-reviewer {

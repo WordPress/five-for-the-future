@@ -71,7 +71,7 @@ get_header(); ?>
 							?>
 							<li>
 								<div class="badge item dashicons <?php echo esc_attr( implode( ' ', $badge_classes ) ); ?>"></div>
-								<?php echo esc_html( $team ); ?>
+								<span class="badge-label"><?php echo esc_html( $team ); ?></span>
 							</li>
 						<?php endforeach; ?>
 					</ul>
