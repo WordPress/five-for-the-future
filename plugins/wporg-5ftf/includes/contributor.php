@@ -230,7 +230,7 @@ function render_my_pledges() {
 	) );
 
 	ob_start();
-	require FiveForTheFuture\get_views_path() . 'form-my-pledges.php';
+	require FiveForTheFuture\get_views_path() . 'list-my-pledges.php';
 	return ob_get_clean();
 }
 

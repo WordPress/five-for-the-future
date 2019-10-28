@@ -31,7 +31,7 @@ use WP_User, WP_Post;
 		<?php foreach ( $contributor_posts as $contributor_post ) : ?>
 			<?php $pledge = get_post( $contributor_post->post_parent ); ?>
 
-			<?php echo get_the_post_thumbnail( $pledge->ID, 50 ); ?>
+			<?php echo get_the_post_thumbnail( $pledge->ID, 'pledge-logo' ); ?>
 			<?php echo esc_html( $pledge->post_title ); ?>
 
 			<form action="" method="post">
