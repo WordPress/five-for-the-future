@@ -213,7 +213,15 @@ function capture_added_post_meta( $meta_id, $object_id, $meta_key, $meta_value )
 	}
 }
 
-
+/**
+ * Record logs for events when a pledge post's status changes.
+ *
+ * @param string  $new_status
+ * @param string  $old_status
+ * @param WP_Post $post
+ *
+ * @return void
+ */
 function capture_transition_post_status( $new_status, $old_status, WP_Post $post ) {
 	if ( Pledge\CPT_ID !== get_post_type( $post ) ) {
 		return;
