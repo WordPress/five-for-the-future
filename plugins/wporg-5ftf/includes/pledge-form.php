@@ -333,9 +333,6 @@ function safelist_image_mimes( $mimes ) {
 		'jpg|jpeg|jpe' => 'image/jpeg',
 		'gif'          => 'image/gif',
 		'png'          => 'image/png',
-		'bmp'          => 'image/bmp',
-		'tiff|tif'     => 'image/tiff',
-		'ico'          => 'image/x-icon',
 	);
 }
 
