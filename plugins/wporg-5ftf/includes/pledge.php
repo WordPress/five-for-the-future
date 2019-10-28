@@ -192,9 +192,10 @@ function filter_query( $query ) {
 		'type' => 'NUMERIC',
 	);
 
-	if ( CPT_ID === $query->get( 'post_type' ) ) {
-		$query->set( 'meta_query', $meta_queries );
-	}
+	// @todo Re-enable this check once pledges are public.
+	// if ( CPT_ID === $query->get( 'post_type' ) ) {
+	// 	$query->set( 'meta_query', $meta_queries );
+	// }
 
 	// Searching is restricted to pledges only.
 	if ( $query->is_search ) {
