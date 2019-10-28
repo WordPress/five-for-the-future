@@ -50,11 +50,18 @@ function render_log_meta_box( $pledge ) {
 /**
  * Defaults for a log entry.
  *
- * @return array
+ * @return array {
+ *     @type int    $timestamp Time of the event.
+ *     @type string $type      The type of event. A snake_case or kebab-case string.
+ *     @type string $message   Description of the event.
+ *     @type array  $data      Details and data related to the event.
+ *     @type int    $user_id   The ID of the logged in user who triggered the event, if applicable.
+ * }
  */
 function get_log_entry_template() {
 	return array(
 		'timestamp' => time(),
+		'type'      => '',
 		'message'   => '',
 		'data'      => array(),
 		'user_id'   => 0,
@@ -90,15 +97,17 @@ function get_pledge_log( $pledge_id ) {
  * Add a new log entry for a particular pledge.
  *
  * @param int    $pledge_id
+ * @param string $type
  * @param string $message
  * @param array  $data
  * @param int    $user_id
  *
  * @return void
  */
-function add_log_entry( $pledge_id, $message, array $data = array(), $user_id = 0 ) {
+function add_log_entry( $pledge_id, $type, $message, array $data = array(), $user_id = 0 ) {
 	$entry = get_log_entry_template();
 
+	$entry['type']    = $type;
 	$entry['message'] = $message;
 	$entry['data']    = $data;
 	$entry['user_id'] = $user_id;
@@ -121,6 +130,7 @@ function capture_save_post( $post_ID, $post, $update ) {
 	if ( false === $update ) {
 		add_log_entry(
 			$post_ID,
+			'pledge_created',
 			sprintf(
 				'Pledge created. Status set to <code>%s</code>.',
 				esc_html( get_post_status( $post_ID ) )
@@ -154,6 +164,7 @@ function capture_updated_postmeta( $meta_id, $object_id, $meta_key, $meta_value 
 	if ( in_array( $trimmed_meta_key, $valid_keys, true ) ) {
 		add_log_entry(
 			$object_id,
+			'pledge_data_changed',
 			sprintf(
 				'Changed <code>%1$s</code> to <code>%2$s</code>.',
 				esc_html( $trimmed_meta_key ),
@@ -189,6 +200,7 @@ function capture_added_post_meta( $meta_id, $object_id, $meta_key, $meta_value )
 			if ( true === $meta_value ) {
 				add_log_entry(
 					$object_id,
+					'pledge_email_confirmed',
 					'Pledge email address confirmed.',
 					array(
 						'email' => get_post_meta( $object_id, PledgeMeta\META_PREFIX . 'org-pledge-email', true )
@@ -212,6 +224,7 @@ function capture_transition_post_status( $new_status, $old_status, WP_Post $post
 
 	add_log_entry(
 		$post->ID,
+		'pledge_status_changed',
 		sprintf(
 			'Pledge status changed from <code>%1$s</code> to <code>%2$s</code>.',
 			esc_html( $old_status ),
