@@ -170,7 +170,19 @@ function add_pledge_contributors( $pledge_id, $contributors ) {
  * @return false|WP_Post|null
  */
 function remove_contributor( $contributor_post_id ) {
-	return wp_trash_post( $contributor_post_id );
+	$pledge_id = get_post( $contributor_post_id )->post_parent;
+	$result    = wp_trash_post( $contributor_post_id );
+
+	/**
+	 * Action: Fires when a contributor is removed from a pledge.
+	 *
+	 * @param int                $pledge_id
+	 * @param int                $contributor_post_id
+	 * @param WP_Post|false|null $result
+	 */
+	do_action( FiveForTheFuture\PREFIX . '_remove_contributor', $pledge_id, $contributor_post_id, $result );
+
+	return $result;
 }
 
 /**

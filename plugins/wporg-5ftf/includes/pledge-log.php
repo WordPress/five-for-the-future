@@ -18,6 +18,7 @@ add_action( 'updated_postmeta', __NAMESPACE__ . '\capture_updated_postmeta', 99,
 add_action( 'added_post_meta', __NAMESPACE__ . '\capture_added_post_meta', 99, 4 );
 add_action( 'transition_post_status', __NAMESPACE__ . '\capture_transition_post_status', 99, 3 );
 add_action( FiveForTheFuture\PREFIX . '_add_pledge_contributors', __NAMESPACE__ . '\capture_add_pledge_contributors', 99, 3 );
+add_action( FiveForTheFuture\PREFIX . '_remove_contributor', __NAMESPACE__ . '\capture_remove_contributor', 99, 3 );
 
 /**
  * Adds a meta box for the log on the custom post type.
@@ -265,4 +266,33 @@ function capture_add_pledge_contributors( $pledge_id, $contributors, $results ) 
 		$results,
 		get_current_user_id()
 	);
+}
+
+/**
+ * Record a log for the event when a contributor is removed from a pledge.
+ *
+ * @param int                $pledge_id           The post ID of the pledge.
+ * @param int                $contributor_post_id The post ID of the pledge.
+ * @param WP_Post|false|null $result              The result of the attempt to trash the post.
+ *
+ * @return void
+ */
+function capture_remove_contributor( $pledge_id, $contributor_post_id, $result ) {
+	// If the result isn't a post object, then it was already trashed, or didn't exist.
+	if ( $result instanceof WP_Post ) {
+		$contributor_post = get_post( $contributor_post_id );
+
+		add_log_entry(
+			$pledge_id,
+			'contributor_removed',
+			sprintf(
+				'Contributor removed: <code>%s</code>',
+				esc_html( $contributor_post->post_title )
+			),
+			array(
+				'previous_status' => $contributor_post->_wp_trash_meta_status,
+			),
+			get_current_user_id()
+		);
+	}
 }
