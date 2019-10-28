@@ -6,14 +6,20 @@
 	h1, h2, h3, h4, h5, h6 {
 		color: $color__text-heading-darker;
 	}
-	
+
 	h2 {
 		margin-top: ms(10);
-		font-size: ms( 2 );
+		margin-bottom: ms(2);
+		font-size: ms(2);
 		font-weight: 400;
 		color: $color__text-heading;
 	}
-	
+
+	h3 {
+		font-size: ms(1);
+		color: $color__text-darker;
+	}
+
 	> :first-child {
 		margin-top: 0;
 	}
