@@ -224,7 +224,10 @@ function capture_added_post_meta( $meta_id, $object_id, $meta_key, $meta_value )
  * @return void
  */
 function capture_transition_post_status( $new_status, $old_status, WP_Post $post ) {
-	if ( Pledge\CPT_ID !== get_post_type( $post ) ) {
+	$cpts      = array( Pledge\CPT_ID, Contributor\CPT_ID );
+	$post_type = get_post_type( $post );
+
+	if ( ! in_array( $post_type, $cpts, true ) ) {
 		return;
 	}
 
@@ -232,17 +235,38 @@ function capture_transition_post_status( $new_status, $old_status, WP_Post $post
 		return;
 	}
 
-	add_log_entry(
-		$post->ID,
-		'pledge_status_changed',
-		sprintf(
-			'Pledge status changed from <code>%1$s</code> to <code>%2$s</code>.',
-			esc_html( $old_status ),
-			esc_html( $new_status )
-		),
-		array(),
-		get_current_user_id()
-	);
+	switch ( $post_type ) {
+		case Pledge\CPT_ID:
+			add_log_entry(
+				$post->ID,
+				'pledge_status_changed',
+				sprintf(
+					'Pledge status changed from <code>%1$s</code> to <code>%2$s</code>.',
+					esc_html( $old_status ),
+					esc_html( $new_status )
+				),
+				array(),
+				get_current_user_id()
+			);
+			break;
+
+		case Contributor\CPT_ID:
+			$pledge = get_post( $post->post_parent );
+
+			add_log_entry(
+				$pledge->ID,
+				'contributor_status_changed',
+				sprintf(
+					'Contributor <code>%1$s</code> status changed from <code>%2$s</code> to <code>%3$s</code>.',
+					esc_html( $post->post_title ),
+					esc_html( $old_status ),
+					esc_html( $new_status )
+				),
+				array(),
+				get_current_user_id()
+			);
+			break;
+	}
 }
 
 /**
