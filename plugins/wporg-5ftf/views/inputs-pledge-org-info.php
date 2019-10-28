@@ -19,22 +19,19 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 	/>
 </div>
 
-<div class="form-field form-field__logo">
-	<label for="5ftf-org-logo">
-		<?php esc_html_e( 'Logo', 'wordpressorg' ); ?>
-	</label>
-	<br />
-	<?php if ( is_admin() && has_post_thumbnail() ) : ?>
-		<div class="form-field__logo-display">
-			<?php the_post_thumbnail(); ?>
-		</div>
-	<?php endif; ?>
-	<input
-		type="file"
-		id="5ftf-org-logo"
-		name="org-logo"
-	/>
-</div>
+<?php if ( ! is_admin() ) : ?>
+	<div class="form-field form-field__logo">
+		<label for="5ftf-org-logo">
+			<?php esc_html_e( 'Logo', 'wordpressorg' ); ?>
+		</label>
+		<br />
+		<input
+			type="file"
+			id="5ftf-org-logo"
+			name="org-logo"
+		/>
+	</div>
+<?php endif; ?>
 
 <div class="form-field">
 	<label for="5ftf-org-url">
