@@ -15,6 +15,8 @@ add_action( 'init',                                      __NAMESPACE__ . '\regis
 add_filter( 'manage_edit-' . CPT_ID . '_columns',        __NAMESPACE__ . '\add_list_table_columns' );
 add_action( 'manage_' . CPT_ID . '_posts_custom_column', __NAMESPACE__ . '\populate_list_table_columns', 10, 2 );
 
+add_shortcode( '5ftf_my_pledges', __NAMESPACE__ . '\render_my_pledges' );
+
 /**
  * Register the post type(s).
  *
@@ -208,4 +210,69 @@ function get_contributor_user_objects( array $contributor_posts ) {
 	return array_map( function( WP_Post $post ) {
 		return get_user_by( 'login', $post->post_title );
 	}, $contributor_posts );
+}
+
+/**
+ * Render the My Pledges shortcode.
+ *
+ * @return string
+ */
+function render_my_pledges() {
+	$user            = wp_get_current_user();
+	$success_message = process_my_pledges_form();
+	$pledge_url      = get_permalink( get_page_by_path( 'for-organizations' ) );
+
+	$contributor_posts = get_posts( array(
+		'post_type'   => CPT_ID,
+		'post_title'  => $user->user_login,
+		'post_status' => array( 'pending', 'publish' ),
+		'numberposts' => 100,
+	) );
+
+	ob_start();
+	require FiveForTheFuture\get_views_path() . 'list-my-pledges.php';
+	return ob_get_clean();
+}
+
+/**
+ * Process the My Pledges form.
+ *
+ * @return string
+ */
+function process_my_pledges_form() {
+	$message             = '';
+	$status              = false;
+	$contributor_post_id = filter_input( INPUT_POST, 'contributor_post_id', FILTER_VALIDATE_INT );
+	$pledge              = get_post( get_post( $contributor_post_id )->post_parent );
+	$nonce               = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+
+	if ( filter_input( INPUT_POST, 'join_organization' ) ) {
+		wp_verify_nonce( $nonce, 'join_decline_organization' ) || wp_nonce_ays( 'join_decline_organization' );
+
+		$status  = 'publish';
+		$message = "You have joined the pledge from {$pledge->post_title}.";
+
+	} elseif ( filter_input( INPUT_POST, 'decline_invitation' ) ) {
+		wp_verify_nonce( $nonce, 'join_decline_organization' ) || wp_nonce_ays( 'join_decline_organization' );
+
+		$status  = 'trash';
+		$message = "Your have declined the invitation from {$pledge->post_title}.";
+
+	} elseif ( filter_input( INPUT_POST, 'leave_organization' ) ) {
+		wp_verify_nonce( $nonce, 'leave_organization' ) || wp_nonce_ays( 'leave_organization' );
+
+		$status  = 'trash';
+		$message = "Your have left the {$pledge->post_title} pledge.";
+	}
+
+	if ( 'publish' === $status ) {
+		wp_update_post( array(
+			'ID'          => $contributor_post_id,
+			'post_status' => $status,
+		) );
+	} elseif ( 'trash' === $status ) {
+		wp_delete_post( $contributor_post_id );
+	}
+
+	return $message;
 }
