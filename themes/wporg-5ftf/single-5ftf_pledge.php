@@ -5,6 +5,8 @@ use WordPressDotOrg\FiveForTheFuture\Contributor;
 use WordPressDotOrg\FiveForTheFuture\XProfile;
 use WP_Post;
 
+use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
+
 $contribution_data = XProfile\get_aggregate_contributor_data_for_pledge( get_the_ID() );
 
 $contributors = Contributor\get_contributor_user_objects(
@@ -22,13 +24,13 @@ get_header(); ?>
 
 		<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 			<header class="entry-header">
-				<div class="">
-					<?php the_title( '<h2 class="entry-title">', '</h2>' ); ?>
-					<span>
+				<div>
+					<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
+					<span class="pledge-url">
 						<?php
 						printf(
 							'<a href="%1$s">%1$s</a>',
-							esc_url( $post->{'5ftf_org-url'} )
+							esc_url( $post->{ META_PREFIX . 'org-url' } )
 						);
 						?>
 					</span>
@@ -45,12 +47,14 @@ get_header(); ?>
 			</header>
 
 			<div class="entry-content">
-				<h3><?php esc_html_e( 'About', 'wporg' ); ?></h3>
+				<h2><?php esc_html_e( 'About', 'wporg' ); ?></h2>
 
-				<?php echo wp_kses_post( wpautop( $post->{'5ftf_org-description'} ) ); ?>
+				<div class="pledge-company-description">
+					<?php echo wp_kses_post( wpautop( $post->{ META_PREFIX . 'org-description' } ) ); ?>
+				</div>
 
 				<?php if ( ! empty( $contributors ) ) : ?>
-					<h3><?php esc_html_e( 'Contributions', 'wporg' ); ?></h3>
+					<h2><?php esc_html_e( 'Contributions', 'wporg' ); ?></h2>
 
 					<p>
 						<?php
@@ -85,16 +89,18 @@ get_header(); ?>
 					</ul>
 				<?php endif; ?>
 
-				<h3><?php esc_html_e( 'Contributors', 'wporg' ); ?></h3>
+				<h2><?php esc_html_e( 'Contributors', 'wporg' ); ?></h2>
 
 				<?php if ( ! empty( $contributors ) ) : ?>
-					<ul class="contributor-grid">
+					<ul class="pledge-contributors has-contrib-names">
 						<?php foreach ( $contributors as $contributor ) : ?>
-							<li>
-								<?php echo get_avatar( $contributor->user_email, 280 ); ?>
+							<li class="pledge-contributor">
+								<span class="pledge-contributor__avatar">
+									<?php echo get_avatar( $contributor->user_email, 280 ); ?>
+								</span>
 								<?php
 								printf(
-									'<a href="%1$s">%2$s</a>',
+									'<a class="pledge-contributor__name" href="%1$s">%2$s</a>',
 									sprintf(
 										'https://profiles.wordpress.org/%s/',
 										sanitize_key( $contributor->user_login ) // phpcs:ignore WordPress.Security.EscapeOutput -- sanitize_key will catch any security issues.

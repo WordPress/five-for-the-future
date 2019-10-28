@@ -45,7 +45,7 @@ body.archive.post-type-archive-5ftf_pledge {
 			}
 		}
 	}
-	
+
 	.page-header-controls {
 		font-size: ms(-2);
 
@@ -77,5 +77,10 @@ body.archive.post-type-archive-5ftf_pledge {
 			grid-column: 2;
 			grid-row: 2;
 		}
+	}
+
+	.entry-title {
+		font-size: ms(2);
+		font-weight: 400;
 	}
 }
