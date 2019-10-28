@@ -24,7 +24,11 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		<?php esc_html_e( 'Logo', 'wordpressorg' ); ?>
 	</label>
 	<br />
-	<?php /* @todo Display existing logo here */ ?>
+	<?php if ( is_admin() && has_post_thumbnail() ) : ?>
+		<div class="form-field__logo-display">
+			<?php the_post_thumbnail(); ?>
+		</div>
+	<?php endif; ?>
 	<input
 		type="file"
 		id="5ftf-org-logo"
