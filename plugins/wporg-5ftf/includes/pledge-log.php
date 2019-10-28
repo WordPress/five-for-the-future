@@ -205,7 +205,7 @@ function capture_added_post_meta( $meta_id, $object_id, $meta_key, $meta_value )
 					'pledge_email_confirmed',
 					'Pledge email address confirmed.',
 					array(
-						'email' => get_post_meta( $object_id, PledgeMeta\META_PREFIX . 'org-pledge-email', true )
+						'email' => get_post_meta( $object_id, PledgeMeta\META_PREFIX . 'org-pledge-email', true ),
 					),
 					get_current_user_id()
 				);
