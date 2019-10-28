@@ -301,7 +301,7 @@ function process_my_pledges_form() {
 			'post_status' => $status,
 		) );
 	} elseif ( 'trash' === $status ) {
-		wp_delete_post( $contributor_post_id );
+		remove_contributor( $contributor_post_id );
 	}
 
 	return $message;
