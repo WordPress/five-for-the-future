@@ -22,11 +22,14 @@ body.page-about .entry-content {
 		> h4,
 		> h5,
 		> h6,
-		> .wp-block-quote,
 		> .wp-block-media-text,
 		> .wp-block-button,
 		> .wp-block-group {
 			margin-left: 17.5rem;
+		}
+
+		> .wp-block-quote {
+			margin-left: calc( 17.5rem - 62px );
 		}
 
 		p.is-style-wporg-tldr {

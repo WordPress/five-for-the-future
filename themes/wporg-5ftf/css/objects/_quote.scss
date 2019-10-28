@@ -1,0 +1,36 @@
+.wp-block-quote {
+	padding-left: 0;
+	border-left: none;
+	font-family: $font__serif;
+	font-size: ms(2);
+
+	p {
+		color: $color__text;
+	}
+
+	cite {
+		font-size: ms(-1);
+	}
+
+	@include breakpoint( $breakpoint-tablet ) {
+		margin-left: -62px;
+		padding-left: 62px;
+		background-repeat: no-repeat;
+		background-position: top left;
+		background-image: url("data:image/svg+xml,#{$icon__quote}");
+	}
+	
+	@include breakpoint( 0, #{ $breakpoint-tablet - 1 } ) {
+		:first-child:before {
+			display: inline-block;
+			vertical-align: bottom;
+			content: '';
+			width: 32px;
+			height: 32px;
+			margin-right: 12px;
+			background-repeat: no-repeat;
+			background-position: top left;
+			background-image: url("data:image/svg+xml,#{$icon__quote}");
+		}
+	}
+}
