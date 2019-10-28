@@ -33,7 +33,15 @@ get_header(); ?>
 						?>
 					</span>
 				</div>
-				<?php the_post_thumbnail( array( 288, 288 ) ); ?>
+				<div class="entry-image">
+					<?php if ( has_post_thumbnail() ) : ?>
+						<div class="entry-image__logo">
+							<?php the_post_thumbnail( 'pledge-logo' ); ?>
+						</div>
+					<?php else : ?>
+						<div class="entry-image__placeholder"></div>
+					<?php endif; ?>
+				</div><!-- .entry-image -->
 			</header>
 
 			<div class="entry-content">

@@ -37,7 +37,9 @@ function setup() {
 
 	add_theme_support( 'wp-block-styles' );
 	add_theme_support( 'editor-styles' );
+
 	add_theme_support( 'post-thumbnails' );
+	add_image_size( 'pledge-logo', 660, 200 );
 
 	add_editor_style( 'css/style-editor.css' );
 
