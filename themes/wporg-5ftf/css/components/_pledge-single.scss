@@ -1,0 +1,57 @@
+body.single.single-5ftf_pledge {
+
+	// Expand archive content area to full-width of header.
+	.site-content .site-main {
+		padding: 0 10px;
+		max-width: $size__site-main;
+	}
+
+	.entry-header {
+		margin: ms(12) 0;
+		padding-bottom: ms(4);
+		border-bottom: 1px solid $color-gray-light-500;
+
+		@include breakpoint( $breakpoint-mobile ) {
+			display: flex;
+			align-items: center;
+
+			> div {
+				flex: auto;
+			}
+
+			.entry-image {
+				max-width: 330px;
+			}
+		}
+
+		@include breakpoint( 0, $breakpoint-mobile ) {
+			text-align: center;
+
+			.entry-image {
+				margin-top: ms(2);
+			}
+		}
+	}
+
+	.entry-title {
+		margin-bottom: 0;
+	}
+
+	.entry-image__logo {
+		background: transparent;
+	}
+
+	.pledge-company-description {
+		max-width: $size__content-width;
+	}
+
+	.team-grid {
+		margin-top: ms(2);
+	}
+
+	.entry-footer {
+		margin-top: ms(2);
+		border-top: 1px solid $color-gray-light-500;
+		padding-top: ms(2);
+	}
+}

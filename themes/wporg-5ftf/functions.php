@@ -37,6 +37,10 @@ function setup() {
 
 	add_theme_support( 'wp-block-styles' );
 	add_theme_support( 'editor-styles' );
+
+	add_theme_support( 'post-thumbnails' );
+	add_image_size( 'pledge-logo', 660, 200 );
+
 	add_editor_style( 'css/style-editor.css' );
 
 	add_theme_support(
@@ -111,7 +115,7 @@ add_action( 'after_setup_theme', __NAMESPACE__ . '\setup' );
  * @global int $content_width
  */
 function content_width() {
-	$GLOBALS['content_width'] = apply_filters( 'wporg_plugins_content_width', 640 );
+	$GLOBALS['content_width'] = 640;
 }
 add_action( 'after_setup_theme', __NAMESPACE__ . '\content_width', 0 );
 
@@ -204,3 +208,98 @@ function loader_src( $src, $handle ) {
 }
 add_filter( 'style_loader_src', __NAMESPACE__ . '\loader_src', 10, 2 );
 add_filter( 'script_loader_src', __NAMESPACE__ . '\loader_src', 10, 2 );
+
+/**
+ * Determines the CSS classes for a given team badge.
+ *
+ * Based on the `wporg_profiles_get_association_classes` function in the profiles.wordpress.org theme.
+ *
+ * @param string $team
+ *
+ * @return array
+ */
+function get_badge_classes( $team ) {
+	switch ( strtolower( $team ) ) {
+		case 'accessibility':
+			$classes = array( 'badge-accessibility', 'dashicons-universal-access' );
+			break;
+
+		case 'cli':
+			$classes = array( 'badge-wp-cli', 'dashicons-arrow-right-alt2' );
+			break;
+
+		case 'community':
+			$classes = array( 'badge-community', 'dashicons-groups' );
+			break;
+
+		case 'core':
+			$classes = array( 'badge-code-committer', 'dashicons-editor-code' );
+			break;
+
+		case 'design':
+			$classes = array( 'badge-design', 'dashicons-art' );
+			break;
+
+		case 'documentation':
+			$classes = array( 'badge-documentation', 'dashicons-admin-page' );
+			break;
+
+		case 'hosting':
+			$classes = array( 'badge-hosting', 'dashicons-cloud' );
+			break;
+
+		case 'marketing':
+			$classes = array( 'badge-marketing', 'dashicons-format-status' );
+			break;
+
+		case 'meta':
+			$classes = array( 'badge-meta', 'dashicons-networking' );
+			break;
+
+		case 'mobile':
+			$classes = array( 'badge-mobile', 'dashicons-smartphone' );
+			break;
+
+		case 'plugins':
+			$classes = array( 'badge-plugins-reviewer ', 'dashicons-admin-plugins' );
+			break;
+
+		case 'polyglots':
+			$classes = array( 'badge-translation-editor', 'dashicons-translation' );
+			break;
+
+		case 'security':
+			$classes = array( 'badge-security-team', 'dashicons-lock' );
+			break;
+
+		case 'support':
+			$classes = array( 'badge-support', 'dashicons-format-chat' );
+			break;
+
+		case 'test':
+			$classes = array( 'badge-test-team', 'dashicons-desktop' );
+			break;
+
+		case 'themes':
+			$classes = array( 'badge-themes-reviewer', 'dashicons-admin-appearance' );
+			break;
+
+		case 'tide':
+			$classes = array( 'badge-tide', 'dashicons-tide' );
+			break;
+
+		case 'training':
+			$classes = array( 'badge-training', 'dashicons-welcome-learn-more' );
+			break;
+
+		case 'tv':
+			$classes = array( 'badge-wordpress-tv', 'dashicons-video-alt2' );
+			break;
+
+		default:
+			$classes = array();
+			break;
+	}
+
+	return $classes;
+}

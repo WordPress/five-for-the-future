@@ -8,8 +8,13 @@
 	}
 	
 	h2 {
+		margin-top: ms(10);
 		font-size: ms( 2 );
 		font-weight: 400;
 		color: $color__text-heading;
+	}
+	
+	> :first-child {
+		margin-top: 0;
 	}
 }

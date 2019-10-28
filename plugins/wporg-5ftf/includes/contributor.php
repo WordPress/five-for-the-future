@@ -3,7 +3,7 @@ namespace WordPressDotOrg\FiveForTheFuture\Contributor;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\Pledge;
-use WP_Error, WP_Post;
+use WP_Error, WP_Post, WP_User;
 
 defined( 'WPINC' ) || die();
 
@@ -195,4 +195,17 @@ function get_pledge_contributors( $pledge_id, $status = 'publish', $contributor_
 	}
 
 	return $posts;
+}
+
+/**
+ * Get the user objects that correspond with pledge contributor posts.
+ *
+ * @param WP_Post[] $contributor_posts
+ *
+ * @return WP_User[]
+ */
+function get_contributor_user_objects( array $contributor_posts ) {
+	return array_map( function( WP_Post $post ) {
+		return get_user_by( 'login', $post->post_title );
+	}, $contributor_posts );
 }

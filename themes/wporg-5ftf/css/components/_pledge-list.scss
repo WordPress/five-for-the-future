@@ -45,7 +45,7 @@ body.archive.post-type-archive-5ftf_pledge {
 			}
 		}
 	}
-	
+
 	.page-header-controls {
 		font-size: ms(-2);
 
@@ -54,5 +54,33 @@ body.archive.post-type-archive-5ftf_pledge {
 			font-size: 1em;
 			font-weight: 700;
 		}
+	}
+	
+	/* Structure */
+	article {
+		display: grid;
+		grid-template-columns: 330px auto;
+		margin-bottom: ms(12);
+
+		.entry-image {
+			grid-column: 1;
+			grid-row: 1 / span 2;
+			margin-right: ms(8);
+		}
+
+		.entry-header {
+			grid-column: 2;
+			grid-row: 1;
+		}
+
+		.entry-content {
+			grid-column: 2;
+			grid-row: 2;
+		}
+	}
+
+	.entry-title {
+		font-size: ms(2);
+		font-weight: 400;
 	}
 }

@@ -1,0 +1,52 @@
+.pledge-contributors {
+
+	h3 {
+		margin-top: 0;
+		font-size: ms(-1);
+		color: $color__text-lighter;
+	}
+
+	.pledge-contributor__avatar {
+		display: inline-block;
+		background: $color-gray-light-700;
+
+		img {
+			vertical-align: middle;
+		}
+	}
+
+	&.has-contrib-names {
+		display: flex;
+		flex-wrap: wrap;
+		margin: ms(2) 0;
+		list-style: none;
+		justify-content: space-between;
+
+		li {
+			margin: 0 auto 40px;
+			width: calc( 50% - 20px );
+
+			@include breakpoint( $breakpoint-small ) {
+				width: calc( 33% - 48px );
+				min-width: 170px;
+			}
+		}
+
+		li:first-child:last-child {
+			width: 100%;
+			
+			a {
+				max-width: 280px;
+			}
+		}
+
+		.pledge-contributor__avatar {
+			margin-bottom: 20px;
+		}
+
+		.pledge-contributor__name {
+			display: block;
+			text-align: center;
+		}
+	}
+}

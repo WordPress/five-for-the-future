@@ -6,7 +6,7 @@
 		padding: 0;
 
 		.site-main {
-			margin: 0 auto;
+			margin: 0 auto ms(8);
 			padding: 0 ms( 2 );
 			max-width: calc( #{ $size__content-width } + #{ ms( 2 ) * 2 } );
 		}
