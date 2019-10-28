@@ -17,6 +17,7 @@ add_action( 'save_post_' . Pledge\CPT_ID, __NAMESPACE__ . '\capture_save_post', 
 add_action( 'updated_postmeta', __NAMESPACE__ . '\capture_updated_postmeta', 99, 4 );
 add_action( 'added_post_meta', __NAMESPACE__ . '\capture_added_post_meta', 99, 4 );
 add_action( 'transition_post_status', __NAMESPACE__ . '\capture_transition_post_status', 99, 3 );
+add_action( FiveForTheFuture\PREFIX . '_add_pledge_contributors', __NAMESPACE__ . '\capture_add_pledge_contributors', 99, 3 );
 
 /**
  * Adds a meta box for the log on the custom post type.
@@ -231,6 +232,29 @@ function capture_transition_post_status( $new_status, $old_status, WP_Post $post
 			esc_html( $new_status )
 		),
 		array(),
+		get_current_user_id()
+	);
+}
+
+/**
+ * Record a log for the event of contributors being added to a pledge.
+ *
+ * @param int   $pledge_id    The post ID of the pledge.
+ * @param array $contributors Array of contributor wporg usernames.
+ * @param array $results      Associative array, key is wporg username, value is post ID on success,
+ *                            or an error code on failure.
+ *
+ * @return void
+ */
+function capture_add_pledge_contributors( $pledge_id, $contributors, $results ) {
+	add_log_entry(
+		$pledge_id,
+		'contributors_added',
+		sprintf(
+			'Contributors added: <code>%s</code>',
+			implode( '</code>, <code>', $contributors )
+		),
+		$results,
 		get_current_user_id()
 	);
 }

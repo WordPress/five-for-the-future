@@ -90,9 +90,7 @@ function process_form_new() {
 		return $new_pledge_id;
 	}
 
-	foreach ( $contributors as $wporg_username ) {
-		Contributor\create_new_contributor( $wporg_username, $new_pledge_id );
-	}
+	Contributor\add_pledge_contributors( $new_pledge_id, $contributors );
 
 	// Attach logo to the pledge.
 	wp_update_post( array(
