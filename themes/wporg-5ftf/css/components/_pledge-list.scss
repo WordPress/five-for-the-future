@@ -21,28 +21,23 @@ body.archive.post-type-archive-5ftf_pledge {
 		.page-header-callout {
 			grid-column: 2;
 			grid-row: 1;
+			
+			.button {
+				padding: 0.5em 1.5em;
+				height: auto;
+			}
 		}
 
 		.page-header-controls {
 			grid-column: 1 / span 2;
 			grid-row: 2;
 
-			display: grid;
-			grid-template-columns: 1fr 1fr;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: space-between;
 			margin-top: ms(2);
 			border-top: 1px solid $color-gray-light-500;
 			padding-top: ms(2);
-
-			form:nth-of-type(2n+1) {
-				grid-column: 1;
-				grid-row: 1;
-			}
-
-			form:nth-of-type(2n) {
-				grid-column: 2;
-				grid-row: 1;
-				text-align: right;
-			}
 		}
 	}
 
@@ -51,6 +46,7 @@ body.archive.post-type-archive-5ftf_pledge {
 
 		label {
 			display: inline-block;
+			margin-right: 6px;
 			font-size: 1em;
 			font-weight: 700;
 		}

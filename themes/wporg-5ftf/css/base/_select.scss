@@ -3,14 +3,13 @@
 .custom-select {
 	display: inline-block;
 	box-sizing: border-box;
-	margin: -0.5rem 0;
 	padding: 0.5rem 2rem 0.5rem .8rem;
 	width: auto;
 
 	font-size: 1em;
 	line-height: 1.3;
 
-	border: none;
+	border: 1px solid $color__text-lighter;
 	box-shadow: none;
 	border-radius: 0.5em;
 	-moz-appearance: none;

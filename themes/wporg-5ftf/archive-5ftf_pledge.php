@@ -10,6 +10,8 @@ if ( ! have_posts() ) {
 	nocache_headers();
 }
 
+$pledge_order = isset( $_GET['order'] ) ? $_GET['order'] : '';
+
 get_header(); ?>
 
 	<main id="main" class="site-main" role="main">
@@ -28,13 +30,13 @@ get_header(); ?>
 				<form method="get" action="<?php echo esc_url( get_post_type_archive_link( CPT_ID ) ); ?>">
 					<label for="pledge-sort"><?php esc_html_e( 'Sort pledges by', 'wordpressorg' ); ?></label>
 					<select class="custom-select" id="pledge-sort" name="order">
-						<option value="" <?php selected( $_GET['order'], '' ); ?>>
+						<option value="" <?php selected( $pledge_order, '' ); ?>>
 							<?php esc_html_e( 'All Pledges', 'wordpressorg' ); ?>
 						</option>
-						<option value="alphabetical" <?php selected( $_GET['order'], 'alphabetical' ); ?>>
+						<option value="alphabetical" <?php selected( $pledge_order, 'alphabetical' ); ?>>
 							<?php esc_html_e( 'Alphabetical', 'wordpressorg' ); ?>
 						</option>
-						<option value="contributors" <?php selected( $_GET['order'], 'contributors' ); ?>>
+						<option value="contributors" <?php selected( $pledge_order, 'contributors' ); ?>>
 							<?php esc_html_e( 'Total Contributors', 'wordpressorg' ); ?>
 						</option>
 					</select>
@@ -68,5 +70,10 @@ get_header(); ?>
 
 	</main><!-- #main -->
 
+	<script type="text/javascript">
+		jQuery( "#pledge-sort" ).change( function( event ) {
+			jQuery( event.target ).closest( 'form' ).submit();
+		} );
+	</script>
 <?php
 get_footer();

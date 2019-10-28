@@ -1,0 +1,38 @@
+.search-form {
+
+	.site-main & {
+		display: flex;
+		align-items: stretch;
+		justify-content: flex-end;
+		border: 1px solid $color-gray-light-600;
+		background: $color-gray-light-100;
+
+		.search-field {
+			flex: 0 1 auto;
+			margin: 0;
+			padding: 0.8em 1em;
+			background: transparent;
+			border: none;
+			box-shadow: none;
+
+			&::-moz-placeholder {
+				color: $color-gray-200;
+			}
+		}
+		
+		.button-search {
+			flex: 0 1 auto;
+			height: auto;
+			background: transparent;
+			border: none;
+			border-radius: 0;
+			box-shadow: none;
+			text-shadow: none;
+			color: $color-gray-200;
+			
+			&:focus {
+				outline: 2px solid $color__wporg-blue;
+			}
+		}
+	}
+}
