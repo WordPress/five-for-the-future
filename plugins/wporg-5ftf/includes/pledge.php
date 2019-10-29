@@ -184,7 +184,7 @@ function filter_query( $query ) {
 
 	$contributor_count_key = META_PREFIX . 'pledge-confirmed-contributors';
 
-	// Set up meta queries to include the "valid pledge" check, added to both search and any pledge requests.
+	// Set up meta queries to include the "valid pledge" check, added to both search and pledge archive requests.
 	$meta_queries = (array) $query->get( 'meta_query' );
 	$meta_queries[] = array(
 		'key' => $contributor_count_key,
@@ -193,11 +193,7 @@ function filter_query( $query ) {
 		'type' => 'NUMERIC',
 	);
 
-	if ( CPT_ID === $query->get( 'post_type' ) ) {
-		$query->set( 'meta_query', $meta_queries );
-	}
-
-	// Searching is restricted to pledges only.
+	// Searching is restricted to pledges with contributors only.
 	if ( $query->is_search ) {
 		$query->set( 'post_type', CPT_ID );
 		$query->set( 'meta_query', $meta_queries );
@@ -205,6 +201,8 @@ function filter_query( $query ) {
 
 	// Use the custom order param to sort the archive page.
 	if ( $query->is_archive && CPT_ID === $query->get( 'post_type' ) ) {
+		// Archives should only show pledges with contributors.
+		$query->set( 'meta_query', $meta_queries );
 		$order = isset( $_GET['order'] ) ? $_GET['order'] : '';
 		switch ( $order ) {
 			case 'alphabetical':
