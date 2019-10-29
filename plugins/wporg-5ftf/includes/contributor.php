@@ -2,7 +2,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\Contributor;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\Pledge;
+use WordPressDotOrg\FiveForTheFuture\{ Pledge, XProfile };
 use WP_Error, WP_Post, WP_User;
 
 defined( 'WPINC' ) || die();
@@ -249,15 +249,24 @@ function get_contributor_user_objects( array $contributor_posts ) {
  */
 function render_my_pledges() {
 	$user            = wp_get_current_user();
-	$success_message = process_my_pledges_form();
+	$profile_data    = XProfile\get_contributor_user_data( $user->ID );
 	$pledge_url      = get_permalink( get_page_by_path( 'for-organizations' ) );
+	$success_message = process_my_pledges_form();
 
 	$contributor_posts = get_posts( array(
+		'title'       => $user->user_login,
 		'post_type'   => CPT_ID,
-		'post_title'  => $user->user_login,
 		'post_status' => array( 'pending', 'publish' ),
 		'numberposts' => 100,
 	) );
+
+	$confirmed_pledge_ids = array_reduce( $contributor_posts, function( $carry, $post ) {
+		if ( 'publish' === $post->post_status ) {
+			$carry[] = $post->ID;
+		}
+
+		return $carry;
+	}, array() );
 
 	ob_start();
 	require FiveForTheFuture\get_views_path() . 'list-my-pledges.php';

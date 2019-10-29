@@ -9,6 +9,8 @@ use WP_User, WP_Post;
  * @var WP_Post $contributor_post
  * @var string  $success_message
  * @var string  $pledge_url
+ * @var array   $profile_data
+ * @var array   $confirmed_pledge_ids
  */
 
 ?>
@@ -17,7 +19,18 @@ use WP_User, WP_Post;
 
 	<?php echo get_avatar( $user->ID, 96, 'blank', "{$user->login}'s avatar" ); ?>
 
-	<p>Pledged 10 hours a week across two organizations</p> <?php // todo pull from profiles. ?>
+	<p>
+		<?php echo esc_html( sprintf(
+			_n(
+				'Pledged %1$s hours a week across %2$s organization',
+				'Pledged %1$s hours a week across %2$s organizations',
+				count( $confirmed_pledge_ids ),
+				'wporg-5ftf'
+			),
+			$profile_data['hours_per_week'],
+			count( $confirmed_pledge_ids )
+		) ); ?>
+	</p>
 
 	<?php if ( $success_message ) : ?>
 		<div class="notice notice-success notice-alt">
@@ -28,50 +41,68 @@ use WP_User, WP_Post;
 	<?php endif; ?>
 
 	<?php if ( $contributor_posts ) : ?>
-		<?php foreach ( $contributor_posts as $contributor_post ) : ?>
-			<?php $pledge = get_post( $contributor_post->post_parent ); ?>
 
-			<?php echo get_the_post_thumbnail( $pledge->ID, 'pledge-logo' ); ?>
-			<?php echo esc_html( $pledge->post_title ); ?>
+		<div class="fftf_pledges">
+			<?php foreach ( $contributor_posts as $contributor_post ) : ?>
+				<?php $pledge = get_post( $contributor_post->post_parent ); ?>
 
-			<form action="" method="post">
-				<input type="hidden" name="contributor_post_id" value="<?php echo esc_attr( $contributor_post->ID ); ?>" />
+				<div class="fftf_pledge">
+					<div class="pledge-logo-container">
+						<?php echo get_the_post_thumbnail( $pledge->ID, 'pledge-logo' ); ?>
+					</div>
 
-				<p>
-					<?php if ( 'pending' === $contributor_post->post_status ) : ?>
-						<?php wp_nonce_field( 'join_decline_organization' ); ?>
+					<div class="pledge-title">
+						<a href="<?php echo esc_url( get_permalink( $pledge->ID ) ); ?>">
+							<?php echo esc_html( $pledge->post_title ); ?>
+						</a>
 
-						<input
-							type="submit"
-							name="join_organization"
-							value="Join Organization"
-						/>
+						<?php if ( 'publish' === $contributor_post->post_status ) : ?>
+							<p>
+								<?php esc_html_e( sprintf(
+									__( 'You confirmed this pledge on %s', 'wporg-5ftf' ),
+									date( get_option( 'date_format' ), strtotime( $contributor_post->post_date ) )
+								) ); ?>
+							</p>
+						<?php endif; ?>
+					</div>
 
-						<input
-							type="submit"
-							class="button-link"
-							name="decline_invitation"
-							value="Decline Invitation"
-						/>
+					<div class="pledge-actions">
+						<form action="" method="post">
+							<input type="hidden" name="contributor_post_id" value="<?php echo esc_attr( $contributor_post->ID ); ?>" />
 
-					<?php elseif ( 'publish' === $contributor_post->post_status ) : ?>
-						<p>
-							You confirmed this pledge on {date}
-						</p>
+							<?php if ( 'pending' === $contributor_post->post_status ) : ?>
+								<?php wp_nonce_field( 'join_decline_organization' ); ?>
 
-						<?php wp_nonce_field( 'leave_organization' ); ?>
+								<input
+									type="submit"
+									name="join_organization"
+									value="Join Organization"
+								/>
 
-						<input
-							type="submit"
-							name="leave_organization"
-							value="Leave Organization"
-						/>
+								<input
+									type="submit"
+									class="button-link"
+									name="decline_invitation"
+									value="Decline Invitation"
+								/>
 
-					<?php endif; ?>
-				</p>
-			</form>
+							<?php elseif ( 'publish' === $contributor_post->post_status ) : ?>
+								<?php wp_nonce_field( 'leave_organization' ); ?>
 
-		<?php endforeach; ?>
+								<input
+									type="submit"
+									name="leave_organization"
+									value="Leave Organization"
+								/>
+
+							<?php endif; ?>
+
+						</form>
+					</div>
+				</div>
+
+			<?php endforeach; ?>
+		</div>
 
 	<?php else : ?>
 

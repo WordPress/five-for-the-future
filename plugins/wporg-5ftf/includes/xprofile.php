@@ -4,6 +4,15 @@ namespace WordPressDotOrg\FiveForTheFuture\XProfile;
 use WordPressDotOrg\FiveForTheFuture\Contributor;
 use wpdb;
 
+/*
+ * The IDs of the xprofile fields we need. Better to use the numerical IDs than the field labels,
+ * because those are more likely to change.
+ */
+const FIELD_IDS = array(
+	'hours_per_week' => 29,
+	'team_names'     => 30,
+);
+
 defined( 'WPINC' ) || die();
 
 /**
@@ -20,13 +29,6 @@ defined( 'WPINC' ) || die();
 function get_xprofile_contribution_data( array $user_ids ) {
 	global $wpdb;
 
-	// The IDs of the xprofile fields we need. Better to use the numerical IDs than the field labels,
-	// because those are more likely to change.
-	$field_ids = array(
-		29, // Hours per week.
-		30, // Teams, the value of this field is serialized in the database.
-	);
-
 	$sql = $wpdb->prepare(
 		'
 			SELECT user_id, field_id, value
@@ -35,7 +37,7 @@ function get_xprofile_contribution_data( array $user_ids ) {
 			AND field_id IN ( %2$s )
 		',
 		implode( ', ', array_map( 'absint', $user_ids ) ),
-		implode( ', ', array_map( 'absint', $field_ids ) )
+		implode( ', ', array_map( 'absint', array_values( FIELD_IDS ) ) )
 	);
 
 	return $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL -- prepare called above.
@@ -86,4 +88,31 @@ function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 	sort( $aggregate_data['teams'] );
 
 	return $aggregate_data;
+}
+
+/**
+ * Fetch the profile data for a specific user.
+ *
+ * @param int $user_id
+ *
+ * @return array
+ */
+function get_contributor_user_data( $user_id ) {
+	$formatted_data = array();
+	$raw_data       = get_xprofile_contribution_data( array( $user_id ) );
+
+	foreach ( $raw_data as $datum ) {
+		$key = array_search( $datum['field_id'], FIELD_IDS );
+
+		switch ( $key ) {
+			case 'hours_per_week':
+				$formatted_data[ $key ] = absint( $datum['value'] );
+				break;
+
+			case 'team_names':
+				$formatted_data[ $key ] = maybe_unserialize( $datum['value'] );
+		}
+	}
+
+	return $formatted_data;
 }
