@@ -35,7 +35,9 @@ use WP_Post;
 			</p>
 		<?php endif; ?>
 
-		<?php esc_html_e( "Thanks again for pledging your organization's resources to contribute to WordPress! We can do great things together!", 'wporg' ); ?>
+		<p>
+			<?php esc_html_e( "Thanks again for pledging your organization's resources to contribute to WordPress! We can do great things together!", 'wporg' ); ?>
+		</p>
 	</div>
 
 <?php else : ?>
