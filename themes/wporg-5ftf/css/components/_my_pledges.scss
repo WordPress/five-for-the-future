@@ -1,0 +1,67 @@
+body.page-my-pledges .entry-content {
+	// move avatar and "pledge x hours" into place, align, etc
+
+	.avatar {
+		display: none;
+
+		@include breakpoint($breakpoint-tablet) {
+			display: block;
+			// round corners
+		}
+	}
+}
+
+.fftf_pledge {
+	text-align: center;
+	margin-bottom: 25px;
+
+	.pledge-logo-container {
+		display: block;
+		background-color: #FAFAFA; // todo make var
+		max-width: 80%;
+		margin: 0 auto;
+
+		.attachment-pledge-logo {
+			max-height: 100px;
+			width: auto;
+			// todo needs tweaking
+		}
+	}
+
+	.pledge-title a {
+		text-decoration: underline;
+		// font size etc
+	}
+
+	.pledge-actions {
+		input {
+			display: block;
+			margin: 1em auto;
+
+			&[name="decline_invitation"],
+			&[name="leave_organization"] {
+				color: #bf2b2b; // todo var
+			}
+		}
+	}
+
+
+	@include breakpoint($breakpoint-tablet) {
+		display: grid;
+		grid-template-columns: 1fr 1fr 1fr;
+		grid-template-areas: "logo name actions";
+		text-align: left;
+
+		.pledge-logo-container {
+			grid-area: logo;
+		}
+
+		.pledge-title {
+			grid-area: name;
+		}
+
+		.pledge-actions {
+			grid-area: actions;
+		}
+	}
+}
