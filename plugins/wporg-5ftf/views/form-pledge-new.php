@@ -1,14 +1,14 @@
 <?php
-
 namespace WordPressDotOrg\FiveForTheFuture\View;
+
 use function WordPressDotOrg\FiveForTheFuture\get_views_path;
+use WP_Post;
 
 /**
- * @var array  $messages
- * @var bool   $complete
- * @var string $directory_url
+ * @var array        $messages
+ * @var bool         $complete
+ * @var string       $directory_url
  */
-
 ?>
 
 <!-- TODO Reveal this once managing an existing pledge is actually possible.
@@ -30,21 +30,23 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 <?php if ( true === $complete ) : ?>
 
 	<div class="notice notice-success notice-alt">
-		<p><?php esc_html_e( "Thanks for pledging to Five for the Future! Your new pledge profile has been created, and we’ve emailed you a link to confirm your address. Once that's done, we'll also email confirmation links to your contributors.", 'wporg' ); ?></p>
+		<p>
+			<?php esc_html_e( "Thanks for pledging to Five for the Future! Your new pledge profile has been created, and we've emailed you a link to confirm your address. Once that's done, we'll also email confirmation links to the contributors you named in your pledge.", 'wporg' ); ?>
+		</p>
 
 		<p>
 			<?php echo wp_kses_post( sprintf(
-				__( 'After those steps are completed, your pledge will appear in <a href="%s">the directory</a>.', 'wporg' ),
+				__( "After those steps are completed (and at least one contributor confirms), your pledge will appear in <a href=\"%s\">the directory</a>. Once each contributor has confirmed, they'll appear on your pledge as well.", 'wporg' ),
 				esc_url( $directory_url )
 			) ); ?>
 		</p>
 
 		<p>
 			<?php echo wp_kses_post(
-				__( 'Do you want to hire additional employees to contribute to WordPress? <a href="https://jobs.wordpress.net">Post a job listing on jobs.wordpress.net</a>.', 'wporg' )
-				// todo ask mel about moving this outside the `notice-success`, since it's not really part of the success notification, and distracts from it.
-				// many users have notification fatigue and no longer trust them or pay attention to them, because they're so often misused for non-critical information,
-				// and the jobs thing is more of an "ad" in this context than something directly related to the process the user wants to complete
+				sprintf(
+					__( 'Do you want to hire additional employees to contribute to WordPress? <a href="%s">Consider posting a job listing on jobs.wordpress.net</a>.', 'wporg' ),
+					'https://jobs.wordpress.net'
+				)
 			); ?>
 		</p>
 	</div>
