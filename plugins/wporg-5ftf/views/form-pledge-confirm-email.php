@@ -1,20 +1,42 @@
 <?php
-
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/**
- * @var bool   $email_confirmed
- * @var string $directory_url
- * @var int    $pledge_id
- */
+use WP_Post;
 
+/**
+ * @var bool         $email_confirmed
+ * @var string       $directory_url
+ * @var int          $pledge_id
+ * @var WP_Post|null $pledge
+ */
 ?>
 
 <?php if ( true === $email_confirmed ) : ?>
 
 	<div class="notice notice-success notice-alt">
 		<p>
-			Thank you for confirming your address! We've emailed confirmation links to your contributors, and your pledge will show up in <a href="<?php echo esc_url( $directory_url ); ?>">the directory</a> once one of them confirms their participation.
+			<?php
+			printf(
+				wp_kses_post( __( "Thank you for confirming your address! We've emailed confirmation links to the contributors you mentioned, and your pledge will show up in <a href=\"%s\">the directory</a> once one contributor confirms their participation.", 'wporg' ) ),
+				 esc_url( $directory_url )
+			);
+			?>
+		</p>
+
+		<?php if ( $pledge instanceof WP_Post ) : ?>
+			<p>
+				<?php echo wp_kses_post( sprintf(
+					__( 'In the meantime, your pledge will be visible here: %s', 'wporg' ),
+					sprintf(
+						'<a href="%1$s">%1$s</a>',
+						esc_url( get_permalink( $pledge ) )
+					)
+				) ); ?>
+			</p>
+		<?php endif; ?>
+
+		<p>
+			<?php esc_html_e( "Thanks again for pledging your organization's resources to contribute to WordPress! We can do great things together!", 'wporg' ); ?>
 		</p>
 	</div>
 

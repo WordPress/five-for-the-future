@@ -295,13 +295,13 @@ function process_my_pledges_form() {
 		wp_verify_nonce( $nonce, 'join_decline_organization' ) || wp_nonce_ays( 'join_decline_organization' );
 
 		$status  = 'trash';
-		$message = "Your have declined the invitation from {$pledge->post_title}.";
+		$message = "You have declined the pledge invitation from {$pledge->post_title}.";
 
 	} elseif ( filter_input( INPUT_POST, 'leave_organization' ) ) {
 		wp_verify_nonce( $nonce, 'leave_organization' ) || wp_nonce_ays( 'leave_organization' );
 
 		$status  = 'trash';
-		$message = "Your have left the {$pledge->post_title} pledge.";
+		$message = "You have left the {$pledge->post_title} pledge.";
 	}
 
 	if ( 'publish' === $status ) {

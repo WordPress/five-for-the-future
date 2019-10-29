@@ -24,24 +24,26 @@ function render_form_new() {
 	$action        = isset( $_GET['action'] ) ? filter_input( INPUT_GET, 'action' ) : filter_input( INPUT_POST, 'action' );
 	$data          = get_form_submission();
 	$messages      = [];
+	$pledge        = null;
 	$complete      = false;
 	$directory_url = get_permalink( get_page_by_path( 'pledges' ) );
 	$view          = 'form-pledge-new.php';
 
 	if ( 'Submit Pledge' === $action ) {
-		$processed = process_form_new();
+		$pledge_id = process_form_new();
 
-		if ( is_wp_error( $processed ) ) {
-			$messages = array_merge( $messages, $processed->get_error_messages() );
-		} elseif ( 'success' === $processed ) {
+		if ( is_wp_error( $pledge_id ) ) {
+			$messages = array_merge( $messages, $pledge_id->get_error_messages() );
+		} elseif ( is_int( $pledge_id ) ) {
 			$complete = true;
 		}
-	} else if ( 'confirm_pledge_email' === $action ) {
+	} elseif ( 'confirm_pledge_email' === $action ) {
 		$view             = 'form-pledge-confirm-email.php';
 		$pledge_id        = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
 		$unverified_token = filter_input( INPUT_GET, 'auth_token', FILTER_SANITIZE_STRING );
 		$email_confirmed  = process_pledge_confirmation_email( $pledge_id, $action, $unverified_token );
-	} else if ( filter_input( INPUT_GET, 'resend_pledge_confirmation' ) ) {
+		$pledge           = get_post( $pledge_id );
+	} elseif ( filter_input( INPUT_GET, 'resend_pledge_confirmation' ) ) {
 		$pledge_id = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
 		$complete  = true;
 
@@ -58,11 +60,11 @@ function render_form_new() {
 /**
  * Process a submission from the New Pledge form.
  *
- * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
+ * @return int|WP_Error The post ID of the new pledge if the form processed correctly. Otherwise WP_Error.
  */
 function process_form_new() {
 	$submission = get_form_submission();
-	$has_error = check_invalid_submission( $submission );
+	$has_error  = check_invalid_submission( $submission );
 	if ( $has_error ) {
 		return $has_error;
 	}
@@ -74,7 +76,7 @@ function process_form_new() {
 
 	$logo_attachment_id = upload_image( $_FILES['org-logo'] );
 	if ( is_wp_error( $logo_attachment_id ) ) {
-		return $logo_attachment_id;
+		//return $logo_attachment_id;
 	}
 
 	$name = sanitize_meta(
@@ -93,13 +95,13 @@ function process_form_new() {
 	Contributor\add_pledge_contributors( $new_pledge_id, $contributors );
 
 	// Attach logo to the pledge.
-	wp_update_post( array(
+	/*wp_update_post( array(
 		'ID'          => $logo_attachment_id,
 		'post_parent' => $new_pledge_id,
 	) );
-	set_post_thumbnail( $new_pledge_id, $logo_attachment_id );
+	set_post_thumbnail( $new_pledge_id, $logo_attachment_id );*/
 
-	return 'success';
+	return $new_pledge_id;
 }
 
 /**
@@ -168,16 +170,15 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 		 * because there's no expiration.
 		 */
 		$message =
-			"Hi $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of " .
-			"the contributors that they pay to contribute back to WordPress. You can view their pledge at: " . "\n\n" .
-			get_permalink( $pledge_id ) . "\n\n" .
-			// todo ^ page not found? probably just because https://github.com/WordPress/five-for-the-future/issues/9 isn't ready yet
+			"Howdy $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of the contributors that they sponsor to contribute to the WordPress open source project. You can view their pledge at:" . "\n\n" .
 
-			"To confirm that they're paying you to contribute, please review your pledges at:" . "\n\n" .
+			get_permalink( $pledge_id ) . "\n\n" .
+
+			"To confirm that they're sponsoring your contributions, please review your pledges at:" . "\n\n" .
+
 			get_permalink( get_page_by_path( 'my-pledges' ) ) . "\n\n" .
 
-			"If they aren't paying you to contribute, then you can ignore this email and you won't be listed as one " .
-			'of their contributors.'
+			"If they aren't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge."
 		;
 
 		$user = get_user_by( 'login', $contributor->post_title );
