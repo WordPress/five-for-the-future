@@ -155,13 +155,13 @@ function send_pledge_confirmation_email( $pledge_id, $action_page_id ) {
 	$pledge = get_post( $pledge_id );
 
 	$message =
-		'Thanks for committing to help keep WordPress sustainable! Please confirm this email address ' .
-		'in order to publish your pledge:' . "\n\n" .
+		'Thanks for pledging your time to contribute to WordPress! Please confirm this email address in order to publish your pledge:' . "\n\n" .
+
 		Email\get_authentication_url( $pledge_id, 'confirm_pledge_email', $action_page_id )
 	;
 
 	// todo include a notice that the link will expire in X hours, so they know what to expect
-		// need to make that value DRY across all emails with links
+	// need to make that value DRY across all emails with links
 	// should probably say that on the front end form success message as well, so they know to go check their email now instead of after lunch.
 
 	return Email\send_email(
