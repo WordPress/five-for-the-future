@@ -123,22 +123,40 @@ function populate_list_table_columns( $column, $post_id ) {
 }
 
 /**
- * Create a contributor post as a child of a pledge post.
+ * Add one or more contributors to a pledge.
  *
- * @param string $wporg_username
- * @param int    $pledge_id
+ * Note that this does not validate whether a contributor's wporg username exists in the system.
  *
- * @return int|WP_Error Post ID on success. Otherwise WP_Error.
+ * @param int   $pledge_id    The post ID of the pledge.
+ * @param array $contributors Array of contributor wporg usernames.
+ *
+ * @return void
  */
-function create_new_contributor( $wporg_username, $pledge_id ) {
-	$args = array(
-		'post_type'   => CPT_ID,
-		'post_title'  => sanitize_user( $wporg_username ),
-		'post_parent' => $pledge_id,
-		'post_status' => 'pending',
-	);
+function add_pledge_contributors( $pledge_id, $contributors ) {
+	$results = array();
 
-	return wp_insert_post( $args, true );
+	foreach ( $contributors as $wporg_username ) {
+		$args = array(
+			'post_type'   => CPT_ID,
+			'post_title'  => sanitize_user( $wporg_username ),
+			'post_parent' => $pledge_id,
+			'post_status' => 'pending',
+		);
+
+		$result = wp_insert_post( $args, true );
+
+		$results[ $wporg_username ] = ( is_wp_error( $result ) ) ? $result->get_error_code() : $result;
+	}
+
+	/**
+	 * Action: Fires when one or more contributors are added to a pledge.
+	 *
+	 * @param int   $pledge_id    The post ID of the pledge.
+	 * @param array $contributors Array of contributor wporg usernames.
+	 * @param array $results      Associative array, key is wporg username, value is post ID on success,
+	 *                            or an error code on failure.
+	 */
+	do_action( FiveForTheFuture\PREFIX . '_add_pledge_contributors', $pledge_id, $contributors, $results );
 }
 
 /**
@@ -152,7 +170,19 @@ function create_new_contributor( $wporg_username, $pledge_id ) {
  * @return false|WP_Post|null
  */
 function remove_contributor( $contributor_post_id ) {
-	return wp_trash_post( $contributor_post_id );
+	$pledge_id = get_post( $contributor_post_id )->post_parent;
+	$result    = wp_trash_post( $contributor_post_id );
+
+	/**
+	 * Action: Fires when a contributor is removed from a pledge.
+	 *
+	 * @param int                $pledge_id
+	 * @param int                $contributor_post_id
+	 * @param WP_Post|false|null $result
+	 */
+	do_action( FiveForTheFuture\PREFIX . '_remove_contributor', $pledge_id, $contributor_post_id, $result );
+
+	return $result;
 }
 
 /**
@@ -271,7 +301,7 @@ function process_my_pledges_form() {
 			'post_status' => $status,
 		) );
 	} elseif ( 'trash' === $status ) {
-		wp_delete_post( $contributor_post_id );
+		remove_contributor( $contributor_post_id );
 	}
 
 	return $message;
