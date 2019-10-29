@@ -170,16 +170,15 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 		 * because there's no expiration.
 		 */
 		$message =
-			"Hi $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of " .
-			"the contributors that they pay to contribute back to WordPress. You can view their pledge at: " . "\n\n" .
-			get_permalink( $pledge_id ) . "\n\n" .
-			// todo ^ page not found? probably just because https://github.com/WordPress/five-for-the-future/issues/9 isn't ready yet
+			"Howdy $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of the contributors that they sponsor to contribute to the WordPress open source project. You can view their pledge at:" . "\n\n" .
 
-			"To confirm that they're paying you to contribute, please review your pledges at:" . "\n\n" .
+			get_permalink( $pledge_id ) . "\n\n" .
+
+			"To confirm that they're sponsoring your contributions, please review your pledges at:" . "\n\n" .
+
 			get_permalink( get_page_by_path( 'my-pledges' ) ) . "\n\n" .
 
-			"If they aren't paying you to contribute, then you can ignore this email and you won't be listed as one " .
-			'of their contributors.'
+			"If they aren't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge."
 		;
 
 		$user = get_user_by( 'login', $contributor->post_title );
