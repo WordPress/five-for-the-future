@@ -10,6 +10,7 @@ if ( ! have_posts() ) {
 	nocache_headers();
 }
 
+$new_pledge_link = get_permalink( get_page_by_path( 'for-organizations' ) );
 $pledge_order = isset( $_GET['order'] ) ? $_GET['order'] : '';
 
 get_header(); ?>
@@ -21,7 +22,7 @@ get_header(); ?>
 		<header class="page-header">
 			<h1 class="page-title"><?php esc_html_e( 'Pledges', 'wordpressorg' ); ?></h1>
 			<div class="page-header-callout">
-				<a class="button" href="/for-organizations/" >
+				<a class="button" href="<?php echo esc_url( $new_pledge_link ); ?>" >
 					<?php esc_html_e( 'Pledge your company', 'wordpressorg' ); ?>
 				</a>
 			</div>
