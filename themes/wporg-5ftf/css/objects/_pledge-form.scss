@@ -45,7 +45,12 @@
 
 	.form-field__agree {
 
+		input {
+			margin-top: 0;
+		}
+
 		label {
+			display: inline;
 			margin-bottom: 0;
 		}
 	}
