@@ -16,7 +16,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 	<label for="5ftf-pledge-agreement">
 		<?php
 		printf(
-			wp_kses_post( __( 'I understand and agree to the <a href="%s">expectations</a> for inclusion in the Five for the Future acknowledgement program.', 'wporg-5ftf' ) ),
+			wp_kses_post( __( 'I understand and agree to the <a href="%s">expectations for inclusion</a> in the Five for the Future acknowledgement program.', 'wporg-5ftf' ) ),
 			esc_url( get_permalink( get_page_by_path( 'expectations' ) ) ) // TODO Change this URL?
 		);
 		?>
