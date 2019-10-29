@@ -66,7 +66,7 @@ function get_log_entry_template() {
 		'type'      => '',
 		'message'   => '',
 		'data'      => array(),
-		'user_id'   => 0,
+		'user_id'   => get_current_user_id(),
 	);
 }
 
@@ -112,7 +112,11 @@ function add_log_entry( $pledge_id, $type, $message, array $data = array(), $use
 	$entry['type']    = $type;
 	$entry['message'] = $message;
 	$entry['data']    = $data;
-	$entry['user_id'] = $user_id;
+
+	if ( $user_id ) {
+		// The template defaults to the current user, so this function parameter shouldn't override unless it's different.
+		$entry['user_id'] = $user_id;
+	}
 
 	add_post_meta( $pledge_id, LOG_META_KEY, $entry, false );
 }
@@ -137,8 +141,7 @@ function capture_save_post( $post_ID, $post, $update ) {
 				'Pledge created. Status set to <code>%s</code>.',
 				esc_html( get_post_status( $post_ID ) )
 			),
-			PledgeForm\get_form_submission(),
-			get_current_user_id()
+			PledgeForm\get_form_submission()
 		);
 	}
 }
@@ -174,8 +177,7 @@ function capture_updated_postmeta( $meta_id, $object_id, $meta_key, $meta_value 
 			),
 			array(
 				$meta_key => $meta_value,
-			),
-			get_current_user_id()
+			)
 		);
 	}
 }
@@ -206,8 +208,7 @@ function capture_added_post_meta( $meta_id, $object_id, $meta_key, $meta_value )
 					'Pledge email address confirmed.',
 					array(
 						'email' => get_post_meta( $object_id, PledgeMeta\META_PREFIX . 'org-pledge-email', true ),
-					),
-					get_current_user_id()
+					)
 				);
 			}
 			break;
@@ -245,8 +246,7 @@ function capture_transition_post_status( $new_status, $old_status, WP_Post $post
 					esc_html( $old_status ),
 					esc_html( $new_status )
 				),
-				array(),
-				get_current_user_id()
+				array()
 			);
 			break;
 
@@ -262,8 +262,7 @@ function capture_transition_post_status( $new_status, $old_status, WP_Post $post
 					esc_html( $old_status ),
 					esc_html( $new_status )
 				),
-				array(),
-				get_current_user_id()
+				array()
 			);
 			break;
 	}
@@ -287,8 +286,7 @@ function capture_add_pledge_contributors( $pledge_id, $contributors, $results ) 
 			'Contributors added: <code>%s</code>',
 			implode( '</code>, <code>', $contributors )
 		),
-		$results,
-		get_current_user_id()
+		$results
 	);
 }
 
@@ -315,8 +313,7 @@ function capture_remove_contributor( $pledge_id, $contributor_post_id, $result )
 			),
 			array(
 				'previous_status' => $contributor_post->_wp_trash_meta_status,
-			),
-			get_current_user_id()
+			)
 		);
 	}
 }
