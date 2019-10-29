@@ -46,14 +46,19 @@ function get_xprofile_contribution_data( array $user_ids ) {
  *
  * @param int $pledge_id
  *
- * @return array
+ * @return array|false
  */
 function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
-	$contributors = Contributor\get_contributor_user_objects(
-		// TODO set to 'publish' when finished testing.
-		Contributor\get_pledge_contributors( $pledge_id, 'pending' )
-	);
-	$user_ids     = wp_list_pluck( $contributors, 'ID' );
+	// TODO set to 'publish' when finished testing.
+	$contributor_posts = Contributor\get_pledge_contributors( $pledge_id, 'pending' );
+
+	// All of their contributors might have declined the invitation and had their posts deleted.
+	if ( ! $contributor_posts ) {
+		return false;
+	}
+
+	$contributor_users = Contributor\get_contributor_user_objects( $contributor_posts );
+	$user_ids          = wp_list_pluck( $contributor_users, 'ID' );
 
 	$data = get_xprofile_contribution_data( $user_ids );
 
