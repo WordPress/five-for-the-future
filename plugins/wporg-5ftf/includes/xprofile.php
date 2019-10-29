@@ -49,8 +49,7 @@ function get_xprofile_contribution_data( array $user_ids ) {
  * @return array|false
  */
 function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
-	// TODO set to 'publish' when finished testing.
-	$contributor_posts = Contributor\get_pledge_contributors( $pledge_id, 'pending' );
+	$contributor_posts = Contributor\get_pledge_contributors( $pledge_id, 'publish' );
 
 	// All of their contributors might have declined the invitation and had their posts deleted.
 	if ( ! $contributor_posts ) {

@@ -10,8 +10,7 @@ use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 $contribution_data = XProfile\get_aggregate_contributor_data_for_pledge( get_the_ID() );
 
 $contributors = Contributor\get_contributor_user_objects(
-	// TODO set to 'publish' when finished testing.
-	Contributor\get_pledge_contributors( get_the_ID(), 'pending' )
+	Contributor\get_pledge_contributors( get_the_ID(), 'publish' )
 );
 
 $report_page = get_page_by_path( 'report' );
