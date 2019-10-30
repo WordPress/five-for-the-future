@@ -253,20 +253,21 @@ function render_my_pledges() {
 	$pledge_url      = get_permalink( get_page_by_path( 'for-organizations' ) );
 	$success_message = process_my_pledges_form();
 
-	$contributor_posts = get_posts( array(
+	$contributor_pending_posts = get_posts( array(
 		'title'       => $user->user_login,
 		'post_type'   => CPT_ID,
-		'post_status' => array( 'pending', 'publish' ),
+		'post_status' => array( 'pending' ),
 		'numberposts' => 100,
 	) );
 
-	$confirmed_pledge_ids = array_reduce( $contributor_posts, function( $carry, $post ) {
-		if ( 'publish' === $post->post_status ) {
-			$carry[] = $post->ID;
-		}
+	$contributor_publish_posts = get_posts( array(
+		'title'       => $user->user_login,
+		'post_type'   => CPT_ID,
+		'post_status' => array( 'publish' ),
+		'numberposts' => 100,
+	) );
 
-		return $carry;
-	}, array() );
+	$confirmed_pledge_ids = wp_list_pluck( $contributor_publish_posts, 'ID' );
 
 	ob_start();
 	require FiveForTheFuture\get_views_path() . 'list-my-pledges.php';

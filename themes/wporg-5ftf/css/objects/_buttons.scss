@@ -15,3 +15,40 @@ input[type="submit"] {
 	color: $color__link-button;
 	text-decoration: none;
 }
+
+// Add "danger" button styles, red text on grey background.
+.button.button-danger {
+	color: $color-error-red;
+
+	&:visited {
+		color: $color-error-red;
+	}
+
+	&.hover,
+	&:hover,
+	&.focus,
+	&:focus {
+		color: $color-error-red;
+	}
+
+	&.focus,
+	&:focus {
+		border-color: rgba($color-error-red, 0.6);
+		box-shadow: 0 0 3px $color-error-red;
+	}
+}
+
+.button.button-link {
+	padding: 0;
+	margin-left: 0;
+	margin-right: 0;
+	border: none;
+	background-color: transparent;
+	box-shadow: none;
+	text-decoration: underline;
+
+	&.focus,
+	&:focus {
+		box-shadow: none;
+	}
+}

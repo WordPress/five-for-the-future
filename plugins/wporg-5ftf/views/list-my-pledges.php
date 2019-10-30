@@ -1,11 +1,13 @@
 <?php
 
 namespace WordPressDotOrg\FiveForTheFuture\View;
+use WordPressDotOrg\FiveForTheFuture;
 use WP_User, WP_Post;
 
 /**
  * @var WP_User $user
- * @var array   $contributor_posts
+ * @var array   $contributor_pending_posts
+ * @var array   $contributor_publish_posts
  * @var WP_Post $contributor_post
  * @var string  $success_message
  * @var string  $pledge_url
@@ -13,96 +15,72 @@ use WP_User, WP_Post;
  * @var array   $confirmed_pledge_ids
  */
 
+$has_contributions = $contributor_pending_posts || $contributor_publish_posts;
+
 ?>
 
 <?php if ( is_user_logged_in() ) : ?>
 
-	<?php echo get_avatar( $user->ID, 96, 'blank', "{$user->login}'s avatar" ); ?>
+	<header class="my-pledges__header">
+		<div class="my-pledges__avatar">
+			<?php echo get_avatar( $user->ID, 96, 'blank', __( 'Your avatar', 'wporg-5ftf' ) ); ?>
+		</div>
 
-	<p>
-		<?php echo esc_html( sprintf(
-			_n(
-				'Pledged %1$s hours a week across %2$s organization',
-				'Pledged %1$s hours a week across %2$s organizations',
-				count( $confirmed_pledge_ids ),
-				'wporg-5ftf'
-			),
-			$profile_data['hours_per_week'],
-			count( $confirmed_pledge_ids )
-		) ); ?>
-	</p>
+		<h1 class="my-pledges__title">
+			<?php esc_html_e( 'My Pledges', 'wporg-5ftf' ); ?>
+		</h1>
+
+		<p class="my-pledges__dedication">
+			<?php echo esc_html( sprintf(
+				_n(
+					'Pledged %1$s hours a week across %2$s organization',
+					'Pledged %1$s hours a week across %2$s organizations',
+					count( $confirmed_pledge_ids ),
+					'wporg-5ftf'
+				),
+				$profile_data['hours_per_week'],
+				count( $confirmed_pledge_ids )
+			) ); ?>
+		</p>
+	</header>
 
 	<?php if ( $success_message ) : ?>
-		<div class="notice notice-success notice-alt">
+		<div class="my-pledges__notice notice notice-success notice-alt">
 			<p>
 				<?php echo esc_html( $success_message ); ?>
 			</p>
 		</div>
 	<?php endif; ?>
 
-	<?php if ( $contributor_posts ) : ?>
+	<?php if ( $has_contributions ) : ?>
 
-		<div class="fftf_pledges">
-			<?php foreach ( $contributor_posts as $contributor_post ) : ?>
-				<?php $pledge = get_post( $contributor_post->post_parent ); ?>
+		<?php if ( $contributor_publish_posts ) : ?>
 
-				<div class="fftf_pledge">
-					<div class="pledge-logo-container">
-						<?php echo get_the_post_thumbnail( $pledge->ID, 'pledge-logo' ); ?>
-					</div>
+			<div class="my-pledges__list">
+				<?php
+				foreach ( $contributor_publish_posts as $contributor_post ) {
+					$pledge = get_post( $contributor_post->post_parent );
+					require FiveForTheFuture\get_views_path() . 'single-my-pledge.php';
+				}
+				?>
+			</div>
 
-					<div class="pledge-title">
-						<a href="<?php echo esc_url( get_permalink( $pledge->ID ) ); ?>">
-							<?php echo esc_html( $pledge->post_title ); ?>
-						</a>
+		<?php endif; ?>
 
-						<?php if ( 'publish' === $contributor_post->post_status ) : ?>
-							<p>
-								<?php esc_html_e( sprintf(
-									__( 'You confirmed this pledge on %s', 'wporg-5ftf' ),
-									date( get_option( 'date_format' ), strtotime( $contributor_post->post_date ) )
-								) ); ?>
-							</p>
-						<?php endif; ?>
-					</div>
+		<?php if ( $contributor_pending_posts ) : ?>
 
-					<div class="pledge-actions">
-						<form action="" method="post">
-							<input type="hidden" name="contributor_post_id" value="<?php echo esc_attr( $contributor_post->ID ); ?>" />
+			<div class="my-pledges__list is-pending-list">
+				<h2><?php esc_html_e( 'Pending Pledges', 'wporg-5ftf' ); ?></h2>
 
-							<?php if ( 'pending' === $contributor_post->post_status ) : ?>
-								<?php wp_nonce_field( 'join_decline_organization' ); ?>
+				<?php
+				foreach ( $contributor_pending_posts as $contributor_post ) {
+					$pledge = get_post( $contributor_post->post_parent );
+					require FiveForTheFuture\get_views_path() . 'single-my-pledge.php';
+				}
+				?>
+			</div>
 
-								<input
-									type="submit"
-									name="join_organization"
-									value="Join Organization"
-								/>
-
-								<input
-									type="submit"
-									class="button-link"
-									name="decline_invitation"
-									value="Decline Invitation"
-								/>
-
-							<?php elseif ( 'publish' === $contributor_post->post_status ) : ?>
-								<?php wp_nonce_field( 'leave_organization' ); ?>
-
-								<input
-									type="submit"
-									name="leave_organization"
-									value="Leave Organization"
-								/>
-
-							<?php endif; ?>
-
-						</form>
-					</div>
-				</div>
-
-			<?php endforeach; ?>
-		</div>
+		<?php endif; ?>
 
 	<?php else : ?>
 
