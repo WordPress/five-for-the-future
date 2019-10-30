@@ -36,9 +36,9 @@ function get_pledge_meta_config( $context = 'all' ) {
 	$user_input = array(
 		'org-description'  => array(
 			'single'            => true,
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => __NAMESPACE__ . '\sanitize_description',
 			'show_in_rest'      => true,
-			'php_filter'        => FILTER_SANITIZE_STRING,
+			'php_filter'        => FILTER_UNSAFE_RAW,
 		),
 		'org-name'         => array(
 			'single'            => true,
@@ -91,6 +91,21 @@ function get_pledge_meta_config( $context = 'all' ) {
 	}
 
 	return $return;
+}
+
+/**
+ * Sanitize description fields.
+ *
+ * @param string $insecure
+ *
+ * @return string
+ */
+function sanitize_description( $insecure ) {
+	$secure = wp_kses_data( $insecure );
+	$secure = wpautop( $secure );
+	$secure = wp_unslash( wp_rel_nofollow( $secure ) );
+
+	return $secure;
 }
 
 /**

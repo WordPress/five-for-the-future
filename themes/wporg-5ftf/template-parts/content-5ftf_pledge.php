@@ -53,7 +53,7 @@ $contributor_title = sprintf(
 
 	<div class="entry-content">
 		<?php
-			echo wp_kses_post( $content );
+			echo wpautop( wp_kses_data( $content ) );
 		?>
 		
 		<div class="pledge-contributors">
