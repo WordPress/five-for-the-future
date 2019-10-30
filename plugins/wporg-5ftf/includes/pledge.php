@@ -7,7 +7,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\Pledge;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\Email;
+use WordPressDotOrg\FiveForTheFuture\{ Contributor, Email };
 use WP_Error, WP_Query;
 
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
@@ -21,6 +21,8 @@ const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
 add_action( 'init', __NAMESPACE__ . '\register', 0 );
 add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu' );
 add_action( 'pre_get_posts', __NAMESPACE__ . '\filter_query' );
+add_filter( 'manage_edit-' . CPT_ID . '_columns',        __NAMESPACE__ . '\add_list_table_columns' );
+add_action( 'manage_' . CPT_ID . '_posts_custom_column', __NAMESPACE__ . '\populate_list_table_columns', 10, 2 );
 
 /**
  * Register all the things.
@@ -115,6 +117,50 @@ function register_custom_post_status() {
 			CPT_ID        => true, // Custom parameter to streamline its use with the Pledge CPT.
 		)
 	);
+}
+
+/**
+ * Add columns to the Pledges list table.
+ *
+ * @param array $columns
+ *
+ * @return array
+ */
+function add_list_table_columns( $columns ) {
+	$first = array_slice( $columns, 0, 2, true );
+	$last  = array_slice( $columns, 2, null, true );
+
+	$new_columns = array(
+		'contributor_counts' => __( 'Contributors', 'wporg' ),
+		'domain'             => __( 'Domain', 'wporg' ),
+	);
+
+	return array_merge( $first, $new_columns, $last );
+}
+
+/**
+ * Render content in the custom columns added to the Pledges list table.
+ *
+ * @param string $column
+ * @param int    $post_id
+ *
+ * @return void
+ */
+function populate_list_table_columns( $column, $post_id ) {
+	switch ( $column ) {
+		case 'contributor_counts':
+			$contribs = Contributor\get_pledge_contributors( $post_id, 'all' );
+			printf(
+				wpautop( '%1$d confirmed' . "\n" . '%2$d unconfirmed' ),
+				count( $contribs['publish'] ),
+				count( $contribs['pending'] )
+			);
+			break;
+		case 'domain':
+			$domain = get_post_meta( $post_id, META_PREFIX . 'org-domain', true );
+			echo esc_html( $domain );
+			break;
+	}
 }
 
 /**
