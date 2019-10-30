@@ -18,31 +18,29 @@
 	}
 
 	&.has-contrib-names {
-		display: flex;
-		flex-wrap: wrap;
 		margin: ms(2) 0;
 		list-style: none;
-		justify-content: space-between;
-
-		&.has-2-contribs {
-			justify-content: flex-start;
-
-			li {
-				margin-right: 20px;
-
-				@include breakpoint( $breakpoint-small ) {
-					margin-right: 48px;
-				}
-			}
-		}
 
 		li {
-			margin: 0 0 40px;
-			width: calc( 50% - 20px );
+			display: inline-block;
+			margin: 0 20px 40px 0;
+			width: calc( 50% - 15px );
+
+			&:nth-of-type(2n) {
+				margin-right: 0;
+			}
 
 			@include breakpoint( $breakpoint-small ) {
-				width: calc( 33% - 48px );
-				min-width: 170px;
+				margin-right: 48px;
+				width: calc( 33% - 33px );
+
+				&:nth-of-type(2n) {
+					margin-right: 48px;
+				}
+
+				&:nth-of-type(3n) {
+					margin-right: 0;
+				}
 			}
 		}
 
