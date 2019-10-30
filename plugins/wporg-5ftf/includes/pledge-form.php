@@ -310,6 +310,7 @@ function parse_contributors( $contributors ) {
 	$invalid_contributors   = array();
 	$sanitized_contributors = array();
 
+	$contributors = str_replace( '@', '', $contributors );
 	$contributors = explode( ',', $contributors );
 
 	foreach ( $contributors as $wporg_username ) {

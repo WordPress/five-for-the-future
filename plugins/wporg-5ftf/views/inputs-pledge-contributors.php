@@ -14,6 +14,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		id="5ftf-pledge-contributors"
 		name="pledge-contributors"
 		value="<?php echo esc_attr( $data['pledge-contributors'] ); ?>"
+		placeholder="zoe, mal, kaylee"
 		required
 		aria-describedby="5ftf-pledge-contributors-help"
 	/>
