@@ -91,7 +91,7 @@ get_header(); ?>
 				<h2><?php esc_html_e( 'Contributors', 'wporg' ); ?></h2>
 
 				<?php if ( ! empty( $contributors ) ) : ?>
-					<ul class="pledge-contributors has-contrib-names">
+					<ul class="pledge-contributors has-contrib-names <?php echo ( 2 === count( $contributors ) ) ? 'has-2-contribs' : ''; ?>">
 						<?php foreach ( $contributors as $contributor ) : ?>
 							<li class="pledge-contributor">
 								<span class="pledge-contributor__avatar">

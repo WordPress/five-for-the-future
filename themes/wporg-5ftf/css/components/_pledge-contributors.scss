@@ -9,6 +9,7 @@
 	.pledge-contributor__avatar {
 		display: inline-block;
 		background: $color-gray-light-700;
+		margin-right: 4px;
 
 		img {
 			vertical-align: middle;
@@ -22,8 +23,20 @@
 		list-style: none;
 		justify-content: space-between;
 
+		&.has-2-contribs {
+			justify-content: flex-start;
+
+			li {
+				margin-right: 20px;
+
+				@include breakpoint( $breakpoint-small ) {
+					margin-right: 48px;
+				}
+			}
+		}
+
 		li {
-			margin: 0 auto 40px;
+			margin: 0 0 40px;
 			width: calc( 50% - 20px );
 
 			@include breakpoint( $breakpoint-small ) {
