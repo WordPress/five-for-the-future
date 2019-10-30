@@ -316,6 +316,10 @@ function parse_contributors( $contributors ) {
 		$sanitized_username = sanitize_user( $wporg_username );
 		$user               = get_user_by( 'login', $sanitized_username );
 
+		if ( ! $user instanceof WP_User ) {
+			$user = get_user_by( 'slug', $sanitized_username );
+		}
+
 		if ( $user instanceof WP_User ) {
 			$sanitized_contributors[] = $sanitized_username;
 		} else {
