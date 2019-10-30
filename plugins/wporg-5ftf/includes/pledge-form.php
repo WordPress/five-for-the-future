@@ -76,7 +76,7 @@ function process_form_new() {
 
 	$logo_attachment_id = upload_image( $_FILES['org-logo'] );
 	if ( is_wp_error( $logo_attachment_id ) ) {
-		//return $logo_attachment_id;
+		return $logo_attachment_id;
 	}
 
 	$name = sanitize_meta(
@@ -95,11 +95,11 @@ function process_form_new() {
 	Contributor\add_pledge_contributors( $new_pledge_id, $contributors );
 
 	// Attach logo to the pledge.
-	/*wp_update_post( array(
+	wp_update_post( array(
 		'ID'          => $logo_attachment_id,
 		'post_parent' => $new_pledge_id,
 	) );
-	set_post_thumbnail( $new_pledge_id, $logo_attachment_id );*/
+	set_post_thumbnail( $new_pledge_id, $logo_attachment_id );
 
 	return $new_pledge_id;
 }
