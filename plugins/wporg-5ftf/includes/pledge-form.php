@@ -322,7 +322,7 @@ function parse_contributors( $contributors ) {
 		}
 
 		if ( $user instanceof WP_User ) {
-			$sanitized_contributors[] = $sanitized_username;
+			$sanitized_contributors[] = $user->user_login;
 		} else {
 			$invalid_contributors[] = $wporg_username;
 		}
