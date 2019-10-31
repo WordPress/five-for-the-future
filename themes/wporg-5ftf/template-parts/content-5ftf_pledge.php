@@ -17,7 +17,24 @@ foreach ( PledgeMeta\get_pledge_meta_config() as $key => $config ) {
 $contributors = Contributor\get_pledge_contributors( get_the_ID() );
 $count        = count( $contributors );
 
+$allowed_html = array_merge(
+	wp_kses_allowed_html( 'data' ),
+	array(
+		'span' => array(
+			'class' => true
+		)
+	)
+);
+
+$more = sprintf(
+	__( '&hellip; <a href="%s">continue reading <span class="screen-reader-text">%s</span></a>', 'wporg-5ftf' ),
+	esc_url( get_permalink() ),
+	esc_html( get_the_title() )
+);
+
 $content = apply_filters( 'the_content', $data['org-description'] );
+$content = strip_tags( $content );
+$content = wp_trim_words( $content, 55, $more );
 
 $contributor_title = sprintf(
 	esc_html(
@@ -53,9 +70,9 @@ $contributor_title = sprintf(
 
 	<div class="entry-content">
 		<?php
-			echo wpautop( wp_kses_data( $content ) );
+			echo wp_kses( $content, $allowed_html );
 		?>
-		
+
 		<div class="pledge-contributors">
 			<?php /* phpcs:ignore -- escaped above */ ?>
 			<h3><?php echo $contributor_title ?></h3>
