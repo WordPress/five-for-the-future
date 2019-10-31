@@ -225,6 +225,7 @@ function filter_query( $query ) {
 	}
 
 	$contributor_count_key = META_PREFIX . 'pledge-confirmed-contributors';
+	$hours_count_key       = META_PREFIX . 'pledge-total-hours';
 
 	// Set up meta queries to include the "valid pledge" check, added to both search and pledge archive requests.
 	$meta_queries = (array) $query->get( 'meta_query' );
@@ -246,14 +247,15 @@ function filter_query( $query ) {
 		// Archives should only show pledges with contributors.
 		$query->set( 'meta_query', $meta_queries );
 		$order = isset( $_GET['order'] ) ? $_GET['order'] : '';
+
 		switch ( $order ) {
 			case 'alphabetical':
 				$query->set( 'orderby', 'name' );
 				$query->set( 'order', 'ASC' );
 				break;
 
-			case 'contributors':
-				$query->set( 'meta_key', $contributor_count_key );
+			case 'hours':
+				$query->set( 'meta_key', $hours_count_key );
 				$query->set( 'orderby', 'meta_value_num' );
 				$query->set( 'order', 'DESC' );
 				break;

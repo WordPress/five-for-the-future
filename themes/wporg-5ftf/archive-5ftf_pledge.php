@@ -37,8 +37,8 @@ get_header(); ?>
 						<option value="alphabetical" <?php selected( $pledge_order, 'alphabetical' ); ?>>
 							<?php esc_html_e( 'Alphabetical', 'wordpressorg' ); ?>
 						</option>
-						<option value="contributors" <?php selected( $pledge_order, 'contributors' ); ?>>
-							<?php esc_html_e( 'Total Contributors', 'wordpressorg' ); ?>
+						<option value="hours" <?php selected( $pledge_order, 'hours' ); ?>>
+							<?php esc_html_e( 'Total Hours', 'wordpressorg' ); ?>
 						</option>
 					</select>
 					<span class="screen-reader-text">

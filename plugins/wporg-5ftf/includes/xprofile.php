@@ -76,7 +76,7 @@ function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 				break;
 
 			case 30: // Teams.
-				$value          = maybe_unserialize( $item['value'] );
+				$value          = (array) maybe_unserialize( $item['value'] );
 				$carry['teams'] = array_merge( $carry['teams'], $value );
 				break;
 		}

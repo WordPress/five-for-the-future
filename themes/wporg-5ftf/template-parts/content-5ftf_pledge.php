@@ -5,9 +5,9 @@
 
 namespace WordPressdotorg\Five_for_the_Future\Theme;
 
-use WordPressDotOrg\FiveForTheFuture\Contributor;
-use WordPressDotOrg\FiveForTheFuture\PledgeMeta;
+use WordPressDotOrg\FiveForTheFuture\{Contributor, PledgeMeta };
 
+$pledge = get_post();
 $data = array();
 
 foreach ( PledgeMeta\get_pledge_meta_config() as $key => $config ) {
@@ -15,7 +15,6 @@ foreach ( PledgeMeta\get_pledge_meta_config() as $key => $config ) {
 }
 
 $contributors = Contributor\get_pledge_contributors( get_the_ID() );
-$count        = count( $contributors );
 
 $allowed_html = array_merge(
 	wp_kses_allowed_html( 'data' ),
@@ -36,12 +35,14 @@ $content = apply_filters( 'the_content', $data['org-description'] );
 $content = strip_tags( $content );
 $content = wp_trim_words( $content, 55, $more );
 
+$total_hours = $pledge->{ PledgeMeta\META_PREFIX . 'pledge-total-hours' };
+
 $contributor_title = sprintf(
 	esc_html(
-		_n( '%1$s has pledged %2$d contributor', '%1$s has pledged %2$d contributors', $count, 'wordpressorg' )
+		_n( '%1$s has pledged %2$d hour', '%1$s has pledged %2$d hours', $total_hours, 'wordpressorg' )
 	),
 	wp_kses_post( get_the_title() ),
-	intval( $count )
+	intval( $total_hours )
 );
 ?>
 

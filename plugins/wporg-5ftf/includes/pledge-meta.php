@@ -6,9 +6,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\PledgeMeta;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\Pledge;
-use WordPressDotOrg\FiveForTheFuture\PledgeForm;
-use WordPressDotOrg\FiveForTheFuture\Contributor;
+use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeForm, Contributor, XProfile };
 use WP_Post, WP_Error;
 
 defined( 'WPINC' ) || die();
@@ -19,7 +17,7 @@ add_action( 'init',                   __NAMESPACE__ . '\register_pledge_meta' );
 add_action( 'admin_init',             __NAMESPACE__ . '\add_meta_boxes' );
 add_action( 'save_post',              __NAMESPACE__ . '\save_pledge', 10, 2 );
 add_action( 'admin_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
-add_action( 'transition_post_status', __NAMESPACE__ . '\update_confirmed_contributor_count', 10, 3 );
+add_action( 'transition_post_status', __NAMESPACE__ . '\update_cached_pledge_data', 10, 3 );
 
 // Both hooks must be used because `updated` doesn't fire if the post meta didn't previously exist.
 add_action( 'updated_postmeta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
@@ -72,6 +70,11 @@ function get_pledge_meta_config( $context = 'all' ) {
 			'show_in_rest'      => false,
 		),
 		'pledge-confirmed-contributors' => array(
+			'single'            => true,
+			'sanitize_callback' => 'absint',
+			'show_in_rest'      => false,
+		),
+		'pledge-total-hours' => array(
 			'single'            => true,
 			'sanitize_callback' => 'absint',
 			'show_in_rest'      => false,
@@ -318,7 +321,9 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 }
 
 /**
- * Update the cached count of confirmed contributors for a pledge when a contributor post changes statuses.
+ * Update cached pledge data when a contributor post changes statuses.
+ *
+ * This is saved so that it can be easily queried against, and also to make stats calculations easier.
  *
  * Note that contributor posts should always be trashed instead of deleted completely when a contributor is
  * removed from a pledge.
@@ -329,7 +334,7 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
  *
  * @return void
  */
-function update_confirmed_contributor_count( $new_status, $old_status, WP_Post $post ) {
+function update_cached_pledge_data( $new_status, $old_status, WP_Post $post ) {
 	if ( Contributor\CPT_ID !== get_post_type( $post ) ) {
 		return;
 	}
@@ -341,9 +346,11 @@ function update_confirmed_contributor_count( $new_status, $old_status, WP_Post $
 	$pledge = get_post( $post->post_parent );
 
 	if ( $pledge instanceof WP_Post ) {
-		$confirmed_contributors = Contributor\get_pledge_contributors( $pledge->ID, 'publish' );
+		$pledge_data = XProfile\get_aggregate_contributor_data_for_pledge( $pledge->ID );
 
-		update_post_meta( $pledge->ID, META_PREFIX . 'pledge-confirmed-contributors', count( $confirmed_contributors ) );
+		update_post_meta( $pledge->ID, META_PREFIX . 'pledge-confirmed-contributors', $pledge_data['contributors'] );
+		update_post_meta( $pledge->ID, META_PREFIX . 'pledge-total-hours', $pledge_data['hours'] );
+
 	}
 }
 
