@@ -28,7 +28,7 @@ get_header(); ?>
 					<span class="pledge-url">
 						<?php
 						printf(
-							'<a href="%1$s">%1$s</a>',
+							'<a href="%1$s" rel="nofollow">%1$s</a>',
 							esc_url( $post->{ META_PREFIX . 'org-url' } )
 						);
 						?>
