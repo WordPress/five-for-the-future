@@ -178,6 +178,10 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 
 			get_permalink( get_page_by_path( 'my-pledges' ) ) . "\n\n" .
 
+			"Please also update your WordPress.org profile to include the number of hours per week that you contribute, and the teams that you contribute to:\n\n" .
+
+			"https://profiles.wordpress.org/me/profile/edit/group/5/\n\n" .
+
 			"If they aren't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge."
 		;
 
