@@ -101,6 +101,11 @@ function get_contributor_user_data( $user_id ) {
 	$formatted_data = array();
 	$raw_data       = get_xprofile_contribution_data( array( $user_id ) );
 
+	$defaults = array(
+		'hours_per_week' => 0,
+		'team_names'     => array(),
+	);
+
 	foreach ( $raw_data as $datum ) {
 		$key = array_search( $datum['field_id'], FIELD_IDS );
 
@@ -113,6 +118,8 @@ function get_contributor_user_data( $user_id ) {
 				$formatted_data[ $key ] = maybe_unserialize( $datum['value'] );
 		}
 	}
+
+	$formatted_data = array_merge( $defaults, $formatted_data );
 
 	return $formatted_data;
 }

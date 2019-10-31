@@ -30,18 +30,31 @@ $has_contributions = $contributor_pending_posts || $contributor_publish_posts;
 			<?php esc_html_e( 'My Pledges', 'wporg-5ftf' ); ?>
 		</h1>
 
-		<p class="my-pledges__dedication">
-			<?php echo esc_html( sprintf(
-				_n(
-					'Pledged %1$s hours a week across %2$s organization',
-					'Pledged %1$s hours a week across %2$s organizations',
-					count( $confirmed_pledge_ids ),
-					'wporg-5ftf'
-				),
-				$profile_data['hours_per_week'],
-				count( $confirmed_pledge_ids )
-			) ); ?>
-		</p>
+		<?php if ( $profile_data['hours_per_week'] && $profile_data['team_names'] ) : ?>
+			<p class="my-pledges__dedication">
+				<?php echo esc_html( sprintf(
+					_n(
+						'Pledged %1$s hours a week across %2$s organization',
+						'Pledged %1$s hours a week across %2$s organizations',
+						count( $confirmed_pledge_ids ),
+						'wporg-5ftf'
+					),
+					$profile_data['hours_per_week'],
+					count( $confirmed_pledge_ids )
+				) ); ?>
+			</p>
+
+		<?php else : ?>
+			<div class="notice notice-warning notice-alt">
+				<p>
+					<?php echo wp_kses_data( sprintf(
+						__( 'Please <a href="%s">update your profile</a> with the <strong>number of hours per week</strong> that you contribute, and the <strong>teams</strong> that you contribute to.', 'wporg-5ftf' ),
+						'https://profiles.wordpress.org/me/profile/edit/group/5/'
+					) ); ?>
+				</p>
+			</div>
+
+		<?php endif; ?>
 	</header>
 
 	<?php if ( $success_message ) : ?>
