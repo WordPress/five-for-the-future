@@ -102,7 +102,7 @@ get_header(); ?>
 									'<a class="pledge-contributor__name" href="%1$s">%2$s</a>',
 									sprintf(
 										'https://profiles.wordpress.org/%s/',
-										sanitize_key( $contributor->user_login ) // phpcs:ignore WordPress.Security.EscapeOutput -- sanitize_key will catch any security issues.
+										sanitize_key( $contributor->user_nicename ) // phpcs:ignore WordPress.Security.EscapeOutput -- sanitize_key will catch any security issues.
 									),
 									esc_html( $contributor->display_name )
 								);
