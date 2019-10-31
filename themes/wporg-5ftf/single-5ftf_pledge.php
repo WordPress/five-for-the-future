@@ -95,7 +95,9 @@ get_header(); ?>
 						<?php foreach ( $contributors as $contributor ) : ?>
 							<li class="pledge-contributor">
 								<span class="pledge-contributor__avatar">
-									<?php echo get_avatar( $contributor->user_email, 280 ); ?>
+									<a href="<?php echo esc_url( 'https://profiles.wordpress.org/' . $contributor->user_nicename ); ?> ">
+										<?php echo get_avatar( $contributor->user_email, 280 ); ?>
+									</a>
 								</span>
 								<?php
 								printf(
