@@ -49,7 +49,7 @@ get_header(); ?>
 				<h2><?php esc_html_e( 'About', 'wporg' ); ?></h2>
 
 				<div class="pledge-company-description">
-					<?php echo wp_kses_data( wpautop( $post->{ META_PREFIX . 'org-description' } ) ); ?>
+					<?php echo wpautop( wp_kses_data( $post->{ META_PREFIX . 'org-description' } ) ); ?>
 				</div>
 
 				<?php if ( ! empty( $contributors ) ) : ?>
