@@ -105,6 +105,16 @@ $has_contributions = $contributor_pending_posts || $contributor_publish_posts;
 
 <?php else : ?>
 
+	<header class="my-pledges__header">
+		<div class="my-pledges__avatar">
+			<?php echo get_avatar( 0, 96, 'mystery' ); ?>
+		</div>
+
+		<h1 class="my-pledges__title">
+			<?php esc_html_e( 'My Pledges', 'wporg-5ftf' ); ?>
+		</h1>
+	</header>
+
 	<div class="notice notice-error notice-alt">
 		<p>
 			Please <a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>">log in to your WordPress.org account</a> in order to view your pledges.
