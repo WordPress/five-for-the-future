@@ -18,8 +18,8 @@ add_action( 'init',                   __NAMESPACE__ . '\schedule_cron_jobs' );
 add_action( 'admin_init',             __NAMESPACE__ . '\add_meta_boxes' );
 add_action( 'save_post',              __NAMESPACE__ . '\save_pledge', 10, 2 );
 add_action( 'admin_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
-add_action( 'transition_post_status', __NAMESPACE__ . '\maybe_update_cached_pledge_data', 10, 3 );
-add_action( 'update_all_cached_pledged_data', __NAMESPACE__. '\update_all_cached_pledged_data' );
+add_action( 'transition_post_status', __NAMESPACE__ . '\maybe_update_single_cached_pledge_data', 10, 3 );
+add_action( 'update_all_cached_pledge_data', __NAMESPACE__. '\update_all_cached_pledge_data' );
 
 // Both hooks must be used because `updated` doesn't fire if the post meta didn't previously exist.
 add_action( 'updated_postmeta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
@@ -137,8 +137,8 @@ function register_pledge_meta() {
  * @see https://dotorg.trac.wordpress.org/changeset/15351/
  */
 function schedule_cron_jobs() {
-	if ( ! wp_next_scheduled( 'update_all_cached_pledged_data' ) ) {
-		wp_schedule_event( time(), 'hourly', 'update_all_cached_pledged_data' );
+	if ( ! wp_next_scheduled( 'update_all_cached_pledge_data' ) ) {
+		wp_schedule_event( time(), 'hourly', 'update_all_cached_pledge_data' );
 	}
 }
 
@@ -149,7 +149,7 @@ function schedule_cron_jobs() {
  * a contributor to edit their profile's # of hours at any time. If we didn't regularly check and update it,
  * then it could be permanently out of date.
  */
-function update_all_cached_pledged_data() {
+function update_all_cached_pledge_data() {
 	$pledges = get_posts( array(
 		'post_type'   => Pledge\CPT_ID,
 		'post_status' => 'publish',
@@ -157,7 +157,7 @@ function update_all_cached_pledged_data() {
 	) );
 
 	foreach ( $pledges as $pledge ) {
-		update_cached_pledge_data( $pledge->ID );
+		update_single_cached_pledge_data( $pledge->ID );
 	}
 }
 
@@ -367,7 +367,7 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
  *
  * @return void
  */
-function maybe_update_cached_pledge_data( $new_status, $old_status, WP_Post $post ) {
+function maybe_update_single_cached_pledge_data( $new_status, $old_status, WP_Post $post ) {
 	if ( Contributor\CPT_ID !== get_post_type( $post ) ) {
 		return;
 	}
@@ -379,7 +379,7 @@ function maybe_update_cached_pledge_data( $new_status, $old_status, WP_Post $pos
 	$pledge = get_post( $post->post_parent );
 
 	if ( $pledge instanceof WP_Post ) {
-		update_cached_pledge_data( $pledge->ID );
+		update_single_cached_pledge_data( $pledge->ID );
 	}
 }
 
@@ -390,7 +390,7 @@ function maybe_update_cached_pledge_data( $new_status, $old_status, WP_Post $pos
  *
  * @param $pledge_id
  */
-function update_cached_pledge_data( $pledge_id ) {
+function update_single_cached_pledge_data( $pledge_id ) {
 	$pledge_data = XProfile\get_aggregate_contributor_data_for_pledge( $pledge_id );
 
 	update_post_meta( $pledge_id, META_PREFIX . 'pledge-confirmed-contributors', $pledge_data['contributors'] );
