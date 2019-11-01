@@ -70,9 +70,9 @@ $contributor_title = sprintf(
 	</header><!-- .entry-header -->
 
 	<div class="entry-content">
-		<?php
-			echo wp_kses( $content, $allowed_html );
-		?>
+		<p>
+			<?php echo wp_kses( $content, $allowed_html ); ?>
+		</p>
 
 		<div class="pledge-contributors">
 			<?php /* phpcs:ignore -- escaped above */ ?>
