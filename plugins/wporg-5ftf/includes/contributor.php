@@ -14,6 +14,7 @@ const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
 add_action( 'init',                                      __NAMESPACE__ . '\register_custom_post_type', 0 );
 add_filter( 'manage_edit-' . CPT_ID . '_columns',        __NAMESPACE__ . '\add_list_table_columns' );
 add_action( 'manage_' . CPT_ID . '_posts_custom_column', __NAMESPACE__ . '\populate_list_table_columns', 10, 2 );
+add_filter( 'wp_nav_menu_objects',                       __NAMESPACE__ . '\hide_my_pledges_when_logged_out', 10 );
 
 add_shortcode( '5ftf_my_pledges', __NAMESPACE__ . '\render_my_pledges' );
 
@@ -240,6 +241,27 @@ function get_contributor_user_objects( array $contributor_posts ) {
 	return array_map( function( WP_Post $post ) {
 		return get_user_by( 'login', $post->post_title );
 	}, $contributor_posts );
+}
+
+/**
+ * Only show the My Pledges menu to users who are logged in.
+ *
+ * @param array $menu_items
+ *
+ * @return array
+ */
+function hide_my_pledges_when_logged_out( $menu_items ) {
+	if ( get_current_user_id() ) {
+		return $menu_items;
+	}
+
+	foreach ( $menu_items as $key => $item ) {
+		if ( home_url( 'my-pledges/' ) === $item->url ) {
+			unset( $menu_items[ $key ] );
+		}
+	}
+
+	return $menu_items;
 }
 
 /**
