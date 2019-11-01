@@ -182,11 +182,11 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 
 			"https://profiles.wordpress.org/me/profile/edit/group/5/\n\n" .
 
-			"If they aren't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge."
+			"If {$pledge->post_title} isn't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge."
 		;
 
 		$user = get_user_by( 'login', $contributor->post_title );
-		Email\send_email( $user->user_email, $subject, $message );
+		Email\send_email( $user->user_email, $subject, $message, $pledge_id );
 	}
 }
 

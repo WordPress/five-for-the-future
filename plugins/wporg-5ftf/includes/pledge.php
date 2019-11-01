@@ -209,7 +209,8 @@ function send_pledge_confirmation_email( $pledge_id, $action_page_id ) {
 	return Email\send_email(
 		$pledge->{'5ftf_org-pledge-email'},
 		'Please confirm your email address',
-		$message
+		$message,
+		$pledge_id
 	);
 }
 

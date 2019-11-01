@@ -19,6 +19,7 @@ add_action( 'added_post_meta', __NAMESPACE__ . '\capture_added_post_meta', 99, 4
 add_action( 'transition_post_status', __NAMESPACE__ . '\capture_transition_post_status', 99, 3 );
 add_action( FiveForTheFuture\PREFIX . '_add_pledge_contributors', __NAMESPACE__ . '\capture_add_pledge_contributors', 99, 3 );
 add_action( FiveForTheFuture\PREFIX . '_remove_contributor', __NAMESPACE__ . '\capture_remove_contributor', 99, 3 );
+add_action( FiveForTheFuture\PREFIX . '_email_result', __NAMESPACE__ . '\capture_email_result', 99, 6 );
 
 /**
  * Adds a meta box for the log on the custom post type.
@@ -316,4 +317,27 @@ function capture_remove_contributor( $pledge_id, $contributor_post_id, $result )
 			)
 		);
 	}
+}
+
+/**
+ * Capture the results of an attempt to send an email.
+ *
+ * @param string $to
+ * @param string $subject
+ * @param string $message
+ * @param array  $headers
+ * @param bool   $result
+ * @param int    $pledge_id
+ */
+function capture_email_result( $to, $subject, $message, $headers, $result, $pledge_id ) {
+	add_log_entry(
+		$pledge_id,
+		'send_email_result',
+		sprintf(
+			'Sending email to %s %s.',
+			$to,
+			$result ? 'succeeded' : 'failed'
+		),
+		compact( 'to', 'subject', 'message', 'headers', 'result' )
+	);
 }
