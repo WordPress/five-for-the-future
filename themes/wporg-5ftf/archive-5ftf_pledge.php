@@ -32,7 +32,7 @@ get_header(); ?>
 					<label for="pledge-sort"><?php esc_html_e( 'Sort pledges by', 'wordpressorg' ); ?></label>
 					<select class="custom-select" id="pledge-sort" name="order">
 						<option value="" <?php selected( $pledge_order, '' ); ?>>
-							<?php esc_html_e( 'All Pledges', 'wordpressorg' ); ?>
+							<?php esc_html_e( 'Random', 'wordpressorg' ); ?>
 						</option>
 						<option value="alphabetical" <?php selected( $pledge_order, 'alphabetical' ); ?>>
 							<?php esc_html_e( 'Alphabetical', 'wordpressorg' ); ?>

@@ -260,6 +260,13 @@ function filter_query( $query ) {
 				$query->set( 'orderby', 'meta_value_num' );
 				$query->set( 'order', 'DESC' );
 				break;
+
+			default:
+				$query->set( 'orderby', 'rand' );
+				break;
 		}
 	}
+
+	// todo remove this when `rand` pagination fixed, see https://github.com/WordPress/five-for-the-future/issues/70#issuecomment-549066883
+	$query->set( 'posts_per_page', 100 );
 }
