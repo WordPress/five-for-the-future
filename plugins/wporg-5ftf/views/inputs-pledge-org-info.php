@@ -41,6 +41,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		type="url"
 		id="5ftf-org-url"
 		name="org-url"
+		placeholder="https://example.com"
 		value="<?php echo esc_attr( $data['org-url'] ); ?>"
 		required
 		<?php echo $readonly ? 'readonly' : ''; ?>

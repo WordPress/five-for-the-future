@@ -19,6 +19,7 @@ use WP_Post;
 		type="email"
 		id="5ftf-pledge-email"
 		name="org-pledge-email"
+		placeholder="wordpress-contributors@example.com"
 		value="<?php echo esc_attr( $data['org-pledge-email'] ); ?>"
 		required
 		aria-describedby="5ftf-pledge-email-help"

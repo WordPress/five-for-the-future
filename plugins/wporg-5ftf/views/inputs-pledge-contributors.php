@@ -13,8 +13,8 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		type="text"
 		id="5ftf-pledge-contributors"
 		name="pledge-contributors"
+		placeholder="sanguine.zoe206, captain-mal, kayleefixesyou"
 		value="<?php echo esc_attr( $data['pledge-contributors'] ); ?>"
-		placeholder="zoe, mal, kaylee"
 		required
 		aria-describedby="5ftf-pledge-contributors-help"
 	/>
