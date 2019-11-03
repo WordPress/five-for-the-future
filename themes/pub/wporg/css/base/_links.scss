@@ -1,0 +1,28 @@
+a {
+	color: $color__wp-blue;
+	text-decoration: none;
+
+	&:hover,
+	&:focus,
+	&:active {
+		text-decoration: underline;
+	}
+
+	&:focus {
+		outline: thin dotted;
+	}
+
+	&:hover,
+	&:active {
+		outline: 0;
+	}
+
+	p &,
+	li > & {
+		text-decoration: underline;
+
+		&:hover {
+			color: #d54e21;
+		}
+	}
+}

@@ -1,0 +1,18 @@
+.clear,
+.entry-content,
+.comment-content,
+.site-header,
+.site-content,
+.site-footer,
+.home-below {
+	&:before,
+	&:after {
+		content: "";
+		display: table;
+		table-layout: fixed;
+	}
+
+	&:after {
+		clear: both;
+	}
+}
