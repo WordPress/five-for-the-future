@@ -65,6 +65,10 @@ function register_custom_post_type() {
 		'exclude_from_search' => true,
 		'publicly_queryable'  => false,
 		'capability_type'     => 'page',
+		'capabilities'        => array(
+			'create_posts' => 'do_not_allow'
+		),
+		'map_meta_cap'        => true,
 		'show_in_rest'        => false, // todo Maybe turn this on later.
 	);
 
