@@ -34,6 +34,7 @@ function load() {
 	require_once get_includes_path() . 'xprofile.php';
 	require_once get_includes_path() . 'endpoints.php';
 	require_once get_includes_path() . 'miscellaneous.php';
+	require_once get_includes_path() . 'stats.php';
 
 	// The logger expects things like `$_POST` which aren't set during unit tests.
 	if ( ! $running_unit_tests ) {

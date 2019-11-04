@@ -281,7 +281,9 @@ function get_pledge_contributors_data( $pledge_id ) {
 }
 
 /**
- * Get the user objects that correspond with pledge contributor posts.
+ * Get the user objects that correspond with contributor posts.
+ *
+ * @see `get_contributor_user_ids()` for a similar function.
  *
  * @param WP_Post[] $contributor_posts
  *
@@ -291,6 +293,46 @@ function get_contributor_user_objects( array $contributor_posts ) {
 	return array_map( function( WP_Post $post ) {
 		return get_user_by( 'login', $post->post_title );
 	}, $contributor_posts );
+}
+
+/**
+ * Get user IDs for the given `CPT_ID` posts.
+ *
+ * This is similar to `get_contributor_user_objects()`, but returns more specific data, and is more performant
+ * with large data sets (e.g., with `get_snapshot_data()`) because there is 1 query instead of
+ * `count( $contributor_posts )`.
+ *
+ * @param WP_Post[] $contributor_posts
+ *
+ * @return array
+ */
+function get_contributor_user_ids( $contributor_posts ) {
+	global $wpdb;
+
+	$usernames = wp_list_pluck( $contributor_posts, 'post_title' );
+
+	/*
+	 * Generate placeholders dynamically, so that each username will be quoted individually rather than as a
+	 * single string.
+	 *
+	 * @see https://developer.wordpress.org/reference/classes/wpdb/prepare/#comment-1557
+	 */
+	$usernames_placeholders = implode( ', ', array_fill( 0, count( $usernames ), '%s' ) );
+
+	$query = "
+		SELECT id
+		FROM $wpdb->users
+		WHERE user_login IN( $usernames_placeholders )
+	";
+
+	$rows = $wpdb->get_results(
+		$wpdb->prepare( $query, $usernames ),
+		ARRAY_A
+	);
+
+	$user_ids = wp_list_pluck( $rows, 'id' );
+
+	return $user_ids;
 }
 
 /**
