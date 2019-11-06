@@ -4,9 +4,12 @@
 mu-plugins/vendor
 node_modules
 
-plugins/gutenberg
-plugins/wordpress-importer
+plugins/*
+!plugins/wporg-5ftf
 
 themes/wporg-5ftf/css/style.css
 themes/wporg-5ftf/css/style-editor.css
 themes/pub
+
+/uploads
+/db.php
