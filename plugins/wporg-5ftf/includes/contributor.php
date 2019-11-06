@@ -307,8 +307,8 @@ function render_my_pledges() {
  */
 function process_my_pledges_form() {
 	$contributor_post_id = filter_input( INPUT_POST, 'contributor_post_id', FILTER_VALIDATE_INT );
-	$nonce               = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
-	if ( empty( $contributor_post_id ) || empty( $nonce ) ) {
+	$unverified_nonce    = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+	if ( empty( $contributor_post_id ) || empty( $unverified_nonce ) ) {
 		return ''; // Return early, the form wasn't submitted.
 	}
 
@@ -322,19 +322,23 @@ function process_my_pledges_form() {
 	$message = '';
 	$status  = false;
 	if ( filter_input( INPUT_POST, 'join_organization' ) ) {
-		wp_verify_nonce( $nonce, 'join_decline_organization' ) || wp_nonce_ays( 'join_decline_organization' );
+		$nonce_action = 'join_decline_organization_' . $contributor_post_id;
+
+		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$status  = 'publish';
 		$message = "You have joined the pledge from {$pledge->post_title}.";
 
 	} elseif ( filter_input( INPUT_POST, 'decline_invitation' ) ) {
-		wp_verify_nonce( $nonce, 'join_decline_organization' ) || wp_nonce_ays( 'join_decline_organization' );
+		$nonce_action = 'join_decline_organization_' . $contributor_post_id;
+		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$status  = 'trash';
 		$message = "You have declined the pledge invitation from {$pledge->post_title}.";
 
 	} elseif ( filter_input( INPUT_POST, 'leave_organization' ) ) {
-		wp_verify_nonce( $nonce, 'leave_organization' ) || wp_nonce_ays( 'leave_organization' );
+		$nonce_action = 'leave_organization_' . $contributor_post_id;
+		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$status  = 'trash';
 		$message = "You have left the {$pledge->post_title} pledge.";

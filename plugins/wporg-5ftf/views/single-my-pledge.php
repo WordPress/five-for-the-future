@@ -44,7 +44,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 			<input type="hidden" name="contributor_post_id" value="<?php echo esc_attr( $contributor_post->ID ); ?>" />
 
 			<?php if ( 'pending' === $contributor_post->post_status ) : ?>
-				<?php wp_nonce_field( 'join_decline_organization' ); ?>
+				<?php wp_nonce_field( 'join_decline_organization_' . $contributor_post->ID ); ?>
 
 				<input
 					type="submit"
@@ -61,7 +61,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 				/>
 
 			<?php elseif ( 'publish' === $contributor_post->post_status ) : ?>
-				<?php wp_nonce_field( 'leave_organization' ); ?>
+				<?php wp_nonce_field( 'leave_organization_' . $contributor_post->ID ); ?>
 
 				<input
 					type="submit"
