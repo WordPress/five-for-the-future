@@ -306,11 +306,15 @@ function render_my_pledges() {
  * @return string
  */
 function process_my_pledges_form() {
-	$message             = '';
-	$status              = false;
 	$contributor_post_id = filter_input( INPUT_POST, 'contributor_post_id', FILTER_VALIDATE_INT );
-	$pledge              = get_post( get_post( $contributor_post_id )->post_parent );
 	$nonce               = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+	if ( empty( $contributor_post_id ) || empty( $nonce ) ) {
+		return '';
+	}
+
+	$message = '';
+	$status  = false;
+	$pledge  = get_post( get_post( $contributor_post_id )->post_parent );
 
 	if ( filter_input( INPUT_POST, 'join_organization' ) ) {
 		wp_verify_nonce( $nonce, 'join_decline_organization' ) || wp_nonce_ays( 'join_decline_organization' );
