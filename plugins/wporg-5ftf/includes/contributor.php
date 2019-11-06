@@ -322,19 +322,19 @@ function process_my_pledges_form() {
 	$message = '';
 	$status  = false;
 	if ( filter_input( INPUT_POST, 'join_organization' ) ) {
-		wp_verify_nonce( $nonce, 'join_decline_organization' ) || wp_nonce_ays( 'join_decline_organization' );
+		wp_verify_nonce( $nonce, 'join_decline_organization_' . $contributor_post_id ) || wp_nonce_ays( 'join_decline_organization' );
 
 		$status  = 'publish';
 		$message = "You have joined the pledge from {$pledge->post_title}.";
 
 	} elseif ( filter_input( INPUT_POST, 'decline_invitation' ) ) {
-		wp_verify_nonce( $nonce, 'join_decline_organization' ) || wp_nonce_ays( 'join_decline_organization' );
+		wp_verify_nonce( $nonce, 'join_decline_organization_' . $contributor_post_id ) || wp_nonce_ays( 'join_decline_organization' );
 
 		$status  = 'trash';
 		$message = "You have declined the pledge invitation from {$pledge->post_title}.";
 
 	} elseif ( filter_input( INPUT_POST, 'leave_organization' ) ) {
-		wp_verify_nonce( $nonce, 'leave_organization' ) || wp_nonce_ays( 'leave_organization' );
+		wp_verify_nonce( $nonce, 'leave_organization_' . $contributor_post_id ) || wp_nonce_ays( 'leave_organization' );
 
 		$status  = 'trash';
 		$message = "You have left the {$pledge->post_title} pledge.";
