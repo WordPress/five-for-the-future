@@ -23,14 +23,20 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\load' );
  * Include the rest of the plugin.
  */
 function load() {
+	$running_unit_tests = isset( $_SERVER['_'] ) && false !== strpos( $_SERVER['_'], 'phpunit' );
+
 	require_once get_includes_path() . 'contributor.php';
 	require_once get_includes_path() . 'email.php';
 	require_once get_includes_path() . 'pledge.php';
 	require_once get_includes_path() . 'pledge-meta.php';
 	require_once get_includes_path() . 'pledge-form.php';
 	require_once get_includes_path() . 'xprofile.php';
-	require_once get_includes_path() . 'pledge-log.php';
 	require_once get_includes_path() . 'miscellaneous.php';
+
+	// The logger expects things like `$_POST` which aren't set during unit tests.
+	if ( ! $running_unit_tests ) {
+		require_once get_includes_path() . 'pledge-log.php';
+	}
 }
 
 /**
