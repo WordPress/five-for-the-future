@@ -37,6 +37,20 @@ const TOKEN_PREFIX = '5ftf_auth_token_';
 // Longer than `get_password_reset_key()` just to be safe. See https://core.trac.wordpress.org/ticket/43546#comment:34
 const TOKEN_LENGTH = 32;
 
+add_action( 'wp_head', __NAMESPACE__ . '\prevent_caching_auth_tokens', 99 );
+
+/**
+ * Prevent caching mechanisms from caching authentication tokens.
+ *
+ * Search engines would often be too slow to index tokens before they expire, but other mechanisms like Varnish,
+ * etc could create situations where they're leaked to others.
+ */
+function prevent_caching_auth_tokens() {
+	if ( isset( $_GET['auth_token'] ) || isset( $_POST['auth_token'] ) ) {
+	    nocache_headers();
+	}
+}
+
 /**
  * Wrap `wp_mail()` with shared functionality.
  *
