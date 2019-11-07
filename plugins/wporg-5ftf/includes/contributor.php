@@ -313,17 +313,20 @@ function process_my_pledges_form() {
 	}
 
 	$contributor_post = get_post( $contributor_post_id );
-	if ( isset( $contributor_post->post_type ) && $contributor_post->post_type === CPT_ID ) {
-		$pledge = get_post( $contributor_post->post_parent );
-	} else {
+	if ( ! isset( $contributor_post->post_type ) || $contributor_post->post_type !== CPT_ID ) {
 		return ''; // Return early, the form was submitted incorrectly.
 	}
 
+	$current_user = wp_get_current_user();
+	if ( ! isset( $current_user->user_login ) || $contributor_post->post_title !== $current_user->user_login ) {
+		return ''; // User doesn't have permission to update this.
+	}
+
+	$pledge  = get_post( $contributor_post->post_parent );
 	$message = '';
 	$status  = false;
 	if ( filter_input( INPUT_POST, 'join_organization' ) ) {
 		$nonce_action = 'join_decline_organization_' . $contributor_post_id;
-
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$status  = 'publish';
