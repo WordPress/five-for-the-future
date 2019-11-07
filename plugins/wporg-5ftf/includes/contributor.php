@@ -347,13 +347,13 @@ function process_my_pledges_form() {
 		$message = "You have left the {$pledge->post_title} pledge.";
 	}
 
-	if ( 'publish' === $status ) {
+	if ( 'publish' === $status && 'publish' !== $contributor_post->post_status ) {
 		wp_update_post( array(
-			'ID'          => $contributor_post_id,
+			'ID'          => $contributor_post->ID,
 			'post_status' => $status,
 		) );
-	} elseif ( 'trash' === $status ) {
-		remove_contributor( $contributor_post_id );
+	} elseif ( 'trash' === $status && 'trash' !== $contributor_post->post_status ) {
+		remove_contributor( $contributor_post->ID );
 	}
 
 	return $message;
