@@ -26,7 +26,7 @@ function render_form_new() {
 	$errors        = [];
 	$pledge        = null;
 	$complete      = false;
-	$directory_url = get_permalink( get_page_by_path( 'pledges' ) );
+	$directory_url = home_url( 'pledges' );
 	$view          = 'form-pledge-new.php';
 
 	if ( 'Submit Pledge' === $action ) {
