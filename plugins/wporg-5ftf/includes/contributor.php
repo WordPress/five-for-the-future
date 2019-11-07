@@ -324,35 +324,36 @@ function process_my_pledges_form() {
 
 	$pledge  = get_post( $contributor_post->post_parent );
 	$message = '';
-	$status  = false;
+	$new_status = false;
+
 	if ( filter_input( INPUT_POST, 'join_organization' ) ) {
 		$nonce_action = 'join_decline_organization_' . $contributor_post_id;
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
-		$status  = 'publish';
+		$new_status = 'publish';
 		$message = "You have joined the pledge from {$pledge->post_title}.";
 
 	} elseif ( filter_input( INPUT_POST, 'decline_invitation' ) ) {
 		$nonce_action = 'join_decline_organization_' . $contributor_post_id;
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
-		$status  = 'trash';
+		$new_status = 'trash';
 		$message = "You have declined the pledge invitation from {$pledge->post_title}.";
 
 	} elseif ( filter_input( INPUT_POST, 'leave_organization' ) ) {
 		$nonce_action = 'leave_organization_' . $contributor_post_id;
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
-		$status  = 'trash';
+		$new_status = 'trash';
 		$message = "You have left the {$pledge->post_title} pledge.";
 	}
 
-	if ( 'publish' === $status && 'publish' !== $contributor_post->post_status ) {
+	if ( 'publish' === $new_status && 'publish' !== $contributor_post->post_status ) {
 		wp_update_post( array(
 			'ID'          => $contributor_post->ID,
-			'post_status' => $status,
+			'post_status' => $new_status,
 		) );
-	} elseif ( 'trash' === $status && 'trash' !== $contributor_post->post_status ) {
+	} elseif ( 'trash' === $new_status && 'trash' !== $contributor_post->post_status ) {
 		remove_contributor( $contributor_post->ID );
 	}
 
