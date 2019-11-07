@@ -23,7 +23,7 @@ add_shortcode( '5ftf_pledge_form_manage', __NAMESPACE__ . '\render_form_manage' 
 function render_form_new() {
 	$action        = isset( $_GET['action'] ) ? filter_input( INPUT_GET, 'action' ) : filter_input( INPUT_POST, 'action' );
 	$data          = get_form_submission();
-	$messages      = [];
+	$errors        = [];
 	$pledge        = null;
 	$complete      = false;
 	$directory_url = get_permalink( get_page_by_path( 'pledges' ) );
@@ -33,7 +33,7 @@ function render_form_new() {
 		$pledge_id = process_form_new();
 
 		if ( is_wp_error( $pledge_id ) ) {
-			$messages = array_merge( $messages, $pledge_id->get_error_messages() );
+			$errors = array_merge( $errors, $pledge_id->get_error_messages() );
 		} elseif ( is_int( $pledge_id ) ) {
 			$complete = true;
 		}
@@ -43,6 +43,7 @@ function render_form_new() {
 		$unverified_token = filter_input( INPUT_GET, 'auth_token', FILTER_SANITIZE_STRING );
 		$email_confirmed  = process_pledge_confirmation_email( $pledge_id, $action, $unverified_token );
 		$pledge           = get_post( $pledge_id );
+
 	} elseif ( filter_input( INPUT_GET, 'resend_pledge_confirmation' ) ) {
 		$pledge_id = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
 		$complete  = true;

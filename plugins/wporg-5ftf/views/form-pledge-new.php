@@ -9,6 +9,9 @@ use WP_Post;
  * @var bool         $complete
  * @var string       $directory_url
  */
+
+require __DIR__ . '/partial-result-messages.php';
+
 ?>
 
 <!-- TODO Reveal this once managing an existing pledge is actually possible.
@@ -17,19 +20,9 @@ use WP_Post;
 </p>
 -->
 
-<?php if ( ! empty( $messages ) ) : ?>
-
-	<div id="form-message" class="notice notice-error notice-alt">
-	<?php foreach ( $messages as $message ) : ?>
-		<p><?php echo wp_kses_post( $message ); ?></p>
-	<?php endforeach; ?>
-	</div>
-
-<?php endif; ?>
-
 <?php if ( true === $complete ) : ?>
 
-	<div id="form-message" class="notice notice-success notice-alt">
+	<div id="form-messages" class="notice notice-success notice-alt">
 		<p>
 			<?php esc_html_e( "Thanks for pledging to Five for the Future! Your new pledge profile has been created, and we've emailed you a link to confirm your address. Once that's done, we'll also email confirmation links to the contributors you named in your pledge.", 'wporg' ); ?>
 		</p>
@@ -53,7 +46,7 @@ use WP_Post;
 
 <?php else : ?>
 
-	<form class="pledge-form" id="5ftf-form-pledge-new" action="#form-message" method="post" enctype="multipart/form-data">
+	<form class="pledge-form" id="5ftf-form-pledge-new" action="#form-messages" method="post" enctype="multipart/form-data">
 		<?php
 		require get_views_path() . 'inputs-pledge-org-info.php';
 		require get_views_path() . 'inputs-pledge-contributors.php';
