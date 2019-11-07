@@ -36,9 +36,14 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 					<td>
 						<?php
 						$user = get_user_by( 'id', $entry['user_id'] );
-						if ( $user ) : ?>
-							<?php echo sanitize_user( $user->user_login ); ?>
-						<?php endif; ?>
+
+						if ( $user ) {
+							echo sanitize_user( $user->user_login );
+						} elseif ( ! empty( $entry['user_id'] ) ) {
+							echo esc_html( $entry['user_id'] );
+						}
+
+						?>
 					</td>
 				</tr>
 			<?php endforeach; ?>

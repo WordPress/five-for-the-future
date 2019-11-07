@@ -117,6 +117,9 @@ function add_log_entry( $pledge_id, $type, $message, array $data = array(), $use
 	if ( $user_id ) {
 		// The template defaults to the current user, so this function parameter shouldn't override unless it's different.
 		$entry['user_id'] = $user_id;
+
+	} elseif ( 'cli' === php_sapi_name() ) {
+		$entry['user_id'] = gethostname();
 	}
 
 	add_post_meta( $pledge_id, LOG_META_KEY, $entry, false );
