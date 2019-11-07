@@ -119,6 +119,10 @@ function add_log_entry( $pledge_id, $type, $message, array $data = array(), $use
 		$entry['user_id'] = $user_id;
 
 	} elseif ( 'cli' === php_sapi_name() ) {
+		/*
+		 * `wp_shell`, etc can only be run from w.org sandboxes, and the hostname is the best way to identify
+		 * which sandbox was used.
+		 */
 		$entry['user_id'] = gethostname();
 	}
 

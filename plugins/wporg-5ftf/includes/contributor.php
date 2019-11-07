@@ -218,17 +218,21 @@ function get_pledge_contributors( $pledge_id, $status = 'publish', $contributor_
 
 	$posts = get_posts( $args );
 
-	if ( 'all' === $status && ! empty( $posts ) ) {
+	if ( 'all' === $status ) {
 		$initial = array(
 			'publish' => array(),
 			'pending' => array(),
 		);
 
-		$posts = array_reduce( $posts, function( $carry, WP_Post $item ) {
-			$carry[ $item->post_status ][] = $item;
+		if ( empty( $posts ) ) {
+			$posts = $initial;
+		} else {
+			$posts = array_reduce( $posts, function( $carry, WP_Post $item ) {
+				$carry[ $item->post_status ][] = $item;
 
-			return $carry;
-		}, $initial );
+				return $carry;
+			}, $initial );
+		}
 	}
 
 	return $posts;
