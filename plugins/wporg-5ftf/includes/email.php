@@ -92,10 +92,14 @@ function send_email( $to, $subject, $message, $pledge_id ) {
  * @param string $action
  * @param int    $action_page_id The ID of the page that the user will be taken back to, in order to process their
  *                               confirmation request.
+ * @param bool   $use_once       Whether or not the token should be deleted after the first use. Only pass `false`
+ *                               when the action requires several steps in a flow, rather than a single step. For
+ *                               instance, be able to 1) view a private pledge; 2) make changes and save them; and
+ *                               3) reload the private pledge with the new changes displayed.
  *
  * @return string
  */
-function get_authentication_url( $pledge_id, $action, $action_page_id ) {
+function get_authentication_url( $pledge_id, $action, $action_page_id, $use_once = true ) {
 	$auth_token = array(
 		/*
 		 * This will create a CSPRN and is similar to how `get_password_reset_key()` and
@@ -104,6 +108,7 @@ function get_authentication_url( $pledge_id, $action, $action_page_id ) {
 		'value'      => wp_generate_password( TOKEN_LENGTH, false ),
 			// todo Ideally should encrypt at rest, see https://core.trac.wordpress.org/ticket/24783.
 		'expiration' => time() + ( 2 * HOUR_IN_SECONDS ),
+		'use_once'   => $use_once,
 	);
 
 	/*
@@ -135,13 +140,16 @@ function get_authentication_url( $pledge_id, $action, $action_page_id ) {
 /**
  * Verify whether or not a given authentication token is valid.
  *
- * These tokens are more secure than WordPress' imitation nonces, because they can only be used once, and expire
+ * These tokens are more secure than WordPress' imitation nonces because they cannot be reused[1], and expire
  * in a shorter timeframe. Like WP nonces, though, they must be tied to a specific action and post object in order
  * to prevent misuse.
  *
- * @param $pledge_id
- * @param $action
- * @param $unverified_token
+ * [1] In some cases, tokens can be reused, when that is explicitly required for their flow. For an example, see
+ * the documentation in `get_authentication_url()`.
+ *
+ * @param int    $pledge_id
+ * @param string $action
+ * @param string $unverified_token
  *
  * @return bool
  */
@@ -168,12 +176,10 @@ function is_valid_authentication_token( $pledge_id, $action, $unverified_token )
 	if ( $valid_token && $valid_token['expiration'] > time() && hash_equals( $valid_token['value'], $unverified_token ) ) {
 		$verified = true;
 
-		// Tokens should not be reusable, to increase security.
-		delete_post_meta( $pledge_id, TOKEN_PREFIX . $action );
-		// todo when used to manage pledge, token will probably get deleted when viewing, and then they won't be able to save
-			// fix that when create the manage process, though. for now this works for confirming email address.
-			// maye pass a `context` param to this function, either 'view' or 'update', and only delete if context is 'update' ?
-			// make sure view and update functions checks to make sure have valid token, not create though
+		// Tokens should not be reusable -- to increase security -- unless explicitly required to fulfill their purpose.
+		if ( $valid_token['use_once'] !== false ) {
+			delete_post_meta( $pledge_id, TOKEN_PREFIX . $action );
+		}
 	}
 
 	return $verified;

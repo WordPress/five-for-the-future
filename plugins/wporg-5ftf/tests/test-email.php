@@ -204,4 +204,38 @@ class Test_Email extends WP_UnitTestCase {
 		$this->assertNotSame( $other_valid_token['value'], self::$valid_token['value'] );
 		$this->assertSame( false, $verified );
 	}
+
+	/**
+	 * @covers ::is_valid_authentication_token
+	 */
+	public function test_reusable_token_is_reusable() {
+		$reusable_action = 'manage_pledge';
+		get_authentication_url( self::$valid_pledge->ID, $reusable_action, self::$valid_action_page->ID, false );
+		$reusable_token = get_post_meta( self::$valid_pledge->ID, TOKEN_PREFIX . $reusable_action, true );
+
+		// The token should be usable multiple times.
+		$first_verification  = is_valid_authentication_token( self::$valid_pledge->ID, $reusable_action, $reusable_token['value'] );
+		$second_verification = is_valid_authentication_token( self::$valid_pledge->ID, $reusable_action, $reusable_token['value'] );
+		$third_verification  = is_valid_authentication_token( self::$valid_pledge->ID, $reusable_action, $reusable_token['value'] );
+
+		$this->assertSame( true, $first_verification );
+		$this->assertSame( true, $second_verification );
+		$this->assertSame( true, $third_verification );
+	}
+
+	/**
+	 * @covers ::is_valid_authentication_token
+	 */
+	public function test_expired_reusable_token_rejected() {
+		$reusable_action = 'manage_pledge';
+		get_authentication_url( self::$valid_pledge->ID, $reusable_action, self::$valid_action_page->ID, false );
+		$reusable_token = get_post_meta( self::$valid_pledge->ID, TOKEN_PREFIX . $reusable_action, true );
+
+		$reusable_token['expiration'] = time() - 1;
+		update_post_meta( self::$valid_pledge->ID, TOKEN_PREFIX . $reusable_action, $reusable_token );
+
+		$verified = is_valid_authentication_token( self::$valid_pledge->ID, $reusable_action, $reusable_token['value'] );
+
+		$this->assertSame( false, $verified );
+	}
 }
