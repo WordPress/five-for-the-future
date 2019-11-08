@@ -53,5 +53,52 @@ body.single.single-5ftf_pledge {
 		margin-top: ms(2);
 		border-top: 1px solid $color-gray-light-500;
 		padding-top: ms(2);
+
+		.report-wrapper {
+			margin-bottom: 1em;
+		}
+
+		@include breakpoint( $breakpoint-tablet ) {
+			display: grid;
+			grid-template-columns: 50% 50%;
+
+			#toggle-management-link-form,
+			#request-management-link {
+				float: right;
+				clear: both;
+			}
+		}
+	}
+
+	#request-management-link {
+		width: 300px;
+		border: 1px solid #ebeced; // setup var
+		box-shadow: rgba(25, 30, 35, 0.1) 0 3px 30px;
+		margin-top: 20px;
+		padding: 15px;
+
+		// todo add the upper ^ carot thing
+			// border-radius or something to draw triangle
+			// element inside the box, but then abs position outside it?
+			// z-index above parent so it's above box-shadow - probably happens by default?
+
+		p:first-child {
+			margin-top: 0;
+		}
+
+		input[type="email"] {
+			width: 100%;
+			margin: 0 0 20px 0;
+		}
+
+		input[type="submit"] {
+			float: right;
+			clear: both;
+			margin-bottom: 20px;
+		}
+
+		#form-messages {
+			clear: both;
+		}
 	}
 }

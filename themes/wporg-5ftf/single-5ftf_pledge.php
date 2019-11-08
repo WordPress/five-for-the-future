@@ -15,7 +15,13 @@ $contributors = Contributor\get_contributor_user_objects(
 
 $report_page = get_page_by_path( 'report' );
 
-get_header(); ?>
+get_header();
+
+/**
+ * @var WP_Post $post
+ */
+
+?>
 
 	<main id="main" class="site-main" role="main">
 
@@ -118,7 +124,15 @@ get_header(); ?>
 			</div>
 
 			<footer class="entry-footer">
-				<a href="<?php the_permalink( $report_page ); ?>"><?php esc_html_e( 'Report a problem', 'wporg' ); ?></a>
+				<div class="report-wrapper">
+					<a href="<?php the_permalink( $report_page ); ?>">
+						<?php esc_html_e( 'Report a problem', 'wporg' ); ?>
+					</a>
+				</div>
+
+				<div class="edit-pledge-wrapper">
+					<?php do_shortcode( '[5ftf_pledge_form_manage_link]' ); ?>
+				</div>
 			</footer>
 		</article>
 
