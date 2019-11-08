@@ -68,7 +68,7 @@ body.page.page-my-pledges {
 
 .my-pledges__list {
 
-	&.is-pending-list {
+	+ .my-pledges__list {
 		margin-top: ms(8);
 		border-top: 1px solid $color-gray-light-500;
 		padding-top: ms(8);
