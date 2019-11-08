@@ -14,6 +14,7 @@ defined( 'WPINC' ) || die();
 // Todo make this into simple optionless blocks instead?
 add_shortcode( '5ftf_pledge_form_new', __NAMESPACE__ . '\render_form_new' );
 add_shortcode( '5ftf_pledge_form_manage', __NAMESPACE__ . '\render_form_manage' );
+add_shortcode( '5ftf_pledge_form_manage_link', __NAMESPACE__ . '\render_manage_link_request' );
 
 /**
  * Render the form(s) for creating new pledges.
@@ -219,6 +220,102 @@ function render_form_manage() {
 	require FiveForTheFuture\PATH . 'views/form-pledge-manage.php';
 
 	return ob_get_clean();
+}
+
+
+/**
+ * Render the `render_manage_link_request` shortcode.
+ */
+function render_manage_link_request() {
+	// @todo enable when https://github.com/WordPress/five-for-the-future/issues/6 is done
+	if ( ! defined( 'WPORG_SANDBOXED' ) || ! WPORG_SANDBOXED ) {
+		return;
+	}
+
+	$result = process_manage_link_request();
+
+	if ( is_wp_error( $result ) ) {
+		$errors = array( $result->get_error_message() );
+	} elseif ( ! is_null( $result ) ) {
+		$messages = array( $result );
+	}
+
+	require_once FiveForTheFuture\get_views_path() . 'form-pledge-request-manage-link.php';
+}
+
+/**
+ * Process a request for a pledge management link.
+ *
+ * @return null|string|WP_Error `null` if the form wasn't submitted; `string` with a success message;
+ *                              `WP_Error` with an error message.
+ */
+function process_manage_link_request() {
+	if ( ! filter_input( INPUT_POST, 'get_manage_pledge_link' ) ) {
+		return null;
+	}
+
+	$unverified_pledge_id   = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
+	$unverified_admin_email = filter_input( INPUT_POST, 'pledge_admin_address', FILTER_VALIDATE_EMAIL );
+	$valid_admin_email      = get_post( $unverified_pledge_id )->{ PledgeMeta\META_PREFIX . 'org-pledge-email' };
+
+	if ( $valid_admin_email && $valid_admin_email === $unverified_admin_email ) {
+		$verified_pledge_id = $unverified_pledge_id; // The addresses will only match is the pledge ID is valid.
+		$message_sent       = send_manage_pledge_link( $verified_pledge_id );
+
+		if ( $message_sent ) {
+			$result = __( "Thanks! We've emailed you a link you can open in order to update your pledge.", 'wporg-5ftf' );
+		} else {
+			$result = new WP_Error( 'email_failed', __( 'There was an error while trying to send the email.', 'wporg-5ftf' ) );
+		}
+
+	} else {
+		$error_message = sprintf(
+			__( 'That\'s not the address that we have for this pledge, please try a different one. If none of the addresses you try are working, please <a href="%s">email us</a> for help.', 'wporg-5ftf' ),
+			get_permalink( get_page_by_path( 'report' ) )
+		);
+
+		$result = new WP_Error( 'invalid_pledge_email', $error_message );
+	}
+
+	return $result;
+}
+
+
+/**
+ * Email the pledge admin a temporary link they can use to manage their pledge.
+ *
+ * @param int $pledge_id
+ *
+ * @return true|WP_Error
+ */
+function send_manage_pledge_link( $pledge_id ) {
+	$admin_email = get_post( $pledge_id )->{ PledgeMeta\META_PREFIX . 'org-pledge-email' };
+
+	if ( ! is_email( $admin_email ) ) {
+		return new WP_Error( 'invalid_email', 'Invalid email address.' );
+	}
+
+	$subject = __( 'Updating your Pledge', 'wporg-5ftf' );
+	$message =
+		'Howdy, please open this link to update your pledge:' . "\n\n" .
+
+		Email\get_authentication_url(
+			$pledge_id,
+			'manage_pledge',
+			get_page_by_path( 'manage-pledge' )->ID,
+
+			// The token needs to be reused so that the admin can view the form, submit it, and view the result.
+			false
+		)
+	;
+
+	$result = Email\send_email( $admin_email, $subject, $message, $pledge_id );
+
+	if ( ! $result ) {
+		$result = new WP_Error( 'email_failed', 'Email failed to send' );
+	}
+
+	return $result;
 }
 
 /**
