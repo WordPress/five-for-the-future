@@ -1,8 +1,13 @@
 <?php
+
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/** @var array $data */
-/** @var bool  $readonly */
+/**
+ * @var array  $data
+ * @var bool   $readonly
+ * @var string $action
+ */
+
 ?>
 
 <div class="form-field">
@@ -19,7 +24,8 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 	/>
 </div>
 
-<?php if ( ! is_admin() ) : ?>
+<?php // @todo Enable for management in https://github.com/WordPress/five-for-the-future/issues/21 ?>
+<?php if ( ! in_array( $action, array( 'manage_pledge', 'Update Pledge') ) && ! is_admin() ) : ?>
 	<div class="form-field form-field__logo">
 		<label for="5ftf-org-logo">
 			<?php esc_html_e( 'Logo', 'wordpressorg' ); ?>

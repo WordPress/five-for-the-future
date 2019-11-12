@@ -30,11 +30,11 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 						<li>
 							<?php echo get_avatar( $contributor->user_email, 32 ); ?>
 							<?php echo esc_html( $contributor_post->post_title ); ?>
-							<!-- TODO These buttons don't do anything yet.
+
 							<button class="button-primary" data-action="remove-contributor" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>">
 								<?php esc_html_e( 'Remove', 'wporg' ); ?>
 							</button>
-							-->
+
 							<?php if ( 'pending' === $contributor_post->post_status ) : ?>
 								<?php submit_button(
 									'Resend Confirmation',
@@ -49,13 +49,12 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 				</ul>
 			<?php endif; ?>
 		<?php endforeach; ?>
+
 	<?php else : ?>
+
 		<p><?php esc_html_e( 'There are no contributors added to this pledge yet.', 'wporg' ); ?></p>
+
 	<?php endif; ?>
 
-	<!-- TODO This button doesn't do anything yet.
-	<button class="button-primary" data-action="add-contributor">
-		<?php esc_html_e( 'Add new contributor', 'wporg' ); ?>
-	</button>
-	-->
+	<?php require __DIR__ . '/inputs-pledge-contributors.php'; ?>
 </div>

@@ -66,7 +66,7 @@ function render_form_new() {
  */
 function process_form_new() {
 	$submission = get_form_submission();
-	$has_error  = check_invalid_submission( $submission );
+	$has_error  = check_invalid_submission( $submission, 'add' );
 	if ( $has_error ) {
 		return $has_error;
 	}
@@ -198,21 +198,46 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
  * @return false|string
  */
 function render_form_manage() {
-	$action   = filter_input( INPUT_POST, 'action' );
+	/*
+	 * Prevent Gutenberg from executing this on the Edit Post screen.
+	 * See https://github.com/WordPress/gutenberg/issues/18394
+	 */
+	if ( is_admin() ) {
+		return '';
+	}
+
 	$messages = [];
-	$updated  = false;
+	$errors   = [];
 
-	// @todo Get pledge ID from somewhere.
-	$data = PledgeMeta\get_pledge_meta();
+	$action                = sanitize_text_field( $_REQUEST['action'] ?? '' );
+	$unverified_pledge_id  = absint( $_REQUEST['pledge_id'] ?? 0 );
+	$unverified_auth_token = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );
+	$can_view_form         = visitor_can_manage_form( $unverified_pledge_id, $unverified_auth_token );
 
-	if ( 'Update Pledge' === $action ) {
-		$processed = process_form_manage();
+	if ( true === $can_view_form ) {
+		$verified_pledge_id  = $unverified_pledge_id; // Only a valid ID would match the valid token.
+		$verified_auth_token = $unverified_auth_token; // Valid because visitor_can_manage_form() passed above.
+		$contributors        = Contributor\get_pledge_contributors( $verified_pledge_id, $status = 'all' );
+			// todo test pending
 
-		if ( is_wp_error( $processed ) ) {
-			$messages = array_merge( $messages, $processed->get_error_messages() );
-		} elseif ( 'success' === $processed ) {
-			$updated = true;
+		if ( 'Update Pledge' === $action ) {
+			$results = process_form_manage( $unverified_pledge_id, $unverified_auth_token );
+
+			if ( is_wp_error( $results ) ) {
+				$can_view_form = false;
+				$errors        = array_merge( $messages, $results->get_error_messages() );
+			} elseif ( 'success' === $results ) {
+				$messages = array( 'success' );
+			}
 		}
+
+		$data = PledgeMeta\get_pledge_meta( $verified_pledge_id );
+		$data['pledge-contributors'] = sanitize_text_field( $_REQUEST['pledge-contributors'] ?? '' );
+			// todo should probably merge ^ into get_pledge_meta()
+
+	} else {
+		$errors = array( $can_view_form->get_error_message() );
+		// maybe include partial-messages.php here instead of letting the form-pledge-manage be used in a context where we know they're not authorized? just to be safe
 	}
 
 	ob_start();
@@ -222,12 +247,82 @@ function render_form_manage() {
 	return ob_get_clean();
 }
 
+//todo
+function process_form_manage( $unverified_pledge_id, $unverified_auth_token ) {
+	$errors           = array();
+	$unverified_nonce = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+	$nonce_action     = 'manage_pledge_' . $unverified_pledge_id;
+	$valid_nonce      = wp_verify_nonce( $unverified_nonce, $nonce_action );
+
+	/*
+	 * This should be redundant, since it's also called by `render_form_manage()`, but it's good to also do it here
+	 * just in case other code changes in the future, or this gets called by another flow, etc.
+	 */
+	$can_view_form = visitor_can_manage_form( $unverified_pledge_id, $unverified_auth_token );
+
+	if ( ! $valid_nonce || ! $can_view_form ) {
+		// todo test both of these conditions
+		return get_expired_link_error( $unverified_pledge_id );
+	}
+
+	$verified_pledge_id = $unverified_pledge_id; // If the token was verified then the ID must be valid.
+
+	// should some fields be hidden on edit and only alloewd on create?
+		// look for anything else that was mentinoed in issue
+
+	// should be able to add contributors? prob open a new issue for that
+
+	// todo modularize ?
+
+	// if save form submitted, process and show success/error msg based on results
+	//
+	//// else nothing submitted, just show form to view it and use id and auth token from $_GET
+
+	$processed = process_update_pledge();
+		// if don't move everything here then maybe rename this to process_update_request or something like that
+
+	if ( is_wp_error( $processed ) ) {
+		$errors = array_merge( $errors, $processed->get_error_messages() );
+	} elseif ( 'success' === $processed ) {
+		$updated = true;
+	}
+
+
+	// if change email, then set to unpublish and send confirm email
+	// also check if website and email match
+	// also set context to 'add' for check_invalid_submission, since
+		// but will that conflict with other parts? need to modularize those checks?
+		// or maybe a 3rd status like 'update-with-new-email' or something?
+
+
+	// look at how process_form_new() handles adding contribs
+
+	// how to handle removing pending/publish contribs?
+		// js submit outside of normal form? seems like unpredictable/inconsistent ux, shouldn't mix auto-save and manual save in same form
+		// instead some kind of visual indicator that they'll be removed when submit is hit? maybe grey them out and have a message?
+
+	$submission = get_form_submission();
+	$has_error = check_invalid_submission( $submission, 'update' );
+	if ( $has_error ) {
+		return $has_error;
+	}
+
+	// do stuff to actually save new fields - that already exists somewhere?
+
+	// todo email any new contributors for confirmation
+	// notify any removed contributors?
+		// ask them to update their profiles?
+	// automatically update contributor profiles?
+	// anything else?
+
+	return new WP_Error( 'todo', 'not done' );
+}
 
 /**
  * Render the `render_manage_link_request` shortcode.
  */
 function render_manage_link_request() {
-	// @todo enable when https://github.com/WordPress/five-for-the-future/issues/6 is done
+	// @todo enable when https://github.com/WordPress/five-for-the-future/issues/98 is done
 	if ( ! defined( 'WPORG_SANDBOXED' ) || ! WPORG_SANDBOXED ) {
 		return;
 	}
@@ -319,18 +414,52 @@ function send_manage_pledge_link( $pledge_id ) {
 }
 
 /**
+ * todo
+ *
+ * @param int    $unverified_pledge_id
+ * @param string $unverified_auth_token
+ *
+ * @return true|WP_Error
+ */
+function visitor_can_manage_form( $unverified_pledge_id, $unverified_auth_token ) {
+	// @todo enable when https://github.com/WordPress/five-for-the-future/issues/98 is done
+	if ( ! defined( 'WPORG_SANDBOXED' ) || ! WPORG_SANDBOXED ) {
+		return new WP_Error( 'disabled', 'disabled' );
+	}
+
+	$can_view_form = get_expired_link_error( $unverified_pledge_id );
+
+	if ( current_user_can( 'manage_options' ) ) {
+		// $can_view_form = true;
+		// admins should just use wp-admin, right? but why support 2 interfaces for same thing?
+		// maybe b/c wp-admin can edit things that front end can't?
+	} elseif ( true === Email\is_valid_authentication_token( $unverified_pledge_id, 'manage_pledge', $unverified_auth_token ) ) {
+		// should check anything else to make sure the request is valid? valid pledge id? anything else?
+		$can_view_form = true;
+	}
+
+	return $can_view_form;
+}
+
+/**
  * Process a submission from the Manage Existing Pledge form.
  *
  * TODO This doesn't actually update any data yet when the form is submitted.
  *
  * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
  */
-function process_form_manage() {
+function process_update_pledge() {
 	$submission = get_form_submission();
-	$has_error = check_invalid_submission( $submission );
+	$has_error = check_invalid_submission( $submission, 'update' );
+	// todo ^ is already being called by process_form_manage
+
 	if ( $has_error ) {
 		return $has_error;
 	}
+
+	// if submitted manage admin email
+		// if valid, send email, and show success message
+		// if not, show error message
 
 	// todo email any new contributors for confirmation
 	// notify any removed contributors?
@@ -459,9 +588,21 @@ function parse_contributors( $contributors ) {
 /**
  * Check the submission for valid data.
  *
+ * @param array $submission The user input
+ * @param string $context   'add' when creating a new pledge, or 'update' when updating.
+ *
  * @return false|WP_Error Return any errors in the submission, or false if no errors.
  */
-function check_invalid_submission( $submission ) {
+function check_invalid_submission( $submission, $context ) {
+	if ( 'update' === $context ) {
+		$pledge_id        = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
+		$unverified_token = filter_input( INPUT_POST, 'auth_token', FILTER_SANITIZE_STRING );
+
+		if ( ! Email\is_valid_authentication_token( $pledge_id, 'manage_pledge', $unverified_token ) ) {
+			return get_expired_link_error( $pledge_id );
+		}
+	}
+
 	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
 	if ( is_wp_error( $has_required ) ) {
 		return $has_required;
@@ -474,23 +615,36 @@ function check_invalid_submission( $submission ) {
 		Pledge\CPT_ID
 	);
 
-	if ( has_existing_pledge( $email, 'email' ) ) {
-		return new WP_Error(
-			'existing_pledge_email',
-			__( 'This email address is already connected to an existing pledge.', 'wporg' )
-		);
-	}
+	if ( 'add' === $context ) {
+		if ( has_existing_pledge( $email, 'email' ) ) {
+			return new WP_Error(
+				'existing_pledge_email',
+				__( 'This email address is already connected to an existing pledge.', 'wporg' )
+			);
+		}
 
-	$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
+		$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
 
-	if ( has_existing_pledge( $domain, 'domain' ) ) {
-		return new WP_Error(
-			'existing_pledge_domain',
-			__( 'A pledge already exists for this domain.', 'wporg' )
-		);
+		if ( has_existing_pledge( $domain, 'domain' ) ) {
+			return new WP_Error(
+				'existing_pledge_domain',
+				__( 'A pledge already exists for this domain.', 'wporg' )
+			);
+		}
 	}
 
 	return false;
+}
+
+// todo
+function get_expired_link_error( $pledge_id ) {
+	return new WP_Error(
+		'invalid_token',
+		sprintf(
+			__( 'Your link has expired, please <a href="%s">obtain a new one</a>.', 'wporg-5ftf' ),
+			get_permalink( $pledge_id )
+		)
+	);
 }
 
 /**
