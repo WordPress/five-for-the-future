@@ -279,13 +279,6 @@ function save_pledge( $pledge_id, $pledge ) {
 			get_page_by_path( 'for-organizations' )->ID
 		);
 	}
-
-	if ( filter_input( INPUT_POST, 'resend-contributor-confirmation' ) ) {
-		Email\send_contributor_confirmation_emails(
-			$pledge_id,
-			filter_input( INPUT_GET, 'resend-contributor-id', FILTER_VALIDATE_INT )
-		);
-	}
 }
 
 /**
@@ -485,8 +478,13 @@ function enqueue_assets() {
 	$ver = filemtime( FiveForTheFuture\PATH . '/assets/css/admin.css' );
 	wp_register_style( '5ftf-admin', plugins_url( 'assets/css/admin.css', __DIR__ ), [], $ver );
 
+	$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/admin.js' );
+	wp_register_script( '5ftf-admin', plugins_url( 'assets/js/admin.js', __DIR__ ), [ 'jquery' ], $ver );
+	wp_localize_script( '5ftf-admin', 'FiveForTheFuture_ManageNonce', wp_create_nonce( 'manage-pledge' ) );
+
 	$current_page = get_current_screen();
 	if ( Pledge\CPT_ID === $current_page->id ) {
 		wp_enqueue_style( '5ftf-admin' );
+		wp_enqueue_script( '5ftf-admin' );
 	}
 }

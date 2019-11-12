@@ -25,18 +25,33 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 				<ul class="contributor-list <?php echo esc_attr( $contributor_status ); ?>">
 					<?php foreach ( $group as $contributor_post ) :
-						$contributor = get_user_by( 'login', $contributor_post->post_title );
+						$name = $contributor_post->post_title;
+						$contributor = get_user_by( 'login', $name );
+						$remove_confirm = sprintf( __( 'Remove %s from this pledge?', 'wporg-5ftf' ), $name );
+						$remove_label = sprintf( __( 'Remove %s', 'wporg' ), $name );
 						?>
 						<li>
-							<button class="button-link button-link-delete" data-action="remove-contributor" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>" aria-label="<?php esc_html_e( 'Remove', 'wporg' ); ?>">
+							<button
+								class="button-link button-link-delete"
+								data-action="remove-contributor"
+								data-pledge-post="<?php the_ID(); ?>"
+								data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>"
+								data-confirm="<?php echo esc_attr( $remove_confirm ); ?>"
+								aria-label="<?php echo esc_attr( $remove_label ); ?>"
+							>
 								<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
 							</button>
 							<?php echo get_avatar( $contributor->user_email, 32 ); ?>
 							<span class="contributor-list__name">
-								<?php echo esc_html( $contributor_post->post_title ); ?>
+								<?php echo esc_html( $name ); ?>
 							</span>
 							<?php if ( 'pending' === $contributor_post->post_status ) : ?>
-								<button class="button" data-action="resend-contributor-confirmation" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>">
+								<button
+									class="button"
+									data-action="resend-contributor-confirmation"
+									data-pledge-post="<?php the_ID(); ?>"
+									data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>"
+								>
 									<?php esc_html_e( 'Resend Confirmation', 'wporg' ); ?>
 								</button>
 							<?php endif; ?>
