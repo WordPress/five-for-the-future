@@ -28,6 +28,14 @@ function handler() {
 				'message' => sprintf( __( 'Confirmation email sent to %s.', 'wporg-5ftf' ), $contribution->post_title ),
 			] ) );
 			break;
+
+		case 'remove-contributor':
+			// Trash contributor.
+			Contributor\remove_contributor( $contributor_id );
+			wp_die( wp_json_encode( [
+				'success' => true,
+			] ) );
+			break;
 	}
 
 	// No matching action, we can just exit.

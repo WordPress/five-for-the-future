@@ -6,7 +6,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 /** @var bool  $readonly */
 ?>
 
-<div class="5ftf-contributors">
+<div id="5ftf-contributors">
 	<?php if ( ! empty( $contributors ) ) : ?>
 		<?php foreach ( $contributors as $contributor_status => $group ) : ?>
 			<?php if ( ! empty( $group ) ) : ?>

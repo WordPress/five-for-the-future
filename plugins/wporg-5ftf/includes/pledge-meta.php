@@ -480,7 +480,18 @@ function enqueue_assets() {
 
 	$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/admin.js' );
 	wp_register_script( '5ftf-admin', plugins_url( 'assets/js/admin.js', __DIR__ ), [ 'jquery' ], $ver );
-	wp_localize_script( '5ftf-admin', 'FiveForTheFuture_ManageNonce', wp_create_nonce( 'manage-pledge' ) );
+
+	$script_data = [
+		'manageNonce' => wp_create_nonce( 'manage-pledge' ),
+	];
+	wp_add_inline_script(
+		'5ftf-admin',
+		sprintf(
+			'var FiveForTheFuture = JSON.parse( decodeURIComponent( \'%s\' ) );',
+			rawurlencode( wp_json_encode( $script_data ) )
+		),
+		'before'
+	);
 
 	$current_page = get_current_screen();
 	if ( Pledge\CPT_ID === $current_page->id ) {
