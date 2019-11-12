@@ -28,21 +28,17 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 						$contributor = get_user_by( 'login', $contributor_post->post_title );
 						?>
 						<li>
-							<?php echo get_avatar( $contributor->user_email, 32 ); ?>
-							<?php echo esc_html( $contributor_post->post_title ); ?>
-							<!-- TODO These buttons don't do anything yet.
-							<button class="button-primary" data-action="remove-contributor" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>">
-								<?php esc_html_e( 'Remove', 'wporg' ); ?>
+							<button class="button-link button-link-delete" data-action="remove-contributor" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>" aria-label="<?php esc_html_e( 'Remove', 'wporg' ); ?>">
+								<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
 							</button>
-							-->
+							<?php echo get_avatar( $contributor->user_email, 32 ); ?>
+							<span class="contributor-list__name">
+								<?php echo esc_html( $contributor_post->post_title ); ?>
+							</span>
 							<?php if ( 'pending' === $contributor_post->post_status ) : ?>
-								<?php submit_button(
-									'Resend Confirmation',
-									'secondary',
-									'resend-contributor-confirmation',
-									false,
-									array( 'formaction' => add_query_arg( 'resend-contributor-id', $contributor_post->ID ) )
-								); ?>
+								<button class="button" data-action="resend-contributor-confirmation" data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>">
+									<?php esc_html_e( 'Resend Confirmation', 'wporg' ); ?>
+								</button>
 							<?php endif; ?>
 						</li>
 					<?php endforeach; ?>

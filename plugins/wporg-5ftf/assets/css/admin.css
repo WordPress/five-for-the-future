@@ -43,3 +43,24 @@
 .pledge-form .email-status.is-unconfirmed {
 	color: #c92c2c;
 }
+
+.contributor-list li * {
+	vertical-align: middle;
+}
+
+.contributor-list .button-link-delete {
+	text-decoration: none;
+	margin-right: 8px;
+}
+
+.contributor-list .avatar {
+	margin-right: 8px;
+}
+
+.contributor-list .contributor-list__name {
+	font-size: 1.1em;
+}
+
+.contributor-list .button {
+	float: right;
+}
