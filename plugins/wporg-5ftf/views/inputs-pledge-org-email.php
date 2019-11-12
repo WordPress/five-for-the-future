@@ -31,11 +31,15 @@ use WP_Post;
 
 	<?php if ( is_admin() ) : ?>
 		<?php if ( $data['pledge-email-confirmed'] ) : ?>
-			<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
-			<?php esc_html_e( 'Confirmed', 'wporg' ); ?>
+			<p class="email-status is-confirmed">
+				<span class="dashicons dashicons-yes-alt" aria-hidden="true"></span>
+				<?php esc_html_e( 'Confirmed', 'wporg' ); ?>
+			</p>
 		<?php else : ?>
-			<span class="dashicons dashicons-warning" aria-hidden="true"></span>
-			<?php esc_html_e( 'Unconfirmed', 'wporg' ); ?>
+			<p class="email-status is-unconfirmed">
+				<span class="dashicons dashicons-warning" aria-hidden="true"></span>
+				<?php esc_html_e( 'Unconfirmed', 'wporg' ); ?>
+			</p>
 			<?php submit_button(
 				'Resend Confirmation',
 				'secondary',

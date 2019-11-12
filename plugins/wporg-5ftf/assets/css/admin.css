@@ -32,6 +32,14 @@
 	line-height: 1;
 }
 
-.pledge-form .form-field__agree label {
-	margin-bottom: 0;
+.pledge-form .form-field .email-status {
+	font-size: 1.1em;
+}
+
+.pledge-form .email-status.is-confirmed {
+	color: #297531;
+}
+
+.pledge-form .email-status.is-unconfirmed {
+	color: #c92c2c;
 }
