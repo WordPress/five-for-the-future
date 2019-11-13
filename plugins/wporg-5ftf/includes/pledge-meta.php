@@ -480,7 +480,7 @@ function enqueue_assets() {
 	wp_register_style( '5ftf-admin', plugins_url( 'assets/css/admin.css', __DIR__ ), [], $ver );
 
 	$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/admin.js' );
-	wp_register_script( '5ftf-admin', plugins_url( 'assets/js/admin.js', __DIR__ ), [ 'jquery' ], $ver );
+	wp_register_script( '5ftf-admin', plugins_url( 'assets/js/admin.js', __DIR__ ), [ 'jquery', 'wp-util' ], $ver );
 
 	$script_data = [
 		'pledgeId'    => get_the_ID(),
