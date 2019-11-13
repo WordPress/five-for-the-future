@@ -8,63 +8,59 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 /** @var bool  $readonly */
 ?>
 
-<div id="5ftf-contributors">
-	<?php if ( ! empty( $contributors ) ) : ?>
-		<?php foreach ( $contributors as $contributor_status => $group ) : ?>
-			<?php if ( ! empty( $group ) ) : ?>
-				<h3 class="contributor-list-heading">
-					<?php
-					switch ( $contributor_status ) {
-						case 'pending':
-							esc_html_e( 'Unconfirmed', 'wporg' );
-							break;
-						case 'publish':
-							esc_html_e( 'Confirmed', 'wporg' );
-							break;
-					}
-					?>
-				</h3>
+<script type="text/template" id="tmpl-5ftf-contributor-lists">
+	<# if ( data.publish.length ) { #>
+		<h3 class="contributor-list-heading"><?php esc_html_e( 'Confirmed', 'wporg' ); ?></h3>
+		<ul class="contributor-list publish">{{{ data.publish }}}</ul>
+	<# } #>
+	<# if ( data.pending.length ) { #>
+		<h3 class="contributor-list-heading"><?php esc_html_e( 'Unconfirmed', 'wporg' ); ?></h3>
+		<ul class="contributor-list pending">{{{ data.pending }}}</ul>
+	<# } #>
+</script>
 
-				<ul class="contributor-list <?php echo esc_attr( $contributor_status ); ?>">
-					<?php foreach ( $group as $contributor_post ) :
-						$name = $contributor_post->post_title;
-						$contributor = get_user_by( 'login', $name );
-						$remove_confirm = sprintf( __( 'Remove %s from this pledge?', 'wporg-5ftf' ), $name );
-						$remove_label = sprintf( __( 'Remove %s', 'wporg' ), $name );
-						?>
-						<li>
-							<button
-								class="button-link button-link-delete"
-								data-action="remove-contributor"
-								data-pledge-post="<?php the_ID(); ?>"
-								data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>"
-								data-confirm="<?php echo esc_attr( $remove_confirm ); ?>"
-								aria-label="<?php echo esc_attr( $remove_label ); ?>"
-							>
-								<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
-							</button>
-							<?php echo get_avatar( $contributor->user_email, 32 ); ?>
-							<span class="contributor-list__name">
-								<?php echo esc_html( $name ); ?>
-							</span>
-							<?php if ( 'pending' === $contributor_post->post_status ) : ?>
-								<button
-									class="button"
-									data-action="resend-contributor-confirmation"
-									data-pledge-post="<?php the_ID(); ?>"
-									data-contributor-post="<?php echo esc_attr( $contributor_post->ID ); ?>"
-								>
-									<?php esc_html_e( 'Resend Confirmation', 'wporg' ); ?>
-								</button>
-							<?php endif; ?>
-						</li>
-					<?php endforeach; ?>
-				</ul>
-			<?php endif; ?>
-		<?php endforeach; ?>
-	<?php else : ?>
-		<p><?php esc_html_e( 'There are no contributors added to this pledge yet.', 'wporg' ); ?></p>
-	<?php endif; ?>
+<script type="text/template" id="tmpl-5ftf-contributor">
+	<li>
+		<button
+			class="button-link button-link-delete"
+			data-action="remove-contributor"
+			data-pledge-post="{{ data.pledgeId }}"
+			data-contributor-post="{{ data.contributorId }}"
+			data-confirm="{{ data.removeConfirm }}"
+			aria-label="{{ data.removeLabel }}"
+		>
+			<span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+		</button>
+		{{{ data.avatar }}}
+		<span class="contributor-list__name">
+			{{ data.name }}
+		</span>
+		<# if ( 'pending' === data.status ) { #>
+			<button
+				class="button"
+				data-action="resend-contributor-confirmation"
+				data-pledge-post="{{ data.pledgeId }}"
+				data-contributor-post="{{ data.contributorId }}"
+			>
+				{{ data.resendLabel }}
+			</button>
+		<# } #>
+	</li>
+</script> 
+
+<div id="5ftf-contributors">
+	<div class="pledge-contributors">
+		<?php if ( ! empty( $contributors ) ) : ?>
+			<?php
+			printf(
+				'<script>var fftfContributors = JSON.parse( decodeURIComponent( \'%s\' ) );</script>',
+				rawurlencode( wp_json_encode( $contributors ) )
+			);
+			?>
+		<?php else : ?>
+			<p><?php esc_html_e( 'There are no contributors added to this pledge yet.', 'wporg' ); ?></p>
+		<?php endif; ?>
+	</div>
 
 	<hr />
 

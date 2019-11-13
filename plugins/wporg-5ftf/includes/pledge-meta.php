@@ -210,7 +210,7 @@ function render_meta_boxes( $pledge, $box ) {
 		$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
 	}
 
-	$contributors = Contributor\get_pledge_contributors( $pledge->ID, 'all' );
+	$contributors = Contributor\get_pledge_contributors_data( $pledge->ID );
 
 	echo '<div class="pledge-form">';
 

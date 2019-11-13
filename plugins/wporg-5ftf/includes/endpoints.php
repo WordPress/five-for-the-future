@@ -34,6 +34,7 @@ function handler() {
 			Contributor\remove_contributor( $contributor_id );
 			wp_die( wp_json_encode( [
 				'success' => true,
+				'contributors' => Contributor\get_pledge_contributors_data( $pledge_id ),
 			] ) );
 			break;
 	}

@@ -239,6 +239,41 @@ function get_pledge_contributors( $pledge_id, $status = 'publish', $contributor_
 }
 
 /**
+ * Get the contributor posts in the format used for the JS templates.
+ *
+ * @param int $pledge_id The post ID of the pledge.
+ *
+ * @return array An array of contributor data, ready to be used in the JS templates.
+ */
+function get_pledge_contributors_data( $pledge_id ) {
+	$contrib_data = array();
+	$contributors = get_pledge_contributors( $pledge_id, 'all' );
+
+	foreach ( $contributors as $contributor_status => $group ) {
+		$contrib_data[ $contributor_status ] = array_map(
+			function( $contributor_post ) use ( $contributor_status, $pledge_id ) {
+				$name = $contributor_post->post_title;
+				$contributor = get_user_by( 'login', $name );
+
+				return [
+					'pledgeId' => $pledge_id,
+					'contributorId' => $contributor_post->ID,
+					'status'  => $contributor_status,
+					'avatar' => get_avatar( $contributor, 32 ),
+					// @todo Add full name, from `$contributor`?
+					'name' => $name,
+					'resendLabel' => __( 'Resend Confirmation', 'wporg' ),
+					'removeConfirm' => sprintf( __( 'Remove %s from this pledge?', 'wporg-5ftf' ), $name ),
+					'removeLabel' => sprintf( __( 'Remove %s', 'wporg' ), $name ),
+				];
+			},
+			$group
+		);
+	}
+	return $contrib_data;
+}
+
+/**
  * Get the user objects that correspond with pledge contributor posts.
  *
  * @param WP_Post[] $contributor_posts
