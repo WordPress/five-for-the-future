@@ -33,6 +33,9 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 			<tbody>{{{ data.pending }}}</tbody>
 		</table>
 	<# } #>
+	<# if ( ! data.publish.length && ! data.pending.length ) { #>
+		<p><?php esc_html_e( 'There are no contributors added to this pledge yet.', 'wporg-5ftf' ); ?></p>
+	<# } #>
 </script>
 
 <script type="text/template" id="tmpl-5ftf-contributor">
