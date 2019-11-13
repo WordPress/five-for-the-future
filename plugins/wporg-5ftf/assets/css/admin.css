@@ -50,7 +50,6 @@
 
 .pledge-form .contributor-list {
 	margin-bottom: 1.5rem;
-	table-layout: fixed;
 }
 
 .contributor-list th,
@@ -62,10 +61,6 @@
 
 .contributor-list .avatar {
 	margin-right: 8px;
-}
-
-.contributor-list .contributor-list__name {
-	font-size: 1.1em;
 }
 
 .contributor-list .button-link-delete {
