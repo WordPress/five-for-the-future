@@ -93,7 +93,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 	require get_views_path() . 'inputs-pledge-contributors.php';
 	?>
 
-	<div id="add-contrib-message"></div>
+	<div id="add-contrib-message" role="alert" aria-atomic="true"></div>
 
 	<button
 		class="button-primary"
