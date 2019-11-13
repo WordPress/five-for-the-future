@@ -24,7 +24,6 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 		<button
 			class="button-link button-link-delete"
 			data-action="remove-contributor"
-			data-pledge-post="{{ data.pledgeId }}"
 			data-contributor-post="{{ data.contributorId }}"
 			data-confirm="{{ data.removeConfirm }}"
 			aria-label="{{ data.removeLabel }}"
@@ -39,7 +38,6 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 			<button
 				class="button"
 				data-action="resend-contributor-confirmation"
-				data-pledge-post="{{ data.pledgeId }}"
 				data-contributor-post="{{ data.contributorId }}"
 			>
 				{{ data.resendLabel }}
@@ -74,8 +72,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 	<button
 		class="button-primary"
 		data-action="add-contributor"
-		data-pledge-post="<?php the_ID(); ?>"
 	>
-		<?php esc_html_e( 'Add new contributor', 'wporg' ); ?>
+		<?php esc_html_e( 'Add new contributors', 'wporg' ); ?>
 	</button>
 </div>

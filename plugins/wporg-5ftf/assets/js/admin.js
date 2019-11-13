@@ -66,10 +66,38 @@ jQuery( document ).ready( function( $ ) {
 			url: ajaxurl,
 			data: Object.assign( {
 				action: 'manage_contributors',
+				pledge_id: FiveForTheFuture.pledgeId,
 				_ajax_nonce: FiveForTheFuture.manageNonce,
 			}, data ),
 			success: callback,
 			dataType: 'json',
+		} );
+	}
+
+	/**
+	 * Send off the AJAX request with contributors pulled from the contributor text field.
+	 */
+	function _addContributors() {
+		const contribs = $( '#5ftf-pledge-contributors' ).val();
+		if ( ! contribs.length ) {
+			return;
+		}
+
+		sendAjaxRequest( {
+			contributors: contribs,
+			manage_action: 'add-contributor',
+		}, function( response ) {
+			if ( ! response.success ) {
+				const $message = $( '<div>' )
+					.attr( 'id', 'add-contrib-message' )
+					.addClass( 'notice notice-error notice-alt' )
+					.html( '<p>' + response.message + '</p>' );
+
+				$( '#add-contrib-message' ).replaceWith( $message );
+			} else if ( response.contributors ) {
+				render( response.contributors, container );
+				$( '#5ftf-pledge-contributors' ).val( '' );
+			}
 		} );
 	}
 
@@ -86,7 +114,6 @@ jQuery( document ).ready( function( $ ) {
 			const data = event.currentTarget.dataset;
 
 			sendAjaxRequest( {
-				pledge_id: data.pledgePost || 0,
 				contributor_id: data.contributorPost || 0,
 				manage_action: data.action || '',
 			} );
@@ -99,9 +126,22 @@ jQuery( document ).ready( function( $ ) {
 		const data = event.currentTarget.dataset;
 
 		sendAjaxRequest( {
-			pledge_id: data.pledgePost || 0,
 			contributor_id: data.contributorPost || 0,
 			manage_action: data.action || '',
 		} );
+	} );
+
+	// Add Contributor button action.
+	$( container ).on( 'click', '[data-action="add-contributor"]', function( event ) {
+		event.preventDefault();
+		_addContributors();
+	} );
+
+	// Prevent "enter" in the contributor field from submitting the whole post form.
+	$( container ).on( 'keydown', '#5ftf-pledge-contributors', function( event ) {
+		if ( 13 === event.which ) {
+			event.preventDefault();
+			_addContributors();
+		}
 	} );
 } );
