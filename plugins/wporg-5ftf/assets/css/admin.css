@@ -7,17 +7,17 @@
 	display: inline-block;
 }
 
-.pledge-form .form-field input[type=text],
-.pledge-form .form-field input[type=url],
-.pledge-form .form-field input[type=number],
-.pledge-form .form-field input[type=email],
+.pledge-form .form-field input[type="text"],
+.pledge-form .form-field input[type="url"],
+.pledge-form .form-field input[type="number"],
+.pledge-form .form-field input[type="email"],
 .pledge-form .form-field textarea {
 	display: block;
 	width: 100%;
 	padding: 8px;
 }
 
-.pledge-form .form-field input[type=number] {
+.pledge-form .form-field input[type="number"] {
 	max-width: 10em;
 	height: auto;
 }
@@ -44,13 +44,20 @@
 	color: #c92c2c;
 }
 
-.contributor-list li * {
-	vertical-align: middle;
+.pledge-form .contributor-list-heading {
+	margin: 1rem 0;
 }
 
-.contributor-list .button-link-delete {
-	text-decoration: none;
-	margin-right: 8px;
+.pledge-form .contributor-list {
+	margin-bottom: 1.5rem;
+	table-layout: fixed;
+}
+
+.contributor-list th,
+.contributor-list td,
+.contributor-list th *,
+.contributor-list td * {
+	vertical-align: middle;
 }
 
 .contributor-list .avatar {
@@ -61,6 +68,10 @@
 	font-size: 1.1em;
 }
 
-.contributor-list .button {
-	float: right;
+.contributor-list .button-link-delete {
+	text-decoration: none;
+}
+
+.contributor-list .button-link-delete .dashicons {
+	margin-top: -2px;
 }

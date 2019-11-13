@@ -262,6 +262,8 @@ function get_pledge_contributors_data( $pledge_id ) {
 					'avatar' => get_avatar( $contributor, 32 ),
 					// @todo Add full name, from `$contributor`?
 					'name' => $name,
+					'displayName' => $contributor->display_name,
+					'publishDate' => get_the_date( '', $contributor_post ),
 					'resendLabel' => __( 'Resend Confirmation', 'wporg' ),
 					'removeConfirm' => sprintf( __( 'Remove %s from this pledge?', 'wporg-5ftf' ), $name ),
 					'removeLabel' => sprintf( __( 'Remove %s', 'wporg' ), $name ),
