@@ -1,6 +1,8 @@
 <?php
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
+use function WordPressDotOrg\FiveForTheFuture\get_views_path;
+
 /** @var array $contributors */
 /** @var array $data */
 /** @var bool  $readonly */
@@ -64,9 +66,20 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		<p><?php esc_html_e( 'There are no contributors added to this pledge yet.', 'wporg' ); ?></p>
 	<?php endif; ?>
 
-	<!-- TODO This button doesn't do anything yet.
-	<button class="button-primary" data-action="add-contributor">
+	<hr />
+
+	<?php
+	$data = [ 'pledge-contributors' => '' ];
+	require get_views_path() . 'inputs-pledge-contributors.php';
+	?>
+
+	<div id="add-contrib-message"></div>
+
+	<button
+		class="button-primary"
+		data-action="add-contributor"
+		data-pledge-post="<?php the_ID(); ?>"
+	>
 		<?php esc_html_e( 'Add new contributor', 'wporg' ); ?>
 	</button>
-	-->
 </div>

@@ -155,7 +155,8 @@ function render_form_manage() {
 	$updated  = false;
 
 	// @todo Get pledge ID from somewhere.
-	$data = PledgeMeta\get_pledge_meta();
+	$data      = PledgeMeta\get_pledge_meta();
+	$is_manage = true;
 
 	if ( 'Update Pledge' === $action ) {
 		$processed = process_form_manage();
