@@ -91,7 +91,7 @@ jQuery( document ).ready( function( $ ) {
 				const $message = $( '<div>' )
 					.attr( 'id', 'add-contrib-message' )
 					.addClass( 'notice notice-error notice-alt' )
-					.html( '<p>' + response.message + '</p>' );
+					.append( $( '<p>' ).text( response.message ) );
 
 				$( '#add-contrib-message' ).replaceWith( $message );
 			} else if ( response.contributors ) {
