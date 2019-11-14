@@ -39,6 +39,7 @@ function handler() {
 			break;
 
 		case 'add-contributor':
+			$pledge = get_post( $pledge_id );
 			$new_contributors = PledgeForm\parse_contributors( $_POST['contributors'] );
 			if ( is_wp_error( $new_contributors ) ) {
 				wp_die( wp_json_encode( [
@@ -46,7 +47,12 @@ function handler() {
 					'message' => $new_contributors->get_error_message(),
 				] ) );
 			}
-			Contributor\add_pledge_contributors( $pledge_id, $new_contributors );
+			$contributor_ids = Contributor\add_pledge_contributors( $pledge_id, $new_contributors );
+			if ( 'publish' === $pledge->post_status ) {
+				foreach ( $contributor_ids as $contributor_id ) {
+					PledgeForm\send_contributor_confirmation_emails( $pledge_id, $contributor_id );
+				}
+			}
 
 			// Fetch all contributors, now that the new ones have been added.
 			$contributors = Contributor\get_pledge_contributors_data( $pledge_id );
