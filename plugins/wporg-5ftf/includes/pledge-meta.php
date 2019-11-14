@@ -202,7 +202,7 @@ function add_meta_boxes() {
  * @param array   $box
  */
 function render_meta_boxes( $pledge, $box ) {
-	$readonly = ! current_user_can( 'edit_page', $pledge->ID );
+	$readonly  = ! current_user_can( 'edit_page', $pledge->ID );
 	$is_manage = true;
 
 	$data = array();

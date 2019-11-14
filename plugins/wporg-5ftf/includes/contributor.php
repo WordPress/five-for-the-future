@@ -252,21 +252,21 @@ function get_pledge_contributors_data( $pledge_id ) {
 	foreach ( $contributors as $contributor_status => $group ) {
 		$contrib_data[ $contributor_status ] = array_map(
 			function( $contributor_post ) use ( $contributor_status, $pledge_id ) {
-				$name = $contributor_post->post_title;
+				$name        = $contributor_post->post_title;
 				$contributor = get_user_by( 'login', $name );
 
 				return [
-					'pledgeId' => $pledge_id,
+					'pledgeId'      => $pledge_id,
 					'contributorId' => $contributor_post->ID,
-					'status'  => $contributor_status,
-					'avatar' => get_avatar( $contributor, 32 ),
+					'status'        => $contributor_status,
+					'avatar'        => get_avatar( $contributor, 32 ),
 					// @todo Add full name, from `$contributor`?
-					'name' => $name,
-					'displayName' => $contributor->display_name,
-					'publishDate' => get_the_date( '', $contributor_post ),
-					'resendLabel' => __( 'Resend Confirmation', 'wporg' ),
+					'name'          => $name,
+					'displayName'   => $contributor->display_name,
+					'publishDate'   => get_the_date( '', $contributor_post ),
+					'resendLabel'   => __( 'Resend Confirmation', 'wporg' ),
 					'removeConfirm' => sprintf( __( 'Remove %s from this pledge?', 'wporg-5ftf' ), $name ),
-					'removeLabel' => sprintf( __( 'Remove %s', 'wporg' ), $name ),
+					'removeLabel'   => sprintf( __( 'Remove %s', 'wporg' ), $name ),
 				];
 			},
 			$group

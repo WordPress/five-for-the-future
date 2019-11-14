@@ -15,8 +15,8 @@ add_action( 'wp_ajax_manage_contributors', __NAMESPACE__ . '\handler' );
 function handler() {
 	check_ajax_referer( 'manage-pledge', '_ajax_nonce' );
 
-	$action = filter_input( INPUT_POST, 'manage_action' );
-	$pledge_id = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
+	$action         = filter_input( INPUT_POST, 'manage_action' );
+	$pledge_id      = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
 	$contributor_id = filter_input( INPUT_POST, 'contributor_id', FILTER_VALIDATE_INT );
 
 	switch ( $action ) {
@@ -33,7 +33,7 @@ function handler() {
 			// Trash contributor.
 			Contributor\remove_contributor( $contributor_id );
 			wp_die( wp_json_encode( [
-				'success' => true,
+				'success'      => true,
 				'contributors' => Contributor\get_pledge_contributors_data( $pledge_id ),
 			] ) );
 			break;
@@ -52,7 +52,7 @@ function handler() {
 			$contributors = Contributor\get_pledge_contributors_data( $pledge_id );
 
 			wp_die( wp_json_encode( [
-				'success' => true,
+				'success'      => true,
 				'contributors' => $contributors,
 			] ) );
 			break;
