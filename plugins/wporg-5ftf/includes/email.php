@@ -34,7 +34,8 @@ defined( 'WPINC' ) || die();
 
 const TOKEN_PREFIX = '5ftf_auth_token_';
 
-// Longer than `get_password_reset_key()` just to be safe. See https://core.trac.wordpress.org/ticket/43546#comment:34
+// Longer than `get_password_reset_key()` just to be safe.
+// See https://core.trac.wordpress.org/ticket/43546#comment:34.
 const TOKEN_LENGTH = 32;
 
 add_action( 'wp_head', __NAMESPACE__ . '\prevent_caching_auth_tokens', 99 );
@@ -46,8 +47,9 @@ add_action( 'wp_head', __NAMESPACE__ . '\prevent_caching_auth_tokens', 99 );
  * etc could create situations where they're leaked to others.
  */
 function prevent_caching_auth_tokens() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce not required, not processing form data.
 	if ( isset( $_GET['auth_token'] ) || isset( $_POST['auth_token'] ) ) {
-	    nocache_headers();
+		nocache_headers();
 	}
 }
 
@@ -65,7 +67,6 @@ function send_email( $to, $subject, $message, $pledge_id ) {
 	$headers = array(
 		'From: WordPress - Five for the Future <donotreply@wordpress.org>',
 		'Reply-To: support@wordcamp.org',
-			// todo update address when new one is created
 	);
 
 	$result = wp_mail( $to, $subject, $message, $headers );
@@ -101,12 +102,10 @@ function send_email( $to, $subject, $message, $pledge_id ) {
  */
 function get_authentication_url( $pledge_id, $action, $action_page_id, $use_once = true ) {
 	$auth_token = array(
-		/*
-		 * This will create a CSPRN and is similar to how `get_password_reset_key()` and
-		 * `generate_recovery_mode_token()` work.
-		 */
+		// This will create a CSPRN and is similar to how `get_password_reset_key()` and
+		// `generate_recovery_mode_token()` work.
 		'value'      => wp_generate_password( TOKEN_LENGTH, false ),
-			// todo Ideally should encrypt at rest, see https://core.trac.wordpress.org/ticket/24783.
+		// todo Ideally should encrypt at rest, see https://core.trac.wordpress.org/ticket/24783.
 		'expiration' => time() + ( 2 * HOUR_IN_SECONDS ),
 		'use_once'   => $use_once,
 	);
@@ -132,7 +131,7 @@ function get_authentication_url( $pledge_id, $action, $action_page_id, $use_once
 	);
 
 	// todo include a "this lnk will expire in 10 hours and after its used once" message too?
-		//  probably, but what's the best way to do that DRYly?
+		// probably, but what's the best way to do that DRYly?
 
 	return $auth_url;
 }
@@ -177,7 +176,7 @@ function is_valid_authentication_token( $pledge_id, $action, $unverified_token )
 		$verified = true;
 
 		// Tokens should not be reusable -- to increase security -- unless explicitly required to fulfill their purpose.
-		if ( $valid_token['use_once'] !== false ) {
+		if ( false !== $valid_token['use_once'] ) {
 			delete_post_meta( $pledge_id, TOKEN_PREFIX . $action );
 		}
 	}

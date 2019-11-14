@@ -24,9 +24,9 @@ defined( 'WPINC' ) || die();
 
 	<?php if ( ! empty( $errors ) ) : ?>
 		<div id="error-messages" class="notice notice-error notice-alt">
-			<?php foreach ( $errors as $error ) : ?>
+			<?php foreach ( $errors as $error_message ) : ?>
 				<p>
-					<?php echo wp_kses_post( $error ); ?>
+					<?php echo wp_kses_post( $error_message ); ?>
 				</p>
 			<?php endforeach; ?>
 		</div>

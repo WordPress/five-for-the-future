@@ -76,7 +76,7 @@ function get_pledge_meta_config( $context = 'all' ) {
 			'sanitize_callback' => 'absint',
 			'show_in_rest'      => false,
 		),
-		'pledge-total-hours' => array(
+		'pledge-total-hours'            => array(
 			'single'            => true,
 			'sanitize_callback' => 'absint',
 			'show_in_rest'      => false,
@@ -259,10 +259,7 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	if ( ! current_user_can( 'edit_pledge', $pledge_id ) ) {
-		// todo re-enable once setup cap mapping or whatever.
-		//return;
-	}
+	// if ( ! current_user_can( 'edit_pledge', $pledge_id ) ) {} -- todo re-enable once setup cap mapping or whatever.
 
 	if ( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) || 'auto-draft' === $pledge->post_status ) {
 		return;
@@ -388,7 +385,7 @@ function maybe_update_single_cached_pledge_data( $new_status, $old_status, WP_Po
  *
  * This is saved so that it can be easily queried against, and also to make stats calculations easier.
  *
- * @param $pledge_id
+ * @param int $pledge_id
  */
 function update_single_cached_pledge_data( $pledge_id ) {
 	$pledge_data = XProfile\get_aggregate_contributor_data_for_pledge( $pledge_id );

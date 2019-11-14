@@ -7,6 +7,7 @@ use const WordPressDotOrg\FiveForTheFuture\Pledge\CPT_ID as PLEDGE_POST_TYPE;
 defined( 'WPINC' ) || die();
 
 class Test_Email extends WP_UnitTestCase {
+	// phpcs:ignore PSR2.Classes.PropertyDeclaration.Multiple
 	protected static $valid_pledge, $valid_action, $valid_action_page, $valid_action_url, $valid_token;
 
 	/**
@@ -29,8 +30,7 @@ class Test_Email extends WP_UnitTestCase {
 
 		self::$valid_pledge = get_post( $valid_pledge_id );
 
-
-		$valid_action_page_id = self::factory()->post->create( $valid_action_page_params );
+		$valid_action_page_id    = self::factory()->post->create( $valid_action_page_params );
 		self::$valid_action_page = get_post( $valid_action_page_id );
 
 		self::$valid_action = 'confirm_pledge_email';
@@ -44,7 +44,7 @@ class Test_Email extends WP_UnitTestCase {
 	/**
 	 * Verify whether or not the fixtures were setup correctly.
 	 *
-	 * @return bool
+	 * @return void
 	 */
 	protected static function verify_before_class_fixtures() {
 		self::assertSame( 'object',         gettype( self::$valid_action_page ) );
@@ -85,7 +85,7 @@ class Test_Email extends WP_UnitTestCase {
 		$this->assertTrue( $verified );
 
 		// todo test that `view` and `update` contexts work as well, when those are added
-			// maybe need to test some failures for that too
+			// maybe need to test some failures for that too.
 	}
 
 	/**
@@ -118,11 +118,11 @@ class Test_Email extends WP_UnitTestCase {
 			'wrong-data-type'    => array( 'this string is not an array' ),
 			'wrong-array-items'  => array( 'this' => "doesn't have `value` and `expiration` items" ),
 
-			'invalid-value' => array(
+			'invalid-value'      => array(
 				array(
 					'value'      => 'Valid tokens will never contain special characters like !@#$%^&*()',
 					'expiration' => time() + HOUR_IN_SECONDS,
-				)
+				),
 			),
 		);
 	}
@@ -167,8 +167,8 @@ class Test_Email extends WP_UnitTestCase {
 	 */
 	public function test_valid_token_rejected_for_other_actions() {
 		// Setup another valid token for the other action.
-		$other_valid_action     = 'confirm_contributor_participation';
-			// todo update this when the action for that step is created, so that they match and show that valid actions
+		$other_valid_action = 'confirm_contributor_participation';
+		// todo update this when the action for that step is created, so that they match and show that valid actions.
 		$other_valid_action_url = get_authentication_url( self::$valid_pledge->ID, $other_valid_action, self::$valid_action_page->ID );
 
 		// Intentionally mismatch the token and action.

@@ -66,7 +66,7 @@ function register_custom_post_type() {
 		'publicly_queryable'  => false,
 		'capability_type'     => 'page',
 		'capabilities'        => array(
-			'create_posts' => 'do_not_allow'
+			'create_posts' => 'do_not_allow',
 		),
 		'map_meta_cap'        => true,
 		'show_in_rest'        => false, // todo Maybe turn this on later.
@@ -317,7 +317,7 @@ function process_my_pledges_form() {
 	}
 
 	$contributor_post = get_post( $contributor_post_id );
-	if ( ! isset( $contributor_post->post_type ) || $contributor_post->post_type !== CPT_ID ) {
+	if ( ! isset( $contributor_post->post_type ) || CPT_ID !== $contributor_post->post_type ) {
 		return ''; // Return early, the form was submitted incorrectly.
 	}
 
@@ -326,8 +326,8 @@ function process_my_pledges_form() {
 		return ''; // User doesn't have permission to update this.
 	}
 
-	$pledge  = get_post( $contributor_post->post_parent );
-	$message = '';
+	$pledge     = get_post( $contributor_post->post_parent );
+	$message    = '';
 	$new_status = false;
 
 	if ( filter_input( INPUT_POST, 'join_organization' ) ) {
@@ -335,21 +335,21 @@ function process_my_pledges_form() {
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$new_status = 'publish';
-		$message = "You have joined the pledge from {$pledge->post_title}.";
+		$message    = "You have joined the pledge from {$pledge->post_title}.";
 
 	} elseif ( filter_input( INPUT_POST, 'decline_invitation' ) ) {
 		$nonce_action = 'join_decline_organization_' . $contributor_post_id;
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$new_status = 'trash';
-		$message = "You have declined the pledge invitation from {$pledge->post_title}.";
+		$message    = "You have declined the pledge invitation from {$pledge->post_title}.";
 
 	} elseif ( filter_input( INPUT_POST, 'leave_organization' ) ) {
 		$nonce_action = 'leave_organization_' . $contributor_post_id;
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$new_status = 'trash';
-		$message = "You have left the {$pledge->post_title} pledge.";
+		$message    = "You have left the {$pledge->post_title} pledge.";
 	}
 
 	if ( 'publish' === $new_status && 'publish' !== $contributor_post->post_status ) {

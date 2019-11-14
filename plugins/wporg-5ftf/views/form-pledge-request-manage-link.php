@@ -9,6 +9,7 @@ defined( 'WPINC' ) || die();
  */
 
 // Hide it if it hasn't submitted, but show success/error messages if it was submitted.
+// phpcs:ignore
 $hidden = empty( $errors ) && empty( $_POST['get_manage_pledge_link'] ) ? 'hidden' : '';
 
 ?>

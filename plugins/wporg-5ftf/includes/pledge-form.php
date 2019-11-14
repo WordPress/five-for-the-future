@@ -134,7 +134,10 @@ function process_pledge_confirmation_email( $pledge_id, $action, $unverified_tok
 
 	if ( $email_confirmed ) {
 		update_post_meta( $pledge_id, $meta_key, true );
-		wp_update_post( array( 'ID' => $pledge_id, 'post_status' => 'publish' ) );
+		wp_update_post( array(
+			'ID'          => $pledge_id,
+			'post_status' => 'publish',
+		) );
 		send_contributor_confirmation_emails( $pledge_id );
 	}
 
@@ -172,11 +175,11 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 		 * because there's no expiration.
 		 */
 		$message =
-			"Howdy $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of the contributors that they sponsor to contribute to the WordPress open source project. You can view their pledge at:" . "\n\n" .
+			"Howdy $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of the contributors that they sponsor to contribute to the WordPress open source project. You can view their pledge at:\n\n" .
 
 			get_permalink( $pledge_id ) . "\n\n" .
 
-			"To confirm that they're sponsoring your contributions, please review your pledges at:" . "\n\n" .
+			"To confirm that they're sponsoring your contributions, please review your pledges at:\n\n" .
 
 			get_permalink( get_page_by_path( 'my-pledges' ) ) . "\n\n" .
 
@@ -184,8 +187,7 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 
 			"https://profiles.wordpress.org/me/profile/edit/group/5/\n\n" .
 
-			"If {$pledge->post_title} isn't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge."
-		;
+			"If {$pledge->post_title} isn't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge.";
 
 		$user = get_user_by( 'login', $contributor->post_title );
 		Email\send_email( $user->user_email, $subject, $message, $pledge_id );
@@ -267,7 +269,6 @@ function process_manage_link_request() {
 		} else {
 			$result = new WP_Error( 'email_failed', __( 'There was an error while trying to send the email.', 'wporg-5ftf' ) );
 		}
-
 	} else {
 		$error_message = sprintf(
 			__( 'That\'s not the address that we have for this pledge, please try a different one. If none of the addresses you try are working, please <a href="%s">email us</a> for help.', 'wporg-5ftf' ),
@@ -303,11 +304,9 @@ function send_manage_pledge_link( $pledge_id ) {
 			$pledge_id,
 			'manage_pledge',
 			get_page_by_path( 'manage-pledge' )->ID,
-
 			// The token needs to be reused so that the admin can view the form, submit it, and view the result.
 			false
-		)
-	;
+		);
 
 	$result = Email\send_email( $admin_email, $subject, $message, $pledge_id );
 
@@ -327,7 +326,7 @@ function send_manage_pledge_link( $pledge_id ) {
  */
 function process_form_manage() {
 	$submission = get_form_submission();
-	$has_error = check_invalid_submission( $submission );
+	$has_error  = check_invalid_submission( $submission );
 	if ( $has_error ) {
 		return $has_error;
 	}

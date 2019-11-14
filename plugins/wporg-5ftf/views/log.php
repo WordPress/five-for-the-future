@@ -38,6 +38,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 						$user = get_user_by( 'id', $entry['user_id'] );
 
 						if ( $user ) {
+							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- sanitize_user prevents unsafe characters.
 							echo sanitize_user( $user->user_login );
 						} elseif ( ! empty( $entry['user_id'] ) ) {
 							echo esc_html( $entry['user_id'] );
@@ -52,9 +53,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 	<?php else : ?>
 
-		<p>
-			There are no log entries.
-		</p>
+		<p>There are no log entries.</p>
 
 	<?php endif; ?>
 </div>

@@ -95,7 +95,7 @@ function register_custom_post_type() {
 		'publicly_queryable'  => true,
 		'capability_type'     => 'page',
 		'capabilities'        => array(
-			'create_posts' => 'do_not_allow'
+			'create_posts' => 'do_not_allow',
 		),
 		'map_meta_cap'        => true,
 		'show_in_rest'        => false, // todo Maybe turn this on later.
@@ -153,12 +153,16 @@ function add_list_table_columns( $columns ) {
 function populate_list_table_columns( $column, $post_id ) {
 	switch ( $column ) {
 		case 'contributor_counts':
-			$contribs = Contributor\get_pledge_contributors( $post_id, 'all' );
-			printf(
-				wpautop( '%1$d confirmed' . "\n" . '%2$d unconfirmed' ),
-				count( $contribs['publish'] ),
-				count( $contribs['pending'] )
+			$contribs    = Contributor\get_pledge_contributors( $post_id, 'all' );
+			$confirmed   = sprintf(
+				_n( '%s confirmed', '%s confirmed', count( $contribs['publish'] ), 'wporg-5ftf' ),
+				number_format_i18n( count( $contribs['publish'] ) )
 			);
+			$unconfirmed = sprintf(
+				_n( '%s unconfirmed', '%s unconfirmed', count( $contribs['pending'] ), 'wporg-5ftf' ),
+				number_format_i18n( count( $contribs['pending'] ) )
+			);
+			printf( '%s<br />%s', esc_html( $confirmed ), esc_html( $unconfirmed ) );
 			break;
 		case 'domain':
 			$domain = get_post_meta( $post_id, META_PREFIX . 'org-domain', true );
@@ -180,7 +184,6 @@ function create_new_pledge( $name ) {
 		'post_title'  => $name,
 		'post_status' => 'draft',
 	);
-
 
 	$pledge_id = wp_insert_post( $args, true );
 	// The pledge's meta data is saved at this point via `save_pledge_meta()`, which is a `save_post` callback.
@@ -204,11 +207,10 @@ function create_new_pledge( $name ) {
 function send_pledge_confirmation_email( $pledge_id, $action_page_id ) {
 	$pledge = get_post( $pledge_id );
 
-	$message =
-		"Thanks for pledging your organization's time to contribute to the WordPress open source project! Please confirm this email address in order to publish your pledge:" . "\n\n" .
-
+	$message = sprintf(
+		"Thanks for pledging your organization's time to contribute to the WordPress open source project! Please confirm this email address in order to publish your pledge:\n\n%s",
 		Email\get_authentication_url( $pledge_id, 'confirm_pledge_email', $action_page_id )
-	;
+	);
 
 	return Email\send_email(
 		$pledge->{'5ftf_org-pledge-email'},
@@ -233,12 +235,12 @@ function filter_query( $query ) {
 	$hours_count_key       = META_PREFIX . 'pledge-total-hours';
 
 	// Set up meta queries to include the "valid pledge" check, added to both search and pledge archive requests.
-	$meta_queries = (array) $query->get( 'meta_query' );
+	$meta_queries   = (array) $query->get( 'meta_query' );
 	$meta_queries[] = array(
-		'key' => $contributor_count_key,
-		'value' => 0,
+		'key'     => $contributor_count_key,
+		'value'   => 0,
 		'compare' => '>',
-		'type' => 'NUMERIC',
+		'type'    => 'NUMERIC',
 	);
 
 	// Searching is restricted to pledges with contributors only.
@@ -271,6 +273,7 @@ function filter_query( $query ) {
 		}
 	}
 
-	// todo remove this when `rand` pagination fixed, see https://github.com/WordPress/five-for-the-future/issues/70#issuecomment-549066883
+	// todo remove this when `rand` pagination fixed
+	// see https://github.com/WordPress/five-for-the-future/issues/70#issuecomment-549066883.
 	$query->set( 'posts_per_page', 100 );
 }

@@ -18,7 +18,7 @@ use WP_Post;
 			<?php
 			printf(
 				wp_kses_post( __( "Thank you for confirming your address! We've emailed confirmation links to the contributors you mentioned, and your pledge will show up in <a href=\"%s\">the directory</a> once one contributor confirms their participation.", 'wporg' ) ),
-				 esc_url( $directory_url )
+				esc_url( $directory_url )
 			);
 			?>
 		</p>
@@ -45,13 +45,11 @@ use WP_Post;
 	<div class="notice notice-error notice-alt">
 		<p>
 			<?php
-			/*
-			 * There could be other reasons it failed, like an invalid token, but this is the most common reason,
-			 * and the only one that normal users should experience, so we're assuming it in order to provide
-			 * the best UX.
-			 */
+			// There could be other reasons it failed, like an invalid token, but this is the most common reason,
+			// and the only one that normal users should experience, so we're assuming it in order to provide
+			// the best UX.
+			esc_html_e( 'Your confirmation link has expired, please obtain a new one:', 'wporg-5ftf' );
 			?>
-			Your confirmation link has expired, please obtain a new one:
 		</p>
 
 		<form action="" method="get">
