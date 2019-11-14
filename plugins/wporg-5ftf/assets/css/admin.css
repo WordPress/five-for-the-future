@@ -52,6 +52,10 @@
 	margin-bottom: 1.5rem;
 }
 
+.pledge-contributors.pledge-status__draft .resend-confirm {
+	display: none;
+}
+
 .contributor-list th,
 .contributor-list td,
 .contributor-list th *,

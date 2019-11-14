@@ -26,7 +26,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 			<thead>
 				<tr>
 					<th scope="col"><?php esc_html_e( 'Contributor', 'wporg-5ftf' ); ?></th>
-					<th scope="col"><?php esc_html_e( 'Resend Confirmation', 'wporg-5ftf' ); ?></th>
+					<th scope="col" class="resend-confirm"><?php esc_html_e( 'Resend Confirmation', 'wporg-5ftf' ); ?></th>
 					<th scope="col"><?php esc_html_e( 'Remove Contributor', 'wporg-5ftf' ); ?></th>
 				</tr>
 			</thead>
@@ -47,7 +47,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 			</span>
 		</th>
 		<# if ( 'pending' === data.status ) { #>
-			<td>
+			<td class="resend-confirm">
 				<button
 					class="button"
 					data-action="resend-contributor-confirmation"
@@ -75,7 +75,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 </script> 
 
 <div id="5ftf-contributors">
-	<div class="pledge-contributors">
+	<div class="pledge-contributors pledge-status__<?php echo esc_attr( get_post_status() ); ?>">
 		<?php if ( ! empty( $contributors ) ) : ?>
 			<?php
 			printf(
