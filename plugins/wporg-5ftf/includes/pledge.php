@@ -189,35 +189,10 @@ function create_new_pledge( $name ) {
 	// The pledge's meta data is saved at this point via `save_pledge_meta()`, which is a `save_post` callback.
 
 	if ( ! is_wp_error( $pledge_id ) ) {
-		send_pledge_confirmation_email( $pledge_id, get_post()->ID );
+		Email\send_pledge_confirmation_email( $pledge_id, get_post()->ID );
 	}
 
 	return $pledge_id;
-}
-
-/**
- * Email pledge manager to confirm their email address.
- *
- * @param int $pledge_id      The ID of the pledge.
- * @param int $action_page_id The ID of the page that the user will be taken back to, in order to process their
- *                            confirmation request.
- *
- * @return bool
- */
-function send_pledge_confirmation_email( $pledge_id, $action_page_id ) {
-	$pledge = get_post( $pledge_id );
-
-	$message = sprintf(
-		"Thanks for pledging your organization's time to contribute to the WordPress open source project! Please confirm this email address in order to publish your pledge:\n\n%s",
-		Auth\get_authentication_url( $pledge_id, 'confirm_pledge_email', $action_page_id )
-	);
-
-	return Email\send_email(
-		$pledge->{'5ftf_org-pledge-email'},
-		'Please confirm your email address',
-		$message,
-		$pledge_id
-	);
 }
 
 /**
