@@ -149,3 +149,38 @@ function is_valid_authentication_token( $pledge_id, $action, $unverified_token )
 
 	return $verified;
 }
+
+/**
+ * Checks user capabilties or auth token to see if this user can edit the given pledge.
+ *
+ * @param int    $requested_pledge_id The pledge to edit.
+ * @param string $auth_token          The supplied auth token to check.
+ *
+ * @return true|WP_Error
+ */
+function can_manage_pledge( $requested_pledge_id, $auth_token = '' ) {
+	// A valid token superceeds other auth methods.
+	if ( true === is_valid_authentication_token( $requested_pledge_id, 'manage_pledge', $auth_token ) ) {
+		return true;
+	} else if ( is_user_logged_in() ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+		return new \WP_Error(
+			'invalid_token',
+			sprintf(
+				__( 'You don\'t have permissions to edit this page. <a href="%s">Request an edit link.</a>', 'wporg-5ftf' ),
+				get_permalink( $requested_pledge_id )
+			)
+		);
+	}
+
+	return new \WP_Error(
+		'invalid_token',
+		sprintf(
+			__( 'Your link has expired, please <a href="%s">obtain a new one.</a>', 'wporg-5ftf' ),
+			get_permalink( $requested_pledge_id )
+		)
+	);
+}
+

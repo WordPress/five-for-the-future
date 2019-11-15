@@ -1,6 +1,6 @@
 <?php
 
-use function WordPressDotOrg\FiveForTheFuture\Auth\{ get_authentication_url, is_valid_authentication_token };
+use function WordPressDotOrg\FiveForTheFuture\Auth\{ can_manage_pledge, get_authentication_url, is_valid_authentication_token };
 use const WordPressDotOrg\FiveForTheFuture\Auth\{ TOKEN_PREFIX };
 use const WordPressDotOrg\FiveForTheFuture\Pledge\CPT_ID as PLEDGE_POST_TYPE;
 
@@ -225,5 +225,54 @@ class Test_Auth extends WP_UnitTestCase {
 		$verified = is_valid_authentication_token( self::$pledge->ID, $action, $token['value'] );
 
 		$this->assertFalse( $verified );
+	}
+
+	/**
+	 * @covers ::can_manage_pledge
+	 */
+	public function test_user_with_token_can_manage_pledge() {
+		$action = 'manage_pledge';
+		$token  = self::_get_token( self::$pledge->ID, $action, self::$page->ID, false );
+
+		$result = can_manage_pledge( self::$pledge->ID, $token['value'] );
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * @covers ::can_manage_pledge
+	 */
+	public function test_user_without_token_cant_manage_pledge() {
+		$result = can_manage_pledge( self::$pledge->ID, '' );
+		$this->assertWPError( $result );
+	}
+
+	/**
+	 * @covers ::can_manage_pledge
+	 */
+	public function test_logged_in_admin_can_manage_pledge() {
+		$user = self::factory()->user->create(
+			array(
+				'role' => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+
+		$result = can_manage_pledge( self::$pledge->ID );
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * @covers ::can_manage_pledge
+	 */
+	public function test_logged_in_subscriber_cant_manage_pledge() {
+		$user = self::factory()->user->create(
+			array(
+				'role' => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user );
+
+		$result = can_manage_pledge( self::$pledge->ID );
+		$this->assertWPError( $result );
 	}
 }
