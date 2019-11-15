@@ -95,7 +95,7 @@ class Test_Auth extends WP_UnitTestCase {
 			$token_to_validate
 		);
 
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 
 	/**
@@ -130,7 +130,7 @@ class Test_Auth extends WP_UnitTestCase {
 			self::$token['value']
 		);
 
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 
 	/**
@@ -142,7 +142,7 @@ class Test_Auth extends WP_UnitTestCase {
 		$second_verification = is_valid_authentication_token( self::$pledge->ID, self::$action, self::$token['value'] );
 
 		$this->assertSame( true, $first_verification );
-		$this->assertSame( false, $second_verification );
+		$this->assertFalse( $second_verification );
 	}
 
 	/**
@@ -151,7 +151,7 @@ class Test_Auth extends WP_UnitTestCase {
 	public function test_valid_tokens_are_rejected_for_other_pages() {
 		$verified = is_valid_authentication_token( self::$page->ID, self::$action, self::$token['value'] );
 
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 
 	/**
@@ -169,7 +169,7 @@ class Test_Auth extends WP_UnitTestCase {
 			self::$token['value']
 		);
 
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 
 	/**
@@ -192,7 +192,7 @@ class Test_Auth extends WP_UnitTestCase {
 		$this->assertSame( 'array', gettype( $new_token ) );
 		$this->assertArrayHasKey( 'value', $new_token );
 		$this->assertNotSame( $new_token['value'], self::$token['value'] );
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 
 	/**
@@ -224,6 +224,6 @@ class Test_Auth extends WP_UnitTestCase {
 
 		$verified = is_valid_authentication_token( self::$pledge->ID, $action, $token['value'] );
 
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 }
