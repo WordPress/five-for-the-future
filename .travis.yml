@@ -8,13 +8,9 @@ install:
   - bash bin/install-wp-tests.sh wporg_5ftf_test root '' localhost $WP_VERSION
   - composer install
 
-before_script:
-  - phpenv config-rm xdebug.ini
-
 script:
   - composer run-script test -- --version
   - composer run-script test -- -c phpunit.xml.dist
   - touch $TRAVIS_BUILD_DIR/tmp.php
   - export CHANGED_FILES=$(git diff --name-only --diff-filter=AM $TRAVIS_BRANCH...HEAD | tr '\n' ' ')
-  - echo $CHANGED_FILES
   - composer run-script phpcs $TRAVIS_BUILD_DIR/tmp.php $(echo $CHANGED_FILES) -- -n
