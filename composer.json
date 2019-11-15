@@ -10,12 +10,17 @@
 		"platform": {
 			"php": "7.2"
 		},
-		"vendor-dir": "mu-plugins/vendor"
+		"vendor-dir": "mu-plugins/vendor",
+		"_comment": "Work around `test:watch` timeout, see https://github.com/spatie/phpunit-watcher/issues/63#issuecomment-545633709",
+		"process-timeout": 0
 	},
 	"require": {},
-	"require-dev": {
+	"_comment" : "PHPUnit 7.x is the latest version that's compatible with Core, see https://core.trac.wordpress.org/ticket/46149",
+	"require-dev" : {
 		"dealerdirect/phpcodesniffer-composer-installer": "0.5.0",
-		"wp-coding-standards/wpcs": "2.1.1"
+		"wp-coding-standards/wpcs": "2.1.1",
+		"phpunit/phpunit"        : "^7",
+		"spatie/phpunit-watcher" : "^1.12"
 	},
 	"scripts": {
 		"phpcs": [
@@ -23,6 +28,9 @@
 		],
 		"phpcbf": [
 			"phpcbf -p"
-		]
+		],
+		"test" : "phpunit",
+		"_comment"   : "Input won't work when running this via `composer test:watch`. If you want to use PHPUnit Watcher's interactive options then you'll need to call it directly in your terminal. See https://github.com/composer/composer/issues/5856",
+		"test:watch" : "phpunit-watcher watch"
 	}
 }
