@@ -1,0 +1,11 @@
+watch:
+  directories:
+    - plugins/wporg-5ftf
+  fileMask: '*.php'
+
+notifications:
+  passingTests: false
+  failingTests: false
+
+phpunit:
+  binaryPath: mu-plugins/vendor/bin/phpunit
