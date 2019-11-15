@@ -6,7 +6,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeMeta, Contributor, Email };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, Pledge, PledgeMeta };
 use WP_Error, WP_User;
 
 defined( 'WPINC' ) || die();
@@ -130,7 +130,7 @@ function process_pledge_confirmation_email( $pledge_id, $action, $unverified_tok
 		return true;
 	}
 
-	$email_confirmed = Email\is_valid_authentication_token( $pledge_id, $action, $unverified_token );
+	$email_confirmed = Auth\is_valid_authentication_token( $pledge_id, $action, $unverified_token );
 
 	if ( $email_confirmed ) {
 		update_post_meta( $pledge_id, $meta_key, true );
@@ -170,7 +170,7 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 		$name = $user->first_name ? $user->first_name : '@' . $user->user_nicename;
 
 		/*
-		 * This uses w.org login accounts instead of `Email\get_authentication_url()`, because the reasons for using
+		 * This uses w.org login accounts instead of `Auth\get_authentication_url()`, because the reasons for using
 		 * tokens for pledges don't apply to contributors, accounts are more secure, and they provide a better UX
 		 * because there's no expiration.
 		 */
@@ -300,7 +300,7 @@ function send_manage_pledge_link( $pledge_id ) {
 	$message =
 		'Howdy, please open this link to update your pledge:' . "\n\n" .
 
-		Email\get_authentication_url(
+		Auth\get_authentication_url(
 			$pledge_id,
 			'manage_pledge',
 			get_page_by_path( 'manage-pledge' )->ID,

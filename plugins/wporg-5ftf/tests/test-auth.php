@@ -1,12 +1,12 @@
 <?php
 
-use function WordPressDotOrg\FiveForTheFuture\Email\{ get_authentication_url, is_valid_authentication_token };
-use const WordPressDotOrg\FiveForTheFuture\Email\{ TOKEN_PREFIX };
+use function WordPressDotOrg\FiveForTheFuture\Auth\{ get_authentication_url, is_valid_authentication_token };
+use const WordPressDotOrg\FiveForTheFuture\Auth\{ TOKEN_PREFIX };
 use const WordPressDotOrg\FiveForTheFuture\Pledge\CPT_ID as PLEDGE_POST_TYPE;
 
 defined( 'WPINC' ) || die();
 
-class Test_Email extends WP_UnitTestCase {
+class Test_Auth extends WP_UnitTestCase {
 	// phpcs:ignore PSR2.Classes.PropertyDeclaration.Multiple
 	protected static $pledge, $action, $page, $action_url, $token;
 

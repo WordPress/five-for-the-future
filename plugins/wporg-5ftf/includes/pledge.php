@@ -7,7 +7,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\Pledge;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\{ Contributor, Email };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
 use WP_Error, WP_Query;
 
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
@@ -209,7 +209,7 @@ function send_pledge_confirmation_email( $pledge_id, $action_page_id ) {
 
 	$message = sprintf(
 		"Thanks for pledging your organization's time to contribute to the WordPress open source project! Please confirm this email address in order to publish your pledge:\n\n%s",
-		Email\get_authentication_url( $pledge_id, 'confirm_pledge_email', $action_page_id )
+		Auth\get_authentication_url( $pledge_id, 'confirm_pledge_email', $action_page_id )
 	);
 
 	return Email\send_email(

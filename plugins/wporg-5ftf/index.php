@@ -25,6 +25,7 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\load' );
 function load() {
 	$running_unit_tests = isset( $_SERVER['_'] ) && false !== strpos( $_SERVER['_'], 'phpunit' );
 
+	require_once get_includes_path() . 'authentication.php';
 	require_once get_includes_path() . 'contributor.php';
 	require_once get_includes_path() . 'email.php';
 	require_once get_includes_path() . 'pledge.php';
