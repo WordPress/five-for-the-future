@@ -354,7 +354,12 @@ function get_form_submission() {
 		)
 	);
 
-	return filter_input_array( INPUT_POST, $input_filters );
+	$result = filter_input_array( INPUT_POST, $input_filters );
+	if ( ! $result ) {
+		return [];
+	}
+
+	return $result;
 }
 
 /**
