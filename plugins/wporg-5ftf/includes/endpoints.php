@@ -5,7 +5,7 @@
 
 namespace WordPressDotOrg\FiveForTheFuture\Endpoints;
 
-use WordPressDotOrg\FiveForTheFuture\{ Contributor, PledgeForm };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
 
 add_action( 'wp_ajax_manage_contributors', __NAMESPACE__ . '\handler' );
 
@@ -18,11 +18,20 @@ function handler() {
 	$action         = filter_input( INPUT_POST, 'manage_action' );
 	$pledge_id      = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
 	$contributor_id = filter_input( INPUT_POST, 'contributor_id', FILTER_VALIDATE_INT );
+	$token          = filter_input( INPUT_POST, '_token' );
+	$authenticated  = Auth\can_manage_pledge( $pledge_id, $auth_token );
+
+	if ( is_wp_error( $authenticated ) ) {
+		wp_die( wp_json_encode( [
+			'success' => true,
+			'message' => $authenticated->get_error_message(),
+		] ) );
+	}
 
 	switch ( $action ) {
 		case 'resend-contributor-confirmation':
 			$contribution = get_post( $contributor_id );
-			PledgeForm\send_contributor_confirmation_emails( $pledge_id, $contributor_id );
+			Email\send_contributor_confirmation_emails( $pledge_id, $contributor_id );
 			wp_die( wp_json_encode( [
 				'success' => true,
 				'message' => sprintf( __( 'Confirmation email sent to %s.', 'wporg-5ftf' ), $contribution->post_title ),
@@ -50,7 +59,7 @@ function handler() {
 			$contributor_ids = Contributor\add_pledge_contributors( $pledge_id, $new_contributors );
 			if ( 'publish' === $pledge->post_status ) {
 				foreach ( $contributor_ids as $contributor_id ) {
-					PledgeForm\send_contributor_confirmation_emails( $pledge_id, $contributor_id );
+					Email\send_contributor_confirmation_emails( $pledge_id, $contributor_id );
 				}
 			}
 
