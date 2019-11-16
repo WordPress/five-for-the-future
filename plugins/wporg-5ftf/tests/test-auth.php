@@ -148,15 +148,6 @@ class Test_Auth extends WP_UnitTestCase {
 	/**
 	 * @covers ::is_valid_authentication_token
 	 */
-	public function test_valid_tokens_are_rejected_for_other_pages() {
-		$verified = is_valid_authentication_token( self::$page->ID, self::$action, self::$token['value'] );
-
-		$this->assertFalse( $verified );
-	}
-
-	/**
-	 * @covers ::is_valid_authentication_token
-	 */
 	public function test_valid_tokens_are_rejected_for_other_actions() {
 		// Generate new token on pledge.
 		$new_action = 'confirm_contributor_participation';
