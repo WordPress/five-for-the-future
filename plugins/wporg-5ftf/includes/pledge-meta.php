@@ -484,7 +484,7 @@ function enqueue_assets() {
 
 	$script_data = [
 		'pledgeId'    => get_the_ID(),
-		'manageNonce' => wp_create_nonce( 'manage-pledge' ),
+		'manageNonce' => wp_create_nonce( 'manage-contributors' ),
 	];
 	wp_add_inline_script(
 		'5ftf-admin',

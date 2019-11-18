@@ -51,7 +51,7 @@ jQuery( document ).ready( function( $ ) {
 	}
 
 	/**
-	 * Send an ajax request using the `manage_contributors` action. This function also automatically adds the
+	 * Send an ajax request using the `manage-contributors` action. This function also automatically adds the
 	 * nonce, which should be defined in the global FiveForTheFuture variable.
 	 *
 	 * @param {Object} data - A list of data to send to the endpoint.
@@ -65,7 +65,7 @@ jQuery( document ).ready( function( $ ) {
 			type: 'POST',
 			url: ajaxurl,
 			data: Object.assign( {
-				action: 'manage_contributors',
+				action: 'manage-contributors',
 				pledge_id: FiveForTheFuture.pledgeId,
 				_ajax_nonce: FiveForTheFuture.manageNonce,
 			}, data ),

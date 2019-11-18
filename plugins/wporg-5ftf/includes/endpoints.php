@@ -7,13 +7,14 @@ namespace WordPressDotOrg\FiveForTheFuture\Endpoints;
 
 use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
 
-add_action( 'wp_ajax_manage_contributors', __NAMESPACE__ . '\handler' );
+add_action( 'wp_ajax_manage-contributors', __NAMESPACE__ . '\manage_contributors_handler' );
 
 /**
- * Handle the AJAX request.
+ * Handle the AJAX request for managing contributors on a pledge.
+ * This responds to adding, removing, and resending emails to contributors.
  */
-function handler() {
-	check_ajax_referer( 'manage-pledge', '_ajax_nonce' );
+function manage_contributors_handler() {
+	check_ajax_referer( 'manage-contributors', '_ajax_nonce' );
 
 	$action         = filter_input( INPUT_POST, 'manage_action' );
 	$pledge_id      = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
@@ -23,7 +24,7 @@ function handler() {
 
 	if ( is_wp_error( $authenticated ) ) {
 		wp_die( wp_json_encode( [
-			'success' => true,
+			'success' => false,
 			'message' => $authenticated->get_error_message(),
 		] ) );
 	}
