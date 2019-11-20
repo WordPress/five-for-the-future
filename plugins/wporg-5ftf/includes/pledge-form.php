@@ -6,7 +6,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeMeta, Contributor, Email };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, Pledge, PledgeMeta };
 use WP_Error, WP_User;
 
 defined( 'WPINC' ) || die();
@@ -49,7 +49,7 @@ function render_form_new() {
 		$pledge_id = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
 		$complete  = true;
 
-		Pledge\send_pledge_confirmation_email( $pledge_id, get_post()->ID );
+		Email\send_pledge_confirmation_email( $pledge_id, get_post()->ID );
 	}
 
 	ob_start();
@@ -130,7 +130,7 @@ function process_pledge_confirmation_email( $pledge_id, $action, $unverified_tok
 		return true;
 	}
 
-	$email_confirmed = Email\is_valid_authentication_token( $pledge_id, $action, $unverified_token );
+	$email_confirmed = Auth\is_valid_authentication_token( $pledge_id, $action, $unverified_token );
 
 	if ( $email_confirmed ) {
 		update_post_meta( $pledge_id, $meta_key, true );
@@ -138,60 +138,10 @@ function process_pledge_confirmation_email( $pledge_id, $action, $unverified_tok
 			'ID'          => $pledge_id,
 			'post_status' => 'publish',
 		) );
-		send_contributor_confirmation_emails( $pledge_id );
+		Email\send_contributor_confirmation_emails( $pledge_id );
 	}
 
 	return $email_confirmed;
-}
-
-/**
- * Send contributors an email to confirm their participation.
- *
- * @param int      $pledge_id
- * @param int|null $contributor_id Optional. Send to a specific contributor instead of all.
- */
-function send_contributor_confirmation_emails( $pledge_id, $contributor_id = null ) {
-	$pledge  = get_post( $pledge_id );
-	$subject = "Confirm your {$pledge->post_title} sponsorship";
-
-	/*
-	 * Only fetch unconfirmed ones, because we might be resending confirmation emails, and we shouldn't resend to
-	 * confirmed contributors.
-	 */
-	$unconfirmed_contributors = Contributor\get_pledge_contributors( $pledge->ID, 'pending', $contributor_id );
-
-	foreach ( $unconfirmed_contributors as $contributor ) {
-		$user = get_user_by( 'login', $contributor->post_title );
-
-		/*
-		 * Their first name is ideal, but their username is the best fallback because `nickname`, `display_name`,
-		 * etc are too formal.
-		 */
-		$name = $user->first_name ? $user->first_name : '@' . $user->user_nicename;
-
-		/*
-		 * This uses w.org login accounts instead of `Email\get_authentication_url()`, because the reasons for using
-		 * tokens for pledges don't apply to contributors, accounts are more secure, and they provide a better UX
-		 * because there's no expiration.
-		 */
-		$message =
-			"Howdy $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of the contributors that they sponsor to contribute to the WordPress open source project. You can view their pledge at:\n\n" .
-
-			get_permalink( $pledge_id ) . "\n\n" .
-
-			"To confirm that they're sponsoring your contributions, please review your pledges at:\n\n" .
-
-			get_permalink( get_page_by_path( 'my-pledges' ) ) . "\n\n" .
-
-			"Please also update your WordPress.org profile to include the number of hours per week that you contribute, and the teams that you contribute to:\n\n" .
-
-			"https://profiles.wordpress.org/me/profile/edit/group/5/\n\n" .
-
-			"If {$pledge->post_title} isn't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge.";
-
-		$user = get_user_by( 'login', $contributor->post_title );
-		Email\send_email( $user->user_email, $subject, $message, $pledge_id );
-	}
 }
 
 /**
@@ -262,7 +212,7 @@ function process_manage_link_request() {
 
 	if ( $valid_admin_email && $valid_admin_email === $unverified_admin_email ) {
 		$verified_pledge_id = $unverified_pledge_id; // The addresses will only match is the pledge ID is valid.
-		$message_sent       = send_manage_pledge_link( $verified_pledge_id );
+		$message_sent       = Email\send_manage_pledge_link( $verified_pledge_id );
 
 		if ( $message_sent ) {
 			$result = __( "Thanks! We've emailed you a link you can open in order to update your pledge.", 'wporg-5ftf' );
@@ -276,42 +226,6 @@ function process_manage_link_request() {
 		);
 
 		$result = new WP_Error( 'invalid_pledge_email', $error_message );
-	}
-
-	return $result;
-}
-
-
-/**
- * Email the pledge admin a temporary link they can use to manage their pledge.
- *
- * @param int $pledge_id
- *
- * @return true|WP_Error
- */
-function send_manage_pledge_link( $pledge_id ) {
-	$admin_email = get_post( $pledge_id )->{ PledgeMeta\META_PREFIX . 'org-pledge-email' };
-
-	if ( ! is_email( $admin_email ) ) {
-		return new WP_Error( 'invalid_email', 'Invalid email address.' );
-	}
-
-	$subject = __( 'Updating your Pledge', 'wporg-5ftf' );
-	$message =
-		'Howdy, please open this link to update your pledge:' . "\n\n" .
-
-		Email\get_authentication_url(
-			$pledge_id,
-			'manage_pledge',
-			get_page_by_path( 'manage-pledge' )->ID,
-			// The token needs to be reused so that the admin can view the form, submit it, and view the result.
-			false
-		);
-
-	$result = Email\send_email( $admin_email, $subject, $message, $pledge_id );
-
-	if ( ! $result ) {
-		$result = new WP_Error( 'email_failed', 'Email failed to send' );
 	}
 
 	return $result;

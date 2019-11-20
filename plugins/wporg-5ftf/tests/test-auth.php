@@ -1,12 +1,12 @@
 <?php
 
-use function WordPressDotOrg\FiveForTheFuture\Email\{ get_authentication_url, is_valid_authentication_token };
-use const WordPressDotOrg\FiveForTheFuture\Email\{ TOKEN_PREFIX };
+use function WordPressDotOrg\FiveForTheFuture\Auth\{ can_manage_pledge, get_authentication_url, is_valid_authentication_token };
+use const WordPressDotOrg\FiveForTheFuture\Auth\{ TOKEN_PREFIX };
 use const WordPressDotOrg\FiveForTheFuture\Pledge\CPT_ID as PLEDGE_POST_TYPE;
 
 defined( 'WPINC' ) || die();
 
-class Test_Email extends WP_UnitTestCase {
+class Test_Auth extends WP_UnitTestCase {
 	// phpcs:ignore PSR2.Classes.PropertyDeclaration.Multiple
 	protected static $pledge, $action, $page, $action_url, $token;
 
@@ -95,7 +95,7 @@ class Test_Email extends WP_UnitTestCase {
 			$token_to_validate
 		);
 
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 
 	/**
@@ -130,7 +130,7 @@ class Test_Email extends WP_UnitTestCase {
 			self::$token['value']
 		);
 
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 
 	/**
@@ -142,16 +142,7 @@ class Test_Email extends WP_UnitTestCase {
 		$second_verification = is_valid_authentication_token( self::$pledge->ID, self::$action, self::$token['value'] );
 
 		$this->assertSame( true, $first_verification );
-		$this->assertSame( false, $second_verification );
-	}
-
-	/**
-	 * @covers ::is_valid_authentication_token
-	 */
-	public function test_valid_tokens_are_rejected_for_other_pages() {
-		$verified = is_valid_authentication_token( self::$page->ID, self::$action, self::$token['value'] );
-
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $second_verification );
 	}
 
 	/**
@@ -169,7 +160,7 @@ class Test_Email extends WP_UnitTestCase {
 			self::$token['value']
 		);
 
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 
 	/**
@@ -192,7 +183,7 @@ class Test_Email extends WP_UnitTestCase {
 		$this->assertSame( 'array', gettype( $new_token ) );
 		$this->assertArrayHasKey( 'value', $new_token );
 		$this->assertNotSame( $new_token['value'], self::$token['value'] );
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
 	}
 
 	/**
@@ -224,6 +215,55 @@ class Test_Email extends WP_UnitTestCase {
 
 		$verified = is_valid_authentication_token( self::$pledge->ID, $action, $token['value'] );
 
-		$this->assertSame( false, $verified );
+		$this->assertFalse( $verified );
+	}
+
+	/**
+	 * @covers ::can_manage_pledge
+	 */
+	public function test_user_with_token_can_manage_pledge() {
+		$action = 'manage_pledge';
+		$token  = self::_get_token( self::$pledge->ID, $action, self::$page->ID, false );
+
+		$result = can_manage_pledge( self::$pledge->ID, $token['value'] );
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * @covers ::can_manage_pledge
+	 */
+	public function test_user_without_token_cant_manage_pledge() {
+		$result = can_manage_pledge( self::$pledge->ID, '' );
+		$this->assertWPError( $result );
+	}
+
+	/**
+	 * @covers ::can_manage_pledge
+	 */
+	public function test_logged_in_admin_can_manage_pledge() {
+		$user = self::factory()->user->create(
+			array(
+				'role' => 'administrator',
+			)
+		);
+		wp_set_current_user( $user );
+
+		$result = can_manage_pledge( self::$pledge->ID );
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * @covers ::can_manage_pledge
+	 */
+	public function test_logged_in_subscriber_cant_manage_pledge() {
+		$user = self::factory()->user->create(
+			array(
+				'role' => 'subscriber',
+			)
+		);
+		wp_set_current_user( $user );
+
+		$result = can_manage_pledge( self::$pledge->ID );
+		$this->assertWPError( $result );
 	}
 }

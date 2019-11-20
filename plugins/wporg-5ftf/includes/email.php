@@ -1,57 +1,15 @@
 <?php
-
 /**
- * Helper functions for sending emails, including authentication tokens.
- *
- * We don't want pledges connected to individual w.org accounts, because that would encourage people to create
- * "company" accounts instead of having their contributions show up as real human beings; or because that
- * individual will likely eventually leave the company, and "ownership" of the pledge would be orphaned; or
- * because we'd have to tie multiple accounts to the pledge (and all the extra time/UX costs associated with that),
- * and would still have problems with orphaned ownership, etc.
- *
- * So instead, we just ask companies to create pledges using a group email (e.g., support@wordcamp.org), and
- * we email them time-restricted, once-time-use auth tokens when they want to "log in".
- *
- * WP "nonces" aren't ideal for this purpose from a security perspective, because they're less secure. They're
- * reusable, last up to 24 hours, and have a much smaller search space in brute force attacks. They're only
- * intended to prevent CSRF, and should not be used for authentication or authorization.
- *
- * They also create an inconsistent UX, because a nonce could be valid for 24 hours, or for 1 second, due to their
- * stateless nature -- see `wp_nonce_tick()`. That would lead to some situations where a nonce had already expired
- * by the time the contributor opened the email and clicked on the link.
- *
- * So instead, true stateful CSPRN authentication tokens are generated; see `get_authentication_url()` and
- * `is_valid_authentication_token()` for details.
- *
- * For additional background:
- * - https://stackoverflow.com/a/35715087/450127 (which is better security advice than ircmarxell's 2010 answer).
+ * Helper functions for sending emails.
  */
 
 namespace WordPressDotOrg\FiveForTheFuture\Email;
-use WordPressDotOrg\FiveForTheFuture;
+
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor };
+use const WordPressDotOrg\FiveForTheFuture\PREFIX;
+use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 defined( 'WPINC' ) || die();
-
-const TOKEN_PREFIX = '5ftf_auth_token_';
-
-// Longer than `get_password_reset_key()` just to be safe.
-// See https://core.trac.wordpress.org/ticket/43546#comment:34.
-const TOKEN_LENGTH = 32;
-
-add_action( 'wp_head', __NAMESPACE__ . '\prevent_caching_auth_tokens', 99 );
-
-/**
- * Prevent caching mechanisms from caching authentication tokens.
- *
- * Search engines would often be too slow to index tokens before they expire, but other mechanisms like Varnish,
- * etc could create situations where they're leaked to others.
- */
-function prevent_caching_auth_tokens() {
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce not required, not processing form data.
-	if ( isset( $_GET['auth_token'] ) || isset( $_POST['auth_token'] ) ) {
-		nocache_headers();
-	}
-}
 
 /**
  * Wrap `wp_mail()` with shared functionality.
@@ -81,105 +39,117 @@ function send_email( $to, $subject, $message, $pledge_id ) {
 	 * @param bool   $result
 	 * @param int    $pledge_id
 	 */
-	do_action( FiveForTheFuture\PREFIX . '_email_result', $to, $subject, $message, $headers, $result, $pledge_id );
+	do_action( PREFIX . '_email_result', $to, $subject, $message, $headers, $result, $pledge_id );
 
 	return $result;
 }
 
 /**
- * Generate an action URL with a secure, unique authentication token.
+ * Email pledge manager to confirm their email address.
  *
- * @param int    $pledge_id
- * @param string $action
- * @param int    $action_page_id The ID of the page that the user will be taken back to, in order to process their
- *                               confirmation request.
- * @param bool   $use_once       Whether or not the token should be deleted after the first use. Only pass `false`
- *                               when the action requires several steps in a flow, rather than a single step. For
- *                               instance, be able to 1) view a private pledge; 2) make changes and save them; and
- *                               3) reload the private pledge with the new changes displayed.
- *
- * @return string
- */
-function get_authentication_url( $pledge_id, $action, $action_page_id, $use_once = true ) {
-	$auth_token = array(
-		// This will create a CSPRN and is similar to how `get_password_reset_key()` and
-		// `generate_recovery_mode_token()` work.
-		'value'      => wp_generate_password( TOKEN_LENGTH, false ),
-		// todo Ideally should encrypt at rest, see https://core.trac.wordpress.org/ticket/24783.
-		'expiration' => time() + ( 2 * HOUR_IN_SECONDS ),
-		'use_once'   => $use_once,
-	);
-
-	/*
-	 * Tying the token to a specific pledge is important for security, otherwise companies could get a valid token
-	 * for their pledge, and use it to edit other company's pledges.
-	 *
-	 * Similarly, tying it to specific actions is also important, to protect against CSRF attacks.
-	 *
-	 * This function intentionally requires the caller to pass in a pledge ID and action, so that it can guarantee
-	 * that each token will be unique across pledges and actions.
-	 */
-	update_post_meta( $pledge_id, TOKEN_PREFIX . $action, $auth_token );
-
-	$auth_url = add_query_arg(
-		array(
-			'action'     => $action,
-			'pledge_id'  => $pledge_id,
-			'auth_token' => $auth_token['value'],
-		),
-		get_permalink( $action_page_id )
-	);
-
-	// todo include a "this lnk will expire in 10 hours and after its used once" message too?
-		// probably, but what's the best way to do that DRYly?
-
-	return $auth_url;
-}
-
-/**
- * Verify whether or not a given authentication token is valid.
- *
- * These tokens are more secure than WordPress' imitation nonces because they cannot be reused[1], and expire
- * in a shorter timeframe. Like WP nonces, though, they must be tied to a specific action and post object in order
- * to prevent misuse.
- *
- * [1] In some cases, tokens can be reused, when that is explicitly required for their flow. For an example, see
- * the documentation in `get_authentication_url()`.
- *
- * @param int    $pledge_id
- * @param string $action
- * @param string $unverified_token
+ * @param int $pledge_id      The ID of the pledge.
+ * @param int $action_page_id The ID of the page that the user will be taken back to, in order to process their
+ *                            confirmation request.
  *
  * @return bool
  */
-function is_valid_authentication_token( $pledge_id, $action, $unverified_token ) {
-	$verified    = false;
-	$valid_token = get_post_meta( $pledge_id, TOKEN_PREFIX . $action, true );
+function send_pledge_confirmation_email( $pledge_id, $action_page_id ) {
+	$pledge = get_post( $pledge_id );
+
+	$message = sprintf(
+		"Thanks for pledging your organization's time to contribute to the WordPress open source project! Please confirm this email address in order to publish your pledge:\n\n%s",
+		Auth\get_authentication_url( $pledge_id, 'confirm_pledge_email', $action_page_id )
+	);
+
+	return send_email(
+		$pledge->{'5ftf_org-pledge-email'},
+		'Please confirm your email address',
+		$message,
+		$pledge_id
+	);
+}
+
+/**
+ * Send contributors an email to confirm their participation.
+ *
+ * @param int      $pledge_id
+ * @param int|null $contributor_id Optional. Send to a specific contributor instead of all.
+ */
+function send_contributor_confirmation_emails( $pledge_id, $contributor_id = null ) {
+	$pledge  = get_post( $pledge_id );
+	$subject = "Confirm your {$pledge->post_title} sponsorship";
 
 	/*
-	 * Later on we'll compare the value to user input, and the user could input null/false/etc, so let's guarantee
-	 * that the thing we're comparing against is really what we expect it to be.
+	 * Only fetch unconfirmed ones, because we might be resending confirmation emails, and we shouldn't resend to
+	 * confirmed contributors.
 	 */
-	if ( ! is_array( $valid_token ) || ! array_key_exists( 'value', $valid_token ) || ! array_key_exists( 'expiration', $valid_token ) ) {
-		return false;
+	$unconfirmed_contributors = Contributor\get_pledge_contributors( $pledge->ID, 'pending', $contributor_id );
+
+	foreach ( $unconfirmed_contributors as $contributor ) {
+		$user = get_user_by( 'login', $contributor->post_title );
+
+		/*
+		 * Their first name is ideal, but their username is the best fallback because `nickname`, `display_name`,
+		 * etc are too formal.
+		 */
+		$name = $user->first_name ? $user->first_name : '@' . $user->user_nicename;
+
+		/*
+		 * This uses w.org login accounts instead of `Auth\get_authentication_url()`, because the reasons for using
+		 * tokens for pledges don't apply to contributors, accounts are more secure, and they provide a better UX
+		 * because there's no expiration.
+		 */
+		$message =
+			"Howdy $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of the contributors that they sponsor to contribute to the WordPress open source project. You can view their pledge at:\n\n" .
+
+			get_permalink( $pledge_id ) . "\n\n" .
+
+			"To confirm that they're sponsoring your contributions, please review your pledges at:\n\n" .
+
+			get_permalink( get_page_by_path( 'my-pledges' ) ) . "\n\n" .
+
+			"Please also update your WordPress.org profile to include the number of hours per week that you contribute, and the teams that you contribute to:\n\n" .
+
+			"https://profiles.wordpress.org/me/profile/edit/group/5/\n\n" .
+
+			"If {$pledge->post_title} isn't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge.";
+
+		$user = get_user_by( 'login', $contributor->post_title );
+		send_email( $user->user_email, $subject, $message, $pledge_id );
+	}
+}
+
+/**
+ * Email the pledge admin a temporary link they can use to manage their pledge.
+ *
+ * @param int $pledge_id
+ *
+ * @return true|WP_Error
+ */
+function send_manage_pledge_link( $pledge_id ) {
+	$admin_email = get_post( $pledge_id )->{ META_PREFIX . 'org-pledge-email' };
+
+	if ( ! is_email( $admin_email ) ) {
+		return new WP_Error( 'invalid_email', 'Invalid email address.' );
 	}
 
-	if ( ! is_string( $valid_token['value'] ) || TOKEN_LENGTH !== strlen( $valid_token['value'] ) ) {
-		return false;
+	$subject = __( 'Updating your Pledge', 'wporg-5ftf' );
+	$message =
+		'Howdy, please open this link to update your pledge:' . "\n\n" .
+
+		Auth\get_authentication_url(
+			$pledge_id,
+			'manage_pledge',
+			get_page_by_path( 'manage-pledge' )->ID,
+			// The token needs to be reused so that the admin can view the form, submit it, and view the result.
+			false
+		);
+
+	$result = send_email( $admin_email, $subject, $message, $pledge_id );
+
+	if ( ! $result ) {
+		$result = new WP_Error( 'email_failed', 'Email failed to send' );
 	}
 
-	if ( ! is_string( $unverified_token ) || TOKEN_LENGTH !== strlen( $unverified_token ) ) {
-		return false;
-	}
-
-	if ( $valid_token && $valid_token['expiration'] > time() && hash_equals( $valid_token['value'], $unverified_token ) ) {
-		$verified = true;
-
-		// Tokens should not be reusable -- to increase security -- unless explicitly required to fulfill their purpose.
-		if ( false !== $valid_token['use_once'] ) {
-			delete_post_meta( $pledge_id, TOKEN_PREFIX . $action );
-		}
-	}
-
-	return $verified;
+	return $result;
 }
