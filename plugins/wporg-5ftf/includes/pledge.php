@@ -270,7 +270,7 @@ function enqueue_assets() {
 
 	if ( CPT_ID === get_post_type() ) {
 		$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/frontend.js' );
-		wp_enqueue_script( '5ftf-frontend', plugins_url( 'assets/js/frontend.js', __DIR__ ), [ 'jquery', 'wp-util', 'wicg-inert' ], $ver, true );
+		wp_enqueue_script( '5ftf-frontend', plugins_url( 'assets/js/frontend.js', __DIR__ ), [ 'jquery', 'wp-a11y', 'wp-util', 'wicg-inert' ], $ver, true );
 
 		$script_data = [
 			'ajaxurl'   => admin_url( 'admin-ajax.php', 'relative' ), // The global ajaxurl is not set on the frontend.

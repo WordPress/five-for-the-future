@@ -31,7 +31,7 @@ defined( 'WPINC' ) || die();
 				value=""
 			/>
 
-			<div class="message" role="alert" aria-atomic="true"></div>
+			<div class="message"></div>
 
 			<input
 				type="submit"

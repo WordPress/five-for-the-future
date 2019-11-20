@@ -63,14 +63,22 @@ body.single.single-5ftf_pledge {
 			}
 		}
 
-		.edit-pledge-wrapper .button {
-			padding-right: 4px;
-			text-decoration: none;
-			color: $color__wp-blue;
-			font-size: 1rem;
+		.edit-pledge-wrapper {
+			text-align: right;
 
-			&:hover {
-				border-bottom: 1px solid currentColor;
+			p {
+				font-size: ms(-2);
+			}
+
+			.button {
+				padding-right: 4px;
+				text-decoration: none;
+				color: $color__wp-blue;
+				font-size: 1rem;
+
+				&:hover {
+					border-bottom: 1px solid currentColor;
+				}
 			}
 		}
 

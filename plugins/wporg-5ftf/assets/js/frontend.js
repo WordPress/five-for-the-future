@@ -93,15 +93,19 @@ jQuery( document ).ready( function( $ ) {
 			},
 			success( response ) {
 				if ( response.message ) {
-					const $message = $( '<div>' )
-						.addClass( 'notice notice-alt' )
-						.addClass( response.success ? 'notice-success' : 'notice-error' )
-						.append( $( '<p>' ).html( response.message ) );
-
-					$( event.target.querySelector( '.message' ) ).html( $message );
+					// Say the message for screen reader users.
+					wp.a11y.speak( response.message );
 
 					if ( response.success ) {
-						$( event.target.querySelector( 'input[type="submit"]' ) ).remove();
+						closeModal();
+						$( button ).after( $( '<p>' ).html( '<em>' + response.message + '<em>' ) );
+					} else {
+						const $message = $( '<div>' )
+							.addClass( 'notice notice-alt' )
+							.addClass( response.success ? 'notice-success' : 'notice-error' )
+							.append( $( '<p>' ).html( response.message ) );
+
+						$( event.target.querySelector( '.message' ) ).html( $message );
 					}
 				}
 			},
