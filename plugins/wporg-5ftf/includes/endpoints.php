@@ -5,7 +5,7 @@
 
 namespace WordPressDotOrg\FiveForTheFuture\Endpoints;
 
-use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, PledgeForm };
 
 add_action( 'wp_ajax_manage-contributors', __NAMESPACE__ . '\manage_contributors_handler' );
 
@@ -20,7 +20,7 @@ function manage_contributors_handler() {
 	$pledge_id      = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
 	$contributor_id = filter_input( INPUT_POST, 'contributor_id', FILTER_VALIDATE_INT );
 	$token          = filter_input( INPUT_POST, '_token' );
-	$authenticated  = Auth\can_manage_pledge( $pledge_id, $auth_token );
+	$authenticated  = Auth\can_manage_pledge( $pledge_id, $token );
 
 	if ( is_wp_error( $authenticated ) ) {
 		wp_die( wp_json_encode( [
