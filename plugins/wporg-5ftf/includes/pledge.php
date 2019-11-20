@@ -27,6 +27,7 @@ add_filter( 'manage_edit-' . CPT_ID . '_columns',        __NAMESPACE__ . '\add_l
 add_action( 'manage_' . CPT_ID . '_posts_custom_column', __NAMESPACE__ . '\populate_list_table_columns', 10, 2 );
 
 // Front end hooks.
+add_action( 'wp_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
 add_action( 'pledge_footer',       __NAMESPACE__ . '\render_manage_link_request' );
 add_action( 'wp_footer',           __NAMESPACE__ . '\render_js_templates' );
 
@@ -257,6 +258,33 @@ function filter_query( $query ) {
 	// todo remove this when `rand` pagination fixed
 	// see https://github.com/WordPress/five-for-the-future/issues/70#issuecomment-549066883.
 	$query->set( 'posts_per_page', 100 );
+}
+
+/**
+ * Enqueue assets for front-end management.
+ *
+ * @return void
+ */
+function enqueue_assets() {
+	wp_register_script( 'wicg-inert', plugins_url( 'assets/js/inert.min.js', __DIR__ ), [], '3.0.0', true );
+
+	if ( CPT_ID === get_post_type() ) {
+		$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/frontend.js' );
+		wp_enqueue_script( '5ftf-frontend', plugins_url( 'assets/js/frontend.js', __DIR__ ), [ 'jquery', 'wp-util', 'wicg-inert' ], $ver, true );
+
+		$script_data = [
+			'pledgeId'    => get_the_ID(),
+			'ajaxNonce' => wp_create_nonce( 'send-manage-email' ),
+		];
+		wp_add_inline_script(
+			'5ftf-frontend',
+			sprintf(
+				'var FiveForTheFuture = JSON.parse( decodeURIComponent( \'%s\' ) );',
+				rawurlencode( wp_json_encode( $script_data ) )
+			),
+			'before'
+		);
+	}
 }
 
 /**
