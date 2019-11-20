@@ -6,6 +6,7 @@ defined( 'WPINC' ) || die();
 
 ?>
 <script type="text/template" id="tmpl-5ftf-send-link-dialog">
+	<div id="send-link-dialog-bg" class="pledge-dialog__background" hidden data-no-inert></div>
 	<div id="send-link-dialog" role="dialog" class="pledge-dialog" hidden tabindex="-1" aria-label="<?php esc_attr_e( 'Request to edit this pledge', 'wporg-5ftf' ); ?>">
 		<p>
 			<?php esc_html_e( 'Only pledge admins can edit pledges.', 'wporg-5ftf' ); ?>

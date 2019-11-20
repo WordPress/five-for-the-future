@@ -10,6 +10,7 @@ jQuery( document ).ready( function( $ ) {
 
 	$( document.body ).prepend( template() );
 	const modal = document.getElementById( 'send-link-dialog' );
+	const modalBg = document.getElementById( 'send-link-dialog-bg' );
 	const children = document.querySelectorAll( 'body > *:not([role="dialog"])' );
 
 	/**
@@ -34,6 +35,10 @@ jQuery( document ).ready( function( $ ) {
 		const position = getModalPosition();
 		// Hide other content on this page while modal is open.
 		for ( i = 0; i < children.length; i++ ) {
+			if ( children[i].hasAttribute('data-no-inert') ) {
+				console.log( 'no inert' );
+				continue;
+			}
 			if ( children[i].getAttribute('inert') ) {
 				children[i].setAttribute('data-keep-inert', '');
 			} else {
@@ -42,6 +47,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 
 		modal.removeAttribute( 'hidden' );
+		modalBg.removeAttribute( 'hidden' );
 		modal.style.top = position.top + 'px';
 		modal.style.left = position.left + 'px';
 		modal.focus();
@@ -61,6 +67,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 
 		modal.hidden = true;
+		modalBg.hidden = true;
 
 		// Wait a tick before setting focus. See https://github.com/WICG/inert#performance-and-gotchas
 		setTimeout( function() {
@@ -114,6 +121,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 	} );
 
+	$( modalBg ).on( 'click', closeModal );
 	$( modal ).on( 'click', '.pledge-dialog__close', closeModal );
 	$( document ).on( 'keydown', function( event ) {
 		if ( 27 === event.which ) { // Esc
