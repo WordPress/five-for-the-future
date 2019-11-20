@@ -2,7 +2,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
 /** @var array $data */
-/** @var bool  $readonly */
+/** @var bool  $is_manage */
 ?>
 
 <div class="form-field">
@@ -15,7 +15,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		name="pledge-contributors"
 		placeholder="sanguine.zoe206, captain-mal, kayleefixesyou"
 		value="<?php echo esc_attr( $data['pledge-contributors'] ); ?>"
-		required
+		<?php echo $is_manage ? '' : 'required'; ?>
 		aria-describedby="5ftf-pledge-contributors-help"
 	/>
 	<p id="5ftf-pledge-contributors-help">

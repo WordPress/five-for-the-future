@@ -7,17 +7,17 @@
 	display: inline-block;
 }
 
-.pledge-form .form-field input[type=text],
-.pledge-form .form-field input[type=url],
-.pledge-form .form-field input[type=number],
-.pledge-form .form-field input[type=email],
+.pledge-form .form-field input[type="text"],
+.pledge-form .form-field input[type="url"],
+.pledge-form .form-field input[type="number"],
+.pledge-form .form-field input[type="email"],
 .pledge-form .form-field textarea {
 	display: block;
 	width: 100%;
 	padding: 8px;
 }
 
-.pledge-form .form-field input[type=number] {
+.pledge-form .form-field input[type="number"] {
 	max-width: 10em;
 	height: auto;
 }
@@ -32,6 +32,45 @@
 	line-height: 1;
 }
 
-.pledge-form .form-field__agree label {
-	margin-bottom: 0;
+.pledge-form .form-field .email-status {
+	font-size: 1.1em;
+}
+
+.pledge-form .email-status.is-confirmed {
+	color: #297531;
+}
+
+.pledge-form .email-status.is-unconfirmed {
+	color: #c92c2c;
+}
+
+.pledge-form .contributor-list-heading {
+	margin: 1rem 0;
+}
+
+.pledge-form .contributor-list {
+	margin-bottom: 1.5rem;
+}
+
+.pledge-contributors.pledge-status__draft .resend-confirm {
+	display: none;
+}
+
+.contributor-list th,
+.contributor-list td,
+.contributor-list th *,
+.contributor-list td * {
+	vertical-align: middle;
+}
+
+.contributor-list .avatar {
+	margin-right: 8px;
+}
+
+.contributor-list .button-link-delete {
+	text-decoration: none;
+}
+
+.contributor-list .button-link-delete .dashicons {
+	margin-top: -2px;
 }

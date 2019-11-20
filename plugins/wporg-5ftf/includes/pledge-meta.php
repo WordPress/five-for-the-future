@@ -202,14 +202,15 @@ function add_meta_boxes() {
  * @param array   $box
  */
 function render_meta_boxes( $pledge, $box ) {
-	$readonly = ! current_user_can( 'edit_page', $pledge->ID );
+	$readonly  = ! current_user_can( 'edit_page', $pledge->ID );
+	$is_manage = true;
 
 	$data = array();
 	foreach ( get_pledge_meta_config() as $key => $config ) {
 		$data[ $key ] = get_post_meta( $pledge->ID, META_PREFIX . $key, $config['single'] );
 	}
 
-	$contributors = Contributor\get_pledge_contributors( $pledge->ID, 'all' );
+	$contributors = Contributor\get_pledge_contributors_data( $pledge->ID );
 
 	echo '<div class="pledge-form">';
 
@@ -277,13 +278,6 @@ function save_pledge( $pledge_id, $pledge ) {
 		Email\send_pledge_confirmation_email(
 			filter_input( INPUT_GET, 'resend-pledge-id', FILTER_VALIDATE_INT ),
 			get_page_by_path( 'for-organizations' )->ID
-		);
-	}
-
-	if ( filter_input( INPUT_POST, 'resend-contributor-confirmation' ) ) {
-		Email\send_contributor_confirmation_emails(
-			$pledge_id,
-			filter_input( INPUT_GET, 'resend-contributor-id', FILTER_VALIDATE_INT )
 		);
 	}
 }
@@ -485,8 +479,25 @@ function enqueue_assets() {
 	$ver = filemtime( FiveForTheFuture\PATH . '/assets/css/admin.css' );
 	wp_register_style( '5ftf-admin', plugins_url( 'assets/css/admin.css', __DIR__ ), [], $ver );
 
+	$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/admin.js' );
+	wp_register_script( '5ftf-admin', plugins_url( 'assets/js/admin.js', __DIR__ ), [ 'jquery', 'wp-util' ], $ver );
+
+	$script_data = [
+		'pledgeId'    => get_the_ID(),
+		'manageNonce' => wp_create_nonce( 'manage-contributors' ),
+	];
+	wp_add_inline_script(
+		'5ftf-admin',
+		sprintf(
+			'var FiveForTheFuture = JSON.parse( decodeURIComponent( \'%s\' ) );',
+			rawurlencode( wp_json_encode( $script_data ) )
+		),
+		'before'
+	);
+
 	$current_page = get_current_screen();
 	if ( Pledge\CPT_ID === $current_page->id ) {
 		wp_enqueue_style( '5ftf-admin' );
+		wp_enqueue_script( '5ftf-admin' );
 	}
 }

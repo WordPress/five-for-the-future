@@ -32,6 +32,7 @@ function load() {
 	require_once get_includes_path() . 'pledge-meta.php';
 	require_once get_includes_path() . 'pledge-form.php';
 	require_once get_includes_path() . 'xprofile.php';
+	require_once get_includes_path() . 'endpoints.php';
 	require_once get_includes_path() . 'miscellaneous.php';
 
 	// The logger expects things like `$_POST` which aren't set during unit tests.
