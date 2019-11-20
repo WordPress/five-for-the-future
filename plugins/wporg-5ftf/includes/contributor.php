@@ -162,7 +162,7 @@ function add_pledge_contributors( $pledge_id, $contributors ) {
 	 *                            or an error code on failure.
 	 */
 	do_action( FiveForTheFuture\PREFIX . '_add_pledge_contributors', $pledge_id, $contributors, $results );
-	
+
 	return $results;
 }
 
