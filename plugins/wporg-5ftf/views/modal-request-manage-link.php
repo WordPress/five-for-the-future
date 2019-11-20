@@ -30,6 +30,8 @@ defined( 'WPINC' ) || die();
 				value=""
 			/>
 
+			<div class="message" role="alert" aria-atomic="true"></div>
+
 			<input
 				type="submit"
 				name="get_manage_pledge_link"

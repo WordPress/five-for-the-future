@@ -273,7 +273,8 @@ function enqueue_assets() {
 		wp_enqueue_script( '5ftf-frontend', plugins_url( 'assets/js/frontend.js', __DIR__ ), [ 'jquery', 'wp-util', 'wicg-inert' ], $ver, true );
 
 		$script_data = [
-			'pledgeId'    => get_the_ID(),
+			'ajaxurl'   => admin_url( 'admin-ajax.php', 'relative' ), // The global ajaxurl is not set on the frontend.
+			'pledgeId'  => get_the_ID(),
 			'ajaxNonce' => wp_create_nonce( 'send-manage-email' ),
 		];
 		wp_add_inline_script(

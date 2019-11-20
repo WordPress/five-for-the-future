@@ -1,4 +1,4 @@
-/* global ajaxurl, FiveForTheFuture, jQuery */
+/* global FiveForTheFuture, jQuery */
 jQuery( document ).ready( function( $ ) {
 	const button = document.getElementById( 'toggle-management-link-form' );
 	const template = wp.template( '5ftf-send-link-dialog' );
@@ -72,8 +72,35 @@ jQuery( document ).ready( function( $ ) {
 		}, 0);
 	}
 
-	function sendRequest() {
-		//
+	function sendRequest( event ) {
+		event.preventDefault();
+		const email = $( event.target.querySelector('input[type="email"]') ).val();
+		$( event.target.querySelector('.message') ).html( '' );
+		$.ajax( {
+			type: 'POST',
+			url: FiveForTheFuture.ajaxurl,
+			data: {
+				action: 'send-manage-email',
+				pledge_id: FiveForTheFuture.pledgeId,
+				email: email,
+				_ajax_nonce: FiveForTheFuture.ajaxNonce,
+			},
+			success: function( response ) {
+				if ( response.message ) {
+					const $message = $( '<div>' )
+						.addClass( 'notice notice-alt' )
+						.addClass( response.success ? 'notice-success' : 'notice-error' )
+						.append( $( '<p>' ).html( response.message ) );
+
+					$( event.target.querySelector('.message') ).html( $message );
+					
+					if ( response.success ) {
+						$( event.target.querySelector('input[type="submit"]') ).remove();
+					}
+				}
+			},
+			dataType: 'json',
+		} );
 	}
 
 	// Initialize.
@@ -94,7 +121,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 	} );
 
-	$( modal ).on( 'submit', 'form', sendRequest );
+	$( modal.querySelector( 'form' ) ).submit( sendRequest );
 } );
 
 

@@ -29,10 +29,6 @@
 		border-bottom-color: $color-gray-light-400;
 	}
 
-	p:first-child {
-		margin-top: 0;
-	}
-
 	label {
 		display: inline-block;
 		margin-bottom: 4px;
@@ -52,6 +48,10 @@
 
 	input[type="submit"] {
 		font-size: ms(-3);
+	}
+
+	.notice p {
+		font-size: 1em;
 	}
 
 	.pledge-dialog__close {
