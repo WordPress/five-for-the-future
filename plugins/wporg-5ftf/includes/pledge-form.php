@@ -14,7 +14,6 @@ defined( 'WPINC' ) || die();
 // Todo make this into simple optionless blocks instead?
 add_shortcode( '5ftf_pledge_form_new', __NAMESPACE__ . '\render_form_new' );
 add_shortcode( '5ftf_pledge_form_manage', __NAMESPACE__ . '\render_form_manage' );
-add_shortcode( '5ftf_pledge_form_manage_link', __NAMESPACE__ . '\render_manage_link_request' );
 
 /**
  * Render the form(s) for creating new pledges.
@@ -173,19 +172,6 @@ function render_form_manage() {
 	require FiveForTheFuture\PATH . 'views/form-pledge-manage.php';
 
 	return ob_get_clean();
-}
-
-
-/**
- * Render the `render_manage_link_request` shortcode.
- */
-function render_manage_link_request() {
-	// @todo enable when https://github.com/WordPress/five-for-the-future/issues/6 is done
-	if ( ! defined( 'WPORG_SANDBOXED' ) || ! WPORG_SANDBOXED ) {
-		return;
-	}
-
-	require_once FiveForTheFuture\get_views_path() . 'form-pledge-request-manage-link.php';
 }
 
 /**

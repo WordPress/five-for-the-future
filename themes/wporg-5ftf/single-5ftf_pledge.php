@@ -130,9 +130,7 @@ get_header();
 					</a>
 				</div>
 
-				<div class="edit-pledge-wrapper">
-					<?php do_shortcode( '[5ftf_pledge_form_manage_link]' ); ?>
-				</div>
+				<?php do_action( 'pledge_footer' ); ?>
 			</footer>
 		</article>
 
