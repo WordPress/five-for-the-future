@@ -185,51 +185,7 @@ function render_manage_link_request() {
 		return;
 	}
 
-	$result = process_manage_link_request();
-
-	if ( is_wp_error( $result ) ) {
-		$errors = array( $result->get_error_message() );
-	} elseif ( ! is_null( $result ) ) {
-		$messages = array( $result );
-	}
-
 	require_once FiveForTheFuture\get_views_path() . 'form-pledge-request-manage-link.php';
-}
-
-/**
- * Process a request for a pledge management link.
- *
- * @return null|string|WP_Error `null` if the form wasn't submitted; `string` with a success message;
- *                              `WP_Error` with an error message.
- */
-function process_manage_link_request() {
-	if ( ! filter_input( INPUT_POST, 'get_manage_pledge_link' ) ) {
-		return null;
-	}
-
-	$unverified_pledge_id   = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
-	$unverified_admin_email = filter_input( INPUT_POST, 'pledge_admin_address', FILTER_VALIDATE_EMAIL );
-	$valid_admin_email      = get_post( $unverified_pledge_id )->{ PledgeMeta\META_PREFIX . 'org-pledge-email' };
-
-	if ( $valid_admin_email && $valid_admin_email === $unverified_admin_email ) {
-		$verified_pledge_id = $unverified_pledge_id; // The addresses will only match is the pledge ID is valid.
-		$message_sent       = Email\send_manage_pledge_link( $verified_pledge_id );
-
-		if ( $message_sent ) {
-			$result = __( "Thanks! We've emailed you a link you can open in order to update your pledge.", 'wporg-5ftf' );
-		} else {
-			$result = new WP_Error( 'email_failed', __( 'There was an error while trying to send the email.', 'wporg-5ftf' ) );
-		}
-	} else {
-		$error_message = sprintf(
-			__( 'That\'s not the address that we have for this pledge, please try a different one. If none of the addresses you try are working, please <a href="%s">email us</a> for help.', 'wporg-5ftf' ),
-			get_permalink( get_page_by_path( 'report' ) )
-		);
-
-		$result = new WP_Error( 'invalid_pledge_email', $error_message );
-	}
-
-	return $result;
 }
 
 /**

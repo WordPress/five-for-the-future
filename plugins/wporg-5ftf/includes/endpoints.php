@@ -6,8 +6,12 @@
 namespace WordPressDotOrg\FiveForTheFuture\Endpoints;
 
 use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, PledgeForm };
+use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 add_action( 'wp_ajax_manage-contributors', __NAMESPACE__ . '\manage_contributors_handler' );
+
+add_action( 'wp_ajax_send-manage-email',        __NAMESPACE__ . '\send_manage_email_handler' );
+add_action( 'wp_ajax_nopriv_send-manage-email', __NAMESPACE__ . '\send_manage_email_handler' );
 
 /**
  * Handle the AJAX request for managing contributors on a pledge.
@@ -76,4 +80,44 @@ function manage_contributors_handler() {
 
 	// No matching action, we can just exit.
 	wp_die();
+}
+
+/**
+ * Handle the AJAX request for managing a pledge.
+ * This responds to a request for a pledge manage link.
+ */
+function send_manage_email_handler() {
+	check_ajax_referer( 'send-manage-email', '_ajax_nonce' );
+
+	$pledge_id   = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
+	$email       = filter_input( INPUT_POST, 'email', FILTER_VALIDATE_EMAIL );
+	$valid_email = get_post( $pledge_id )->{ META_PREFIX . 'org-pledge-email' };
+
+	if ( $valid_email && $valid_email === $email ) {
+		$message_sent = Email\send_manage_pledge_link( $pledge_id );
+
+		if ( $message_sent ) {
+			$result = [
+				'success' => true,
+				'message' => __( "Thanks! We've emailed you a link you can open in order to update your pledge.", 'wporg-5ftf' ),
+			];
+		} else {
+			$result = [
+				'success' => false,
+				'message' => __( 'There was an error while trying to send the email.', 'wporg-5ftf' ),
+			];
+		}
+	} else {
+		$error_message = sprintf(
+			__( 'That\'s not the address that we have for this pledge, please try a different one. If none of the addresses you try are working, please <a href="%s">email us</a> for help.', 'wporg-5ftf' ),
+			get_permalink( get_page_by_path( 'report' ) )
+		);
+
+		$result = [
+			'success' => false,
+			'message' => $error_message,
+		];
+	}
+
+	wp_die( wp_json_encode( $result ) );
 }
