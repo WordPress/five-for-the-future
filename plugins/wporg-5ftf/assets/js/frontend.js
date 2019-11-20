@@ -25,7 +25,7 @@ jQuery( document ).ready( function( $ ) {
 		return {
 			top: bounds.y + offsetTop + bounds.height,
 			left: bounds.x + offsetLeft + bounds.width - modalWidth,
-		}
+		};
 	}
 
 	/**
@@ -34,15 +34,14 @@ jQuery( document ).ready( function( $ ) {
 	function openModal() {
 		const position = getModalPosition();
 		// Hide other content on this page while modal is open.
-		for ( i = 0; i < children.length; i++ ) {
-			if ( children[i].hasAttribute('data-no-inert') ) {
-				console.log( 'no inert' );
+		for ( let i = 0; i < children.length; i++ ) {
+			if ( children[ i ].hasAttribute( 'data-no-inert' ) ) {
 				continue;
 			}
-			if ( children[i].getAttribute('inert') ) {
-				children[i].setAttribute('data-keep-inert', '');
+			if ( children[ i ].getAttribute( 'inert' ) ) {
+				children[ i ].setAttribute( 'data-keep-inert', '' );
 			} else {
-				children[i].setAttribute('inert', 'true');
+				children[ i ].setAttribute( 'inert', 'true' );
 			}
 		}
 
@@ -58,12 +57,12 @@ jQuery( document ).ready( function( $ ) {
 	 */
 	function closeModal() {
 		// Reveal content again.
-		for ( i = 0; i < children.length; i++ ) {
-			if ( !children[i].hasAttribute('data-keep-inert') ) {
-				children[i].removeAttribute('inert');
+		for ( let i = 0; i < children.length; i++ ) {
+			if ( ! children[ i ].hasAttribute( 'data-keep-inert' ) ) {
+				children[ i ].removeAttribute( 'inert' );
 			}
 
-			children[i].removeAttribute('data-keep-inert');
+			children[ i ].removeAttribute( 'data-keep-inert' );
 		}
 
 		modal.hidden = true;
@@ -76,33 +75,33 @@ jQuery( document ).ready( function( $ ) {
 			} else {
 				document.body.focus();
 			}
-		}, 0);
+		}, 0 );
 	}
 
 	function sendRequest( event ) {
 		event.preventDefault();
-		const email = $( event.target.querySelector('input[type="email"]') ).val();
-		$( event.target.querySelector('.message') ).html( '' );
+		const email = $( event.target.querySelector( 'input[type="email"]' ) ).val();
+		$( event.target.querySelector( '.message' ) ).html( '' );
 		$.ajax( {
 			type: 'POST',
 			url: FiveForTheFuture.ajaxurl,
 			data: {
 				action: 'send-manage-email',
 				pledge_id: FiveForTheFuture.pledgeId,
-				email: email,
+				email,
 				_ajax_nonce: FiveForTheFuture.ajaxNonce,
 			},
-			success: function( response ) {
+			success( response ) {
 				if ( response.message ) {
 					const $message = $( '<div>' )
 						.addClass( 'notice notice-alt' )
 						.addClass( response.success ? 'notice-success' : 'notice-error' )
 						.append( $( '<p>' ).html( response.message ) );
 
-					$( event.target.querySelector('.message') ).html( $message );
-					
+					$( event.target.querySelector( '.message' ) ).html( $message );
+
 					if ( response.success ) {
-						$( event.target.querySelector('input[type="submit"]') ).remove();
+						$( event.target.querySelector( 'input[type="submit"]' ) ).remove();
 					}
 				}
 			},
@@ -131,6 +130,3 @@ jQuery( document ).ready( function( $ ) {
 
 	$( modal.querySelector( 'form' ) ).submit( sendRequest );
 } );
-
-
-
