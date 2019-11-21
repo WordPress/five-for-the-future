@@ -220,49 +220,6 @@ function get_form_submission() {
 }
 
 /**
- * Check a key value against existing pledges to see if one already exists.
- *
- * @param string $key               The value to match against other pledges.
- * @param string $key_type          The type of value being matched. `email` or `domain`.
- * @param int    $current_pledge_id Optional. The post ID of the pledge to compare against others.
- *
- * @return bool
- */
-function has_existing_pledge( $key, $key_type, int $current_pledge_id = 0 ) {
-	$args = array(
-		'post_type'   => Pledge\CPT_ID,
-		'post_status' => array( 'draft', 'pending', 'publish' ),
-	);
-
-	switch ( $key_type ) {
-		case 'email':
-			$args['meta_query'] = array(
-				array(
-					'key'   => PledgeMeta\META_PREFIX . 'org-pledge-email',
-					'value' => $key,
-				),
-			);
-			break;
-		case 'domain':
-			$args['meta_query'] = array(
-				array(
-					'key'   => PledgeMeta\META_PREFIX . 'org-domain',
-					'value' => $key,
-				),
-			);
-			break;
-	}
-
-	if ( $current_pledge_id ) {
-		$args['exclude'] = array( $current_pledge_id );
-	}
-
-	$matching_pledge = get_posts( $args );
-
-	return ! empty( $matching_pledge );
-}
-
-/**
  * Ensure each item in a list of usernames is valid and corresponds to a user.
  *
  * @param string $contributors A comma-separated list of username strings.
@@ -335,7 +292,7 @@ function check_invalid_submission( $submission ) {
 		Pledge\CPT_ID
 	);
 
-	if ( has_existing_pledge( $email, 'email' ) ) {
+	if ( Pledge\has_existing_pledge( $email, 'email' ) ) {
 		return new WP_Error(
 			'existing_pledge_email',
 			__( 'This email address is already connected to an existing pledge.', 'wporg-5ftf' )
@@ -344,7 +301,7 @@ function check_invalid_submission( $submission ) {
 
 	$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
 
-	if ( has_existing_pledge( $domain, 'domain' ) ) {
+	if ( Pledge\has_existing_pledge( $domain, 'domain' ) ) {
 		return new WP_Error(
 			'existing_pledge_domain',
 			__( 'A pledge already exists for this domain.', 'wporg-5ftf' )
