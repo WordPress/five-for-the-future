@@ -28,11 +28,11 @@ add_action( 'added_post_meta',  __NAMESPACE__ . '\update_generated_meta', 10, 4 
 /**
  * Define pledge meta fields and their properties.
  *
- * @param string $context Optional. The part of the config to return. 'user_input', 'generated', or 'all'.
+ * @param string $subset Optional. The part of the config to return: 'user_input', 'generated', or 'all'.
  *
  * @return array
  */
-function get_pledge_meta_config( $context = 'all' ) {
+function get_pledge_meta_config( $subset = 'all' ) {
 	$user_input = array(
 		'org-description'  => array(
 			'single'            => true,
@@ -83,7 +83,7 @@ function get_pledge_meta_config( $context = 'all' ) {
 		),
 	);
 
-	switch ( $context ) {
+	switch ( $subset ) {
 		case 'user_input':
 			$return = $user_input;
 			break;
@@ -428,15 +428,16 @@ function has_required_pledge_meta( array $submission ) {
 /**
  * Get the metadata for a given pledge, or a default set if no pledge is provided.
  *
- * @param int    $pledge_id
- * @param string $context
+ * @param int    $pledge_id Pledge to fetch data from.
+ * @param string $subset    Optional. The part of the config to return: 'user_input', 'generated', or 'all'.
+ *
  * @return array Pledge data
  */
-function get_pledge_meta( $pledge_id = 0, $context = '' ) {
+function get_pledge_meta( $pledge_id = 0, $subset = '' ) {
 	// Get existing pledge, if it exists.
 	$pledge = get_post( $pledge_id );
 
-	$keys = get_pledge_meta_config( $context );
+	$keys = get_pledge_meta_config( $subset );
 	$meta = array();
 
 	// Get POST'd submission, if it exists.
