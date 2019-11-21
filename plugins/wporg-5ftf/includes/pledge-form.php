@@ -213,7 +213,7 @@ function get_form_submission() {
 
 	$result = filter_input_array( INPUT_POST, $input_filters );
 	if ( ! $result ) {
-		return array_fill_keys( array_keys( $input_filters ), '' );
+		return [];
 	}
 
 	return $result;
