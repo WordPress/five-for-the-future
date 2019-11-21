@@ -65,7 +65,7 @@ function render_form_new() {
  */
 function process_form_new() {
 	$submission = get_form_submission();
-	$has_error  = check_invalid_submission( $submission );
+	$has_error  = check_invalid_submission( $submission, 'create' );
 	if ( $has_error ) {
 		return $has_error;
 	}
@@ -149,56 +149,100 @@ function process_pledge_confirmation_email( $pledge_id, $action, $unverified_tok
  * @return false|string
  */
 function render_form_manage() {
-	$action   = filter_input( INPUT_POST, 'action' );
-	$messages = [];
-	$updated  = false;
+	/*
+	 * Prevent Gutenberg from executing this on the Edit Post screen.
+	 * See https://github.com/WordPress/gutenberg/issues/18394
+	 */
+	if ( is_admin() ) {
+		return '';
+	}
 
-	// @todo Get pledge ID from somewhere.
-	$data      = PledgeMeta\get_pledge_meta();
-	$is_manage = true;
+	$messages = [];
+	$errors   = [];
+
+	$action        = sanitize_text_field( $_REQUEST['action'] ?? '' );
+	$pledge_id     = absint( $_REQUEST['pledge_id'] ?? 0 );
+	$auth_token    = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );
+	$can_view_form = Auth\can_manage_pledge( $pledge_id, $auth_token );
+
+	if ( is_wp_error( $can_view_form ) ) {
+		// Can't manage pledge, only show errors.
+		$errors = array( $can_view_form->get_error_message() );
+
+		ob_start();
+		require FiveForTheFuture\PATH . 'views/partial-result-messages.php';
+		return ob_get_clean();
+	}
+
+	$contributors = Contributor\get_pledge_contributors( $pledge_id, $status = 'all' );
 
 	if ( 'Update Pledge' === $action ) {
-		$processed = process_form_manage();
+		$results = process_form_manage( $pledge_id, $auth_token );
 
-		if ( is_wp_error( $processed ) ) {
-			$messages = array_merge( $messages, $processed->get_error_messages() );
-		} elseif ( 'success' === $processed ) {
-			$updated = true;
+		if ( is_wp_error( $results ) ) {
+			$can_view_form = false;
+			$errors        = $results->get_error_messages();
+		} else {
+			$messages = array( __( 'Your pledge has been updated.', 'wporg-5ftf' ) );
 		}
 	}
 
+	$data = PledgeMeta\get_pledge_meta( $pledge_id );
+
 	ob_start();
 	$readonly = false;
+	$is_manage = true;
 	require FiveForTheFuture\PATH . 'views/form-pledge-manage.php';
 
 	return ob_get_clean();
 }
 
 /**
- * Process a submission from the Manage Existing Pledge form.
+ * Process a submission from the Manage Pledge form.
  *
- * TODO This doesn't actually update any data yet when the form is submitted.
- *
- * @return string|WP_Error String "success" if the form processed correctly. Otherwise WP_Error.
+ * @return WP_Error|true An error if the pledge could not be saved. Otherwise true.
  */
-function process_form_manage() {
+function process_form_manage( $pledge_id, $auth_token ) {
+	$errors          = array();
+	$nonce           = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+	$nonce_action    = 'manage_pledge_' . $pledge_id;
+	$has_valid_nonce = wp_verify_nonce( $nonce, $nonce_action );
+
+	/*
+	 * This should be redundant, since it's also called by `render_form_manage()`, but it's good to also do it here
+	 * just in case other code changes in the future, or this gets called by another flow, etc.
+	 */
+	$can_view_form = Auth\can_manage_pledge( $pledge_id, $auth_token );
+
+	if ( ! $has_valid_nonce || ! $can_view_form ) {
+		return new WP_Error(
+			'invalid_token',
+			sprintf(
+				__( 'Your link has expired, please <a href="%s">obtain a new one</a>.', 'wporg-5ftf' ),
+				get_permalink( $pledge_id )
+			)
+		);
+	}
+
 	$submission = get_form_submission();
-	$has_error  = check_invalid_submission( $submission );
+	$has_error = check_invalid_submission( $submission, 'update' );
 	if ( $has_error ) {
 		return $has_error;
 	}
 
-	// todo email any new contributors for confirmation
-	// notify any removed contributors?
-		// ask them to update their profiles?
-	// automatically update contributor profiles?
-	// anything else?
+	PledgeMeta\save_pledge_meta( $pledge_id, $submission );
+
+	// @todo Upload & attach logo.
+	// @todo Save contributors.
+
+	// If we made it to here, we've successfully saved the pledge.
+	return true;
 }
 
 /**
  * Get and sanitize $_POST values from a form submission.
  *
- * @return array|bool
+ * @return array
  */
 function get_form_submission() {
 	$input_filters = array_merge(
@@ -222,10 +266,13 @@ function get_form_submission() {
 /**
  * Check the submission for valid data.
  *
+ * @param array  $submission The user input.
+ * @param string $context    Whether this is a new pledge (`create`) or an edit to an existing one (`update`).
+ *
  * @return false|WP_Error Return any errors in the submission, or false if no errors.
  */
-function check_invalid_submission( $submission ) {
-	$has_required = PledgeMeta\has_required_pledge_meta( $submission );
+function check_invalid_submission( $submission, $context ) {
+	$has_required = PledgeMeta\has_required_pledge_meta( $submission, $context );
 	if ( is_wp_error( $has_required ) ) {
 		return $has_required;
 	}
@@ -237,20 +284,22 @@ function check_invalid_submission( $submission ) {
 		Pledge\CPT_ID
 	);
 
-	if ( Pledge\has_existing_pledge( $email, 'email' ) ) {
-		return new WP_Error(
-			'existing_pledge_email',
-			__( 'This email address is already connected to an existing pledge.', 'wporg-5ftf' )
-		);
-	}
+	if ( 'create' === $context ) {
+		if ( Pledge\has_existing_pledge( $email, 'email' ) ) {
+			return new WP_Error(
+				'existing_pledge_email',
+				__( 'This email address is already connected to an existing pledge.', 'wporg-5ftf' )
+			);
+		}
 
-	$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
+		$domain = PledgeMeta\get_normalized_domain_from_url( $submission['org-url'] );
 
-	if ( Pledge\has_existing_pledge( $domain, 'domain' ) ) {
-		return new WP_Error(
-			'existing_pledge_domain',
-			__( 'A pledge already exists for this domain.', 'wporg-5ftf' )
-		);
+		if ( Pledge\has_existing_pledge( $domain, 'domain' ) ) {
+			return new WP_Error(
+				'existing_pledge_domain',
+				__( 'A pledge already exists for this domain.', 'wporg-5ftf' )
+			);
+		}
 	}
 
 	return false;

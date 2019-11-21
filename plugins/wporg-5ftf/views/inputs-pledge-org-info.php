@@ -1,8 +1,13 @@
 <?php
+
 namespace WordPressDotOrg\FiveForTheFuture\View;
 
-/** @var array $data */
-/** @var bool  $readonly */
+/**
+ * @var array  $data
+ * @var int    $pledge_id
+ * @var bool   $readonly
+ */
+
 ?>
 
 <div class="form-field">
@@ -20,6 +25,11 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 </div>
 
 <?php if ( ! is_admin() ) : ?>
+	<?php if ( has_post_thumbnail( $pledge_id ) ) : ?>
+		<div class="form-field form-field__logo-display">
+			<?php echo get_the_post_thumbnail( $pledge_id, 'pledge-logo' ); ?>
+		</div>
+	<?php endif; ?>
 	<div class="form-field form-field__logo">
 		<label for="5ftf-org-logo">
 			<?php esc_html_e( 'Logo', 'wporg-5ftf' ); ?>

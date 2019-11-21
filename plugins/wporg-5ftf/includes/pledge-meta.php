@@ -38,24 +38,28 @@ function get_pledge_meta_config( $subset = 'all' ) {
 			'single'            => true,
 			'sanitize_callback' => __NAMESPACE__ . '\sanitize_description',
 			'show_in_rest'      => true,
+			'context'           => array( 'create', 'update' ),
 			'php_filter'        => FILTER_UNSAFE_RAW,
 		),
 		'org-name'         => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
+			'context'           => array( 'create', 'update' ),
 			'php_filter'        => FILTER_SANITIZE_STRING,
 		),
 		'org-url'          => array(
 			'single'            => true,
 			'sanitize_callback' => 'esc_url_raw',
 			'show_in_rest'      => true,
+			'context'           => array( 'create', 'update' ),
 			'php_filter'        => FILTER_VALIDATE_URL,
 		),
 		'org-pledge-email' => array(
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_email',
 			'show_in_rest'      => false,
+			'context'           => array( 'create' ),
 			'php_filter'        => FILTER_VALIDATE_EMAIL,
 		),
 	);
@@ -243,12 +247,13 @@ function save_pledge( $pledge_id, $pledge ) {
 	$get_action      = filter_input( INPUT_GET, 'action' );
 	$post_action     = filter_input( INPUT_POST, 'action' );
 	$ignored_actions = array( 'trash', 'untrash', 'restore' );
+	$context         = ( 'editpost' === $post_action ) ? 'update' : 'create';
 
 	/*
 	 * This is only intended to run when the front end form and wp-admin forms are submitted, not when posts are
 	 * programmatically updated.
 	 */
-	if ( 'Submit Pledge' !== $post_action && 'editpost' !== $post_action ) {
+	if ( ! in_array( $post_action, [ 'Submit Pledge', 'editpost' ], true ) ) {
 		return;
 	}
 
@@ -268,7 +273,7 @@ function save_pledge( $pledge_id, $pledge ) {
 
 	$submitted_meta = PledgeForm\get_form_submission();
 
-	if ( is_wp_error( has_required_pledge_meta( $submitted_meta ) ) ) {
+	if ( is_wp_error( has_required_pledge_meta( $submitted_meta, $context ) ) ) {
 		return;
 	}
 
@@ -294,6 +299,10 @@ function save_pledge_meta( $pledge_id, $new_values ) {
 	$config = get_pledge_meta_config();
 
 	foreach ( $new_values as $key => $value ) {
+		// A null value can happen if the submission form did not have a given field.
+		if ( is_null( $value ) ) {
+			continue;
+		}
 		if ( array_key_exists( $key, $config ) ) {
 			$meta_key = META_PREFIX . $key;
 
@@ -391,14 +400,22 @@ function update_single_cached_pledge_data( $pledge_id ) {
 /**
  * Check that an array contains values for all required keys.
  *
- * @return bool|WP_Error True if all required values are present. Otherwise WP_Error.
+ * @param array  $submission Form submission data.
+ * @param string $context    Whether this is a new pledge (`create`) or an edit to an existing one (`update`).
+ *
+ * @return true|WP_Error True if all required values are present. Otherwise WP_Error.
  */
-function has_required_pledge_meta( array $submission ) {
+function has_required_pledge_meta( array $submission, $context ) {
 	$error = new WP_Error();
 
-	$required = array_keys( get_pledge_meta_config( 'user_input' ) );
+	$meta_config = get_pledge_meta_config( 'user_input' );
+	$required    = array_keys( $meta_config );
 
 	foreach ( $required as $key ) {
+		if ( ! in_array( $context, $meta_config[ $key ]['context'] ) ) {
+			continue;
+		}
+
 		if ( ! isset( $submission[ $key ] ) || is_null( $submission[ $key ] ) ) {
 			$error->add(
 				'required_field_empty',
