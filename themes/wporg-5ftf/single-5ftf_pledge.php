@@ -55,7 +55,10 @@ get_header();
 				<h2><?php esc_html_e( 'About', 'wporg' ); ?></h2>
 
 				<div class="pledge-company-description">
-					<?php echo wpautop( wp_kses_data( $post->{ META_PREFIX . 'org-description' } ) ); ?>
+					<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput -- wp_kses_data escapes the content.
+						echo wpautop( wp_kses_data( $post->{ META_PREFIX . 'org-description' } ) );
+					?>
 				</div>
 
 				<?php if ( ! empty( $contributors ) ) : ?>
