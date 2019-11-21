@@ -261,6 +261,49 @@ function filter_query( $query ) {
 }
 
 /**
+ * Check a key value against existing pledges to see if one already exists.
+ *
+ * @param string $key               The value to match against other pledges.
+ * @param string $key_type          The type of value being matched. `email` or `domain`.
+ * @param int    $current_pledge_id Optional. The post ID of the pledge to compare against others.
+ *
+ * @return bool
+ */
+function has_existing_pledge( $key, $key_type, int $current_pledge_id = 0 ) {
+	$args = array(
+		'post_type'   => CPT_ID,
+		'post_status' => array( 'draft', 'pending', 'publish' ),
+	);
+
+	switch ( $key_type ) {
+		case 'email':
+			$args['meta_query'] = array(
+				array(
+					'key'   => META_PREFIX . 'org-pledge-email',
+					'value' => $key,
+				),
+			);
+			break;
+		case 'domain':
+			$args['meta_query'] = array(
+				array(
+					'key'   => META_PREFIX . 'org-domain',
+					'value' => $key,
+				),
+			);
+			break;
+	}
+
+	if ( $current_pledge_id ) {
+		$args['exclude'] = array( $current_pledge_id );
+	}
+
+	$matching_pledge = get_posts( $args );
+
+	return ! empty( $matching_pledge );
+}
+
+/**
  * Enqueue assets for front-end management.
  *
  * @return void
