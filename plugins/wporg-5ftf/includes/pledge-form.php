@@ -180,8 +180,7 @@ function render_form_manage() {
 		$results = process_form_manage( $pledge_id, $auth_token );
 
 		if ( is_wp_error( $results ) ) {
-			$can_view_form = false;
-			$errors        = $results->get_error_messages();
+			$errors = $results->get_error_messages();
 		} else {
 			$messages = array( __( 'Your pledge has been updated.', 'wporg-5ftf' ) );
 		}
