@@ -5,7 +5,7 @@
 
 namespace WordPressDotOrg\FiveForTheFuture\Endpoints;
 
-use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, PledgeForm };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 add_action( 'wp_ajax_manage-contributors', __NAMESPACE__ . '\manage_contributors_handler' );
@@ -54,7 +54,7 @@ function manage_contributors_handler() {
 
 		case 'add-contributor':
 			$pledge = get_post( $pledge_id );
-			$new_contributors = PledgeForm\parse_contributors( $_POST['contributors'] );
+			$new_contributors = Contributor\parse_contributors( $_POST['contributors'] );
 			if ( is_wp_error( $new_contributors ) ) {
 				wp_die( wp_json_encode( [
 					'success' => false,

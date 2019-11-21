@@ -70,7 +70,7 @@ function process_form_new() {
 		return $has_error;
 	}
 
-	$contributors = parse_contributors( $submission['pledge-contributors'] );
+	$contributors = Contributor\parse_contributors( $submission['pledge-contributors'] );
 	if ( is_wp_error( $contributors ) ) {
 		return $contributors;
 	}
@@ -217,61 +217,6 @@ function get_form_submission() {
 	}
 
 	return $result;
-}
-
-/**
- * Ensure each item in a list of usernames is valid and corresponds to a user.
- *
- * @param string $contributors A comma-separated list of username strings.
- *
- * @return array|WP_Error An array of sanitized wporg usernames on success. Otherwise WP_Error.
- */
-function parse_contributors( $contributors ) {
-	$invalid_contributors   = array();
-	$sanitized_contributors = array();
-
-	$contributors = str_replace( '@', '', $contributors );
-	$contributors = explode( ',', $contributors );
-
-	foreach ( $contributors as $wporg_username ) {
-		$sanitized_username = sanitize_user( $wporg_username );
-		$user               = get_user_by( 'login', $sanitized_username );
-
-		if ( ! $user instanceof WP_User ) {
-			$user = get_user_by( 'slug', $sanitized_username );
-		}
-
-		if ( $user instanceof WP_User ) {
-			$sanitized_contributors[] = $user->user_login;
-		} else {
-			$invalid_contributors[] = $wporg_username;
-		}
-	}
-
-	if ( ! empty( $invalid_contributors ) ) {
-		/* translators: Used between sponsor names in a list, there is a space after the comma. */
-		$item_separator = _x( ', ', 'list item separator', 'wporg-5ftf' );
-
-		return new WP_Error(
-			'invalid_contributor',
-			sprintf(
-				/* translators: %s is a list of usernames. */
-				__( 'The following contributor usernames are not valid: %s', 'wporg-5ftf' ),
-				implode( $item_separator, $invalid_contributors )
-			)
-		);
-	}
-
-	if ( empty( $sanitized_contributors ) ) {
-		return new WP_Error(
-			'contributor_required',
-			__( 'The pledge must have at least one contributor username.', 'wporg-5ftf' )
-		);
-	}
-
-	$sanitized_contributors = array_unique( $sanitized_contributors );
-
-	return $sanitized_contributors;
 }
 
 /**
