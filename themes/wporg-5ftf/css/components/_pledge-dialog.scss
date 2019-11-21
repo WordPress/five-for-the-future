@@ -1,0 +1,77 @@
+.pledge-dialog {
+	position: absolute;
+	z-index: 100;
+	width: 300px;
+	margin-top: 20px;
+	padding: 20px;
+	background: #fff;
+	border: 1px solid $color-gray-light-400;
+	box-shadow: rgba($color-gray-900, 0.1) 0 3px 30px;
+	font-size: ms(-3);
+
+	&[hidden] {
+		display: none;
+	}
+
+	&:before,
+	&:after {
+		content: '';
+		position: absolute;
+		top: -11px;
+		right: 40px;
+		border-style: solid;
+		border-color: transparent transparent #fff;
+		border-width: 0 12px 12px;
+	}
+	
+	&:before {
+		top: -12px;
+		border-bottom-color: $color-gray-light-400;
+	}
+
+	label {
+		display: inline-block;
+		margin-bottom: 4px;
+		font-size: ms(-4);
+		font-weight: bold;
+		color: $color-gray-500;
+	}
+
+	input[type="email"] {
+		display: block;
+		width: 100%;
+		margin: 0 0 20px 0;
+		padding: ms(-7) ms(-2);
+		border: 1px solid $color-gray-100;
+		box-shadow: none;
+	}
+
+	input[type="submit"] {
+		font-size: ms(-3);
+	}
+
+	.notice p {
+		font-size: 1em;
+	}
+
+	.pledge-dialog__close {
+		position: absolute;
+		top: 0;
+		right: 0;
+		padding: 10px;
+		text-decoration: none;
+	}
+}
+
+.pledge-dialog__background {
+	position: fixed;
+	z-index: 99;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+
+	&[hidden] {
+		display: none;
+	}
+}

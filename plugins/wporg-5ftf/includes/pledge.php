@@ -18,11 +18,18 @@ const SLUG    = 'pledge';
 const SLUG_PL = 'pledges';
 const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
 
-add_action( 'init', __NAMESPACE__ . '\register', 0 );
-add_action( 'admin_menu', __NAMESPACE__ . '\admin_menu' );
+// Admin hooks.
+add_action( 'init',          __NAMESPACE__ . '\register', 0 );
+add_action( 'admin_menu',    __NAMESPACE__ . '\admin_menu' );
 add_action( 'pre_get_posts', __NAMESPACE__ . '\filter_query' );
+// List table columns.
 add_filter( 'manage_edit-' . CPT_ID . '_columns',        __NAMESPACE__ . '\add_list_table_columns' );
 add_action( 'manage_' . CPT_ID . '_posts_custom_column', __NAMESPACE__ . '\populate_list_table_columns', 10, 2 );
+
+// Front end hooks.
+add_action( 'wp_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
+add_action( 'pledge_footer',       __NAMESPACE__ . '\render_manage_link_request' );
+add_action( 'wp_footer',           __NAMESPACE__ . '\render_js_templates' );
 
 /**
  * Register all the things.
@@ -251,4 +258,57 @@ function filter_query( $query ) {
 	// todo remove this when `rand` pagination fixed
 	// see https://github.com/WordPress/five-for-the-future/issues/70#issuecomment-549066883.
 	$query->set( 'posts_per_page', 100 );
+}
+
+/**
+ * Enqueue assets for front-end management.
+ *
+ * @return void
+ */
+function enqueue_assets() {
+	wp_register_script( 'wicg-inert', plugins_url( 'assets/js/inert.min.js', __DIR__ ), [], '3.0.0', true );
+
+	if ( CPT_ID === get_post_type() ) {
+		$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/frontend.js' );
+		wp_enqueue_script( '5ftf-frontend', plugins_url( 'assets/js/frontend.js', __DIR__ ), [ 'jquery', 'wp-a11y', 'wp-util', 'wicg-inert' ], $ver, true );
+
+		$script_data = [
+			'ajaxurl'   => admin_url( 'admin-ajax.php', 'relative' ), // The global ajaxurl is not set on the frontend.
+			'pledgeId'  => get_the_ID(),
+			'ajaxNonce' => wp_create_nonce( 'send-manage-email' ),
+		];
+		wp_add_inline_script(
+			'5ftf-frontend',
+			sprintf(
+				'var FiveForTheFuture = JSON.parse( decodeURIComponent( \'%s\' ) );',
+				rawurlencode( wp_json_encode( $script_data ) )
+			),
+			'before'
+		);
+	}
+}
+
+/**
+ * Render the button to toggle the "Request Manage Email" dialog.
+ *
+ * @return void
+ */
+function render_manage_link_request() {
+	// @todo enable when https://github.com/WordPress/five-for-the-future/issues/6 is done
+	if ( ! defined( 'WPORG_SANDBOXED' ) || ! WPORG_SANDBOXED ) {
+		return;
+	}
+
+	require_once FiveForTheFuture\get_views_path() . 'button-request-manage-link.php';
+}
+
+/**
+ * Render JS templates at the end of the page.
+ *
+ * @return void
+ */
+function render_js_templates() {
+	if ( CPT_ID === get_post_type() ) {
+		require_once FiveForTheFuture\get_views_path() . 'modal-request-manage-link.php';
+	}
 }

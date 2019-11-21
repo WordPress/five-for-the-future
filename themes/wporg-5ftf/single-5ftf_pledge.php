@@ -55,7 +55,10 @@ get_header();
 				<h2><?php esc_html_e( 'About', 'wporg' ); ?></h2>
 
 				<div class="pledge-company-description">
-					<?php echo wpautop( wp_kses_data( $post->{ META_PREFIX . 'org-description' } ) ); ?>
+					<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput -- wp_kses_data escapes the content.
+						echo wpautop( wp_kses_data( $post->{ META_PREFIX . 'org-description' } ) );
+					?>
 				</div>
 
 				<?php if ( ! empty( $contributors ) ) : ?>
@@ -130,9 +133,7 @@ get_header();
 					</a>
 				</div>
 
-				<div class="edit-pledge-wrapper">
-					<?php do_shortcode( '[5ftf_pledge_form_manage_link]' ); ?>
-				</div>
+				<?php do_action( 'pledge_footer' ); ?>
 			</footer>
 		</article>
 
