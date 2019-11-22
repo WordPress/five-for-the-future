@@ -209,6 +209,7 @@ function add_meta_boxes() {
 function render_meta_boxes( $pledge, $box ) {
 	$readonly  = ! current_user_can( 'edit_page', $pledge->ID );
 	$is_manage = true;
+	$pledge_id = $pledge->ID;
 
 	$data = array();
 	foreach ( get_pledge_meta_config() as $key => $config ) {

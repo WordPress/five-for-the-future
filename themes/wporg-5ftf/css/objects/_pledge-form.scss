@@ -63,6 +63,10 @@
 		font-weight: 600;
 	}
 
+	.contributor-list-heading {
+		margin: 1rem 0;
+	}
+
 	.contributor-list {
 		margin-bottom: 1.5rem;
 
@@ -84,5 +88,9 @@
 				margin-top: -2px;
 			}
 		}
+	}
+
+	.pledge-contributors.pledge-status__draft .resend-confirm {
+		display: none;
 	}
 }
