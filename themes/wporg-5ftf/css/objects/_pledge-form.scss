@@ -76,7 +76,32 @@
 		td * {
 			vertical-align: middle;
 		}
-		
+
+		thead {
+			background-color: #fff;
+			color: inherit;
+
+			th {
+				border-bottom-color: $color-gray-light-700;
+			}
+		}
+
+		tr > * {
+			border-top-color: $color-gray-light-700;
+
+			&:first-child {
+				border-left-color: $color-gray-light-700;
+			}
+
+			&:last-child {
+				border-right-color: $color-gray-light-700;
+			}
+		}
+
+		tr:last-child > * {
+			border-bottom-color: $color-gray-light-700;
+		}
+
 		.avatar {
 			margin-right: 8px;
 		}
