@@ -115,9 +115,23 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 
 			"If {$pledge->post_title} isn't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge.";
 
-		$user = get_user_by( 'login', $contributor->post_title );
 		send_email( $user->user_email, $subject, $message, $pledge_id );
 	}
+}
+
+/**
+ * Send the removed contributor an email to notify them after removal.
+ *
+ * @param int     $pledge_id
+ * @param WP_Post $contributor
+ */
+function send_contributor_removed_email( $pledge_id, $contributor ) {
+	$pledge  = get_post( $pledge_id );
+	$subject = "Removed from {$pledge->post_title} sponsorship";
+	$message = "Howdy\n\n{$pledge->post_title} has removed you from their pledge.";
+
+	$user = get_user_by( 'login', $contributor->post_title );
+	send_email( $user->user_email, $subject, $message, $pledge_id );
 }
 
 /**

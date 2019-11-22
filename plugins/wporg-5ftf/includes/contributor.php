@@ -2,7 +2,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\Contributor;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\{ Pledge, XProfile };
+use WordPressDotOrg\FiveForTheFuture\{ Email, Pledge, XProfile };
 use WP_Error, WP_Post, WP_User;
 
 defined( 'WPINC' ) || die();
@@ -177,8 +177,13 @@ function add_pledge_contributors( $pledge_id, $contributors ) {
  * @return false|WP_Post|null
  */
 function remove_contributor( $contributor_post_id ) {
-	$pledge_id = get_post( $contributor_post_id )->post_parent;
-	$result    = wp_trash_post( $contributor_post_id );
+	$contributor = get_post( $contributor_post_id );
+	$pledge_id   = $contributor->post_parent;
+	$result      = wp_trash_post( $contributor_post_id );
+
+	if ( $result && 'publish' === $contributor->post_status ) {
+		Email\send_contributor_removed_email( $pledge_id, $contributor );
+	}
 
 	/**
 	 * Action: Fires when a contributor is removed from a pledge.
