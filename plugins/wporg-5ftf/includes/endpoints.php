@@ -8,7 +8,8 @@ namespace WordPressDotOrg\FiveForTheFuture\Endpoints;
 use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
-add_action( 'wp_ajax_manage-contributors', __NAMESPACE__ . '\manage_contributors_handler' );
+add_action( 'wp_ajax_manage-contributors',        __NAMESPACE__ . '\manage_contributors_handler' );
+add_action( 'wp_ajax_nopriv_manage-contributors', __NAMESPACE__ . '\manage_contributors_handler' );
 
 add_action( 'wp_ajax_send-manage-email',        __NAMESPACE__ . '\send_manage_email_handler' );
 add_action( 'wp_ajax_nopriv_send-manage-email', __NAMESPACE__ . '\send_manage_email_handler' );

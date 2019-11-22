@@ -55,10 +55,34 @@
 		}
 	}
 	
-	input[type="submit"] {
+	input[type="submit"],
+	.button-primary {
 		display: inline-block;
 		height: auto;
 		padding: ms(-3) ms(0);
 		font-weight: 600;
+	}
+
+	.contributor-list {
+		margin-bottom: 1.5rem;
+
+		th,
+		td,
+		th *,
+		td * {
+			vertical-align: middle;
+		}
+		
+		.avatar {
+			margin-right: 8px;
+		}
+
+		.button-link-delete {
+			text-decoration: none;
+
+			.dashicons {
+				margin-top: -2px;
+			}
+		}
 	}
 }

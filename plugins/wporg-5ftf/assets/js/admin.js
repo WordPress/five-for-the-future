@@ -1,6 +1,12 @@
 /* global ajaxurl, FiveForTheFuture, fftfContributors, jQuery */
 /* eslint no-alert: "off" */
 jQuery( document ).ready( function( $ ) {
+	let ajaxurl = window.ajaxurl;
+	// Set the ajax url if the global is undefined.
+	if ( 'undefined' === typeof ajaxurl ) {
+		ajaxurl = FiveForTheFuture.ajaxurl;
+	}
+
 	/**
 	 * Render the contributor lists using the contributors template into the pledge-contributors container. This
 	 * uses `_renderContributors` to render a list of contributors per status (published, pending).
@@ -68,6 +74,7 @@ jQuery( document ).ready( function( $ ) {
 				action: 'manage-contributors',
 				pledge_id: FiveForTheFuture.pledgeId,
 				_ajax_nonce: FiveForTheFuture.manageNonce,
+				_token: FiveForTheFuture.authToken,
 			}, data ),
 			success: callback,
 			dataType: 'json',
@@ -83,17 +90,19 @@ jQuery( document ).ready( function( $ ) {
 			return;
 		}
 
+		// Clear the error message field.
+		$( '#add-contrib-message' ).html( '' );
+
 		sendAjaxRequest( {
 			contributors: contribs,
 			manage_action: 'add-contributor',
 		}, function( response ) {
 			if ( ! response.success ) {
 				const $message = $( '<div>' )
-					.attr( 'id', 'add-contrib-message' )
 					.addClass( 'notice notice-error notice-alt' )
 					.append( $( '<p>' ).text( response.message ) );
 
-				$( '#add-contrib-message' ).replaceWith( $message );
+				$( '#add-contrib-message' ).html( $message );
 			} else if ( response.contributors ) {
 				render( response.contributors, container );
 				$( '#5ftf-pledge-contributors' ).val( '' );
