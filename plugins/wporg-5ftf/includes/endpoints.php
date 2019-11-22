@@ -30,7 +30,7 @@ function manage_contributors_handler() {
 	if ( is_wp_error( $authenticated ) ) {
 		wp_die( wp_json_encode( [
 			'success' => false,
-			'message' => $authenticated->get_error_message(),
+			'message' => __( 'Sorry, you don\'t have permissions to do that.', 'wporg-5ftf' ),
 		] ) );
 	}
 
