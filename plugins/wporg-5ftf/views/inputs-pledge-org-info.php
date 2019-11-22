@@ -69,6 +69,6 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 		required
 		<?php echo $readonly ? 'readonly' : ''; ?>
 	><?php /* phpcs:ignore -- php tags should be on the same line as textarea to prevent extra whitespace */
-		echo esc_html( $data['org-description'] );
+		echo esc_html( str_replace( [ '<p>', '</p>', '<br />' ], '', $data['org-description'] ) );
 	/* phpcs:ignore */ ?></textarea>
 </div>
