@@ -20,8 +20,8 @@ $allowed_html = array_merge(
 	wp_kses_allowed_html( 'data' ),
 	array(
 		'span' => array(
-			'class' => true
-		)
+			'class' => true,
+		),
 	)
 );
 
