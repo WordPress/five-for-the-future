@@ -20,25 +20,25 @@ get_header(); ?>
 	<?php if ( have_posts() ) : ?>
 
 		<header class="page-header">
-			<h1 class="page-title"><?php esc_html_e( 'Pledges', 'wordpressorg' ); ?></h1>
+			<h1 class="page-title"><?php esc_html_e( 'Pledges', 'wporg-5ftf' ); ?></h1>
 			<div class="page-header-callout">
 				<a class="button" href="<?php echo esc_url( $new_pledge_link ); ?>" >
-					<?php esc_html_e( 'Pledge your company', 'wordpressorg' ); ?>
+					<?php esc_html_e( 'Pledge your company', 'wporg-5ftf' ); ?>
 				</a>
 			</div>
 
 			<div class="page-header-controls">
 				<form method="get" action="<?php echo esc_url( get_post_type_archive_link( CPT_ID ) ); ?>">
-					<label for="pledge-sort"><?php esc_html_e( 'Sort pledges by', 'wordpressorg' ); ?></label>
+					<label for="pledge-sort"><?php esc_html_e( 'Sort pledges by', 'wporg-5ftf' ); ?></label>
 					<select class="custom-select" id="pledge-sort" name="order">
 						<option value="" <?php selected( $pledge_order, '' ); ?>>
-							<?php esc_html_e( 'Random', 'wordpressorg' ); ?>
+							<?php esc_html_e( 'Random', 'wporg-5ftf' ); ?>
 						</option>
 						<option value="alphabetical" <?php selected( $pledge_order, 'alphabetical' ); ?>>
-							<?php esc_html_e( 'Alphabetical', 'wordpressorg' ); ?>
+							<?php esc_html_e( 'Alphabetical', 'wporg-5ftf' ); ?>
 						</option>
 						<option value="hours" <?php selected( $pledge_order, 'hours' ); ?>>
-							<?php esc_html_e( 'Total Hours', 'wordpressorg' ); ?>
+							<?php esc_html_e( 'Total Hours', 'wporg-5ftf' ); ?>
 						</option>
 					</select>
 					<span class="screen-reader-text">
