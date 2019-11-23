@@ -169,7 +169,7 @@ function update_all_cached_pledge_data() {
 function add_meta_boxes() {
 	add_meta_box(
 		'pledge-email',
-		__( 'Pledge Email', 'wordpressorg' ),
+		__( 'Pledge Email', 'wporg-5ftf' ),
 		__NAMESPACE__ . '\render_meta_boxes',
 		Pledge\CPT_ID,
 		'normal',
@@ -178,7 +178,7 @@ function add_meta_boxes() {
 
 	add_meta_box(
 		'org-info',
-		__( 'Organization Information', 'wordpressorg' ),
+		__( 'Organization Information', 'wporg-5ftf' ),
 		__NAMESPACE__ . '\render_meta_boxes',
 		Pledge\CPT_ID,
 		'normal',
@@ -187,7 +187,7 @@ function add_meta_boxes() {
 
 	add_meta_box(
 		'pledge-contributors',
-		__( 'Contributors', 'wordpressorg' ),
+		__( 'Contributors', 'wporg-5ftf' ),
 		__NAMESPACE__ . '\render_meta_boxes',
 		Pledge\CPT_ID,
 		'normal',
@@ -403,7 +403,7 @@ function has_required_pledge_meta( array $submission ) {
 			$error->add(
 				'required_field_empty',
 				sprintf(
-					__( 'The <code>%s</code> field does not have a value.', 'wporg' ),
+					__( 'The <code>%s</code> field does not have a value.', 'wporg-5ftf' ),
 					sanitize_key( $key )
 				)
 			);
@@ -411,7 +411,7 @@ function has_required_pledge_meta( array $submission ) {
 			$error->add(
 				'required_field_invalid',
 				sprintf(
-					__( 'The <code>%s</code> field has an invalid value.', 'wporg' ),
+					__( 'The <code>%s</code> field has an invalid value.', 'wporg-5ftf' ),
 					sanitize_key( $key )
 				)
 			);

@@ -293,13 +293,13 @@ function parse_contributors( $contributors ) {
 
 	if ( ! empty( $invalid_contributors ) ) {
 		/* translators: Used between sponsor names in a list, there is a space after the comma. */
-		$item_separator = _x( ', ', 'list item separator', 'wporg' );
+		$item_separator = _x( ', ', 'list item separator', 'wporg-5ftf' );
 
 		return new WP_Error(
 			'invalid_contributor',
 			sprintf(
 				/* translators: %s is a list of usernames. */
-				__( 'The following contributor usernames are not valid: %s', 'wporg' ),
+				__( 'The following contributor usernames are not valid: %s', 'wporg-5ftf' ),
 				implode( $item_separator, $invalid_contributors )
 			)
 		);
@@ -308,7 +308,7 @@ function parse_contributors( $contributors ) {
 	if ( empty( $sanitized_contributors ) ) {
 		return new WP_Error(
 			'contributor_required',
-			__( 'The pledge must have at least one contributor username.', 'wporg' )
+			__( 'The pledge must have at least one contributor username.', 'wporg-5ftf' )
 		);
 	}
 
@@ -338,7 +338,7 @@ function check_invalid_submission( $submission ) {
 	if ( has_existing_pledge( $email, 'email' ) ) {
 		return new WP_Error(
 			'existing_pledge_email',
-			__( 'This email address is already connected to an existing pledge.', 'wporg' )
+			__( 'This email address is already connected to an existing pledge.', 'wporg-5ftf' )
 		);
 	}
 
@@ -347,7 +347,7 @@ function check_invalid_submission( $submission ) {
 	if ( has_existing_pledge( $domain, 'domain' ) ) {
 		return new WP_Error(
 			'existing_pledge_domain',
-			__( 'A pledge already exists for this domain.', 'wporg' )
+			__( 'A pledge already exists for this domain.', 'wporg-5ftf' )
 		);
 	}
 

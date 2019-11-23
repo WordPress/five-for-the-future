@@ -19,7 +19,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 			type="submit"
 			id="5ftf-pledge-submit"
 			name="action"
-			value="<?php esc_attr_e( 'Update Pledge', 'wporg' ); ?>"
+			value="<?php esc_attr_e( 'Update Pledge', 'wporg-5ftf' ); ?>"
 		/>
 	</div>
 </form>

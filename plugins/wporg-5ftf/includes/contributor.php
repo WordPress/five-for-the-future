@@ -25,28 +25,28 @@ add_shortcode( '5ftf_my_pledges', __NAMESPACE__ . '\render_my_pledges' );
  */
 function register_custom_post_type() {
 	$labels = array(
-		'name'                  => _x( 'Contributors', 'Pledges General Name', 'wporg' ),
-		'singular_name'         => _x( 'Contributor', 'Pledge Singular Name', 'wporg' ),
-		'menu_name'             => __( 'Five for the Future', 'wporg' ),
-		'archives'              => __( 'Contributor Archives', 'wporg' ),
-		'attributes'            => __( 'Contributor Attributes', 'wporg' ),
-		'parent_item_colon'     => __( 'Parent Contributor:', 'wporg' ),
-		'all_items'             => __( 'Contributors', 'wporg' ),
-		'add_new_item'          => __( 'Add New Contributor', 'wporg' ),
-		'add_new'               => __( 'Add New', 'wporg' ),
-		'new_item'              => __( 'New Contributor', 'wporg' ),
-		'edit_item'             => __( 'Edit Contributor', 'wporg' ),
-		'update_item'           => __( 'Update Contributor', 'wporg' ),
-		'view_item'             => __( 'View Contributor', 'wporg' ),
-		'view_items'            => __( 'View Contributors', 'wporg' ),
-		'search_items'          => __( 'Search Contributors', 'wporg' ),
-		'not_found'             => __( 'Not found', 'wporg' ),
-		'not_found_in_trash'    => __( 'Not found in Trash', 'wporg' ),
-		'insert_into_item'      => __( 'Insert into contributor', 'wporg' ),
-		'uploaded_to_this_item' => __( 'Uploaded to this contributor', 'wporg' ),
-		'items_list'            => __( 'Contributors list', 'wporg' ),
-		'items_list_navigation' => __( 'Contributors list navigation', 'wporg' ),
-		'filter_items_list'     => __( 'Filter contributors list', 'wporg' ),
+		'name'                  => _x( 'Contributors', 'Pledges General Name', 'wporg-5ftf' ),
+		'singular_name'         => _x( 'Contributor', 'Pledge Singular Name', 'wporg-5ftf' ),
+		'menu_name'             => __( 'Five for the Future', 'wporg-5ftf' ),
+		'archives'              => __( 'Contributor Archives', 'wporg-5ftf' ),
+		'attributes'            => __( 'Contributor Attributes', 'wporg-5ftf' ),
+		'parent_item_colon'     => __( 'Parent Contributor:', 'wporg-5ftf' ),
+		'all_items'             => __( 'Contributors', 'wporg-5ftf' ),
+		'add_new_item'          => __( 'Add New Contributor', 'wporg-5ftf' ),
+		'add_new'               => __( 'Add New', 'wporg-5ftf' ),
+		'new_item'              => __( 'New Contributor', 'wporg-5ftf' ),
+		'edit_item'             => __( 'Edit Contributor', 'wporg-5ftf' ),
+		'update_item'           => __( 'Update Contributor', 'wporg-5ftf' ),
+		'view_item'             => __( 'View Contributor', 'wporg-5ftf' ),
+		'view_items'            => __( 'View Contributors', 'wporg-5ftf' ),
+		'search_items'          => __( 'Search Contributors', 'wporg-5ftf' ),
+		'not_found'             => __( 'Not found', 'wporg-5ftf' ),
+		'not_found_in_trash'    => __( 'Not found in Trash', 'wporg-5ftf' ),
+		'insert_into_item'      => __( 'Insert into contributor', 'wporg-5ftf' ),
+		'uploaded_to_this_item' => __( 'Uploaded to this contributor', 'wporg-5ftf' ),
+		'items_list'            => __( 'Contributors list', 'wporg-5ftf' ),
+		'items_list_navigation' => __( 'Contributors list navigation', 'wporg-5ftf' ),
+		'filter_items_list'     => __( 'Filter contributors list', 'wporg-5ftf' ),
 	);
 
 	$args = array(
@@ -87,7 +87,7 @@ function add_list_table_columns( $columns ) {
 	$last  = array_slice( $columns, 2, null, true );
 
 	$new_columns = array(
-		'pledge' => __( 'Pledge', 'wporg' ),
+		'pledge' => __( 'Pledge', 'wporg-5ftf' ),
 	);
 
 	return array_merge( $first, $new_columns, $last );
@@ -108,7 +108,7 @@ function populate_list_table_columns( $column, $post_id ) {
 			$pledge      = get_post( $contributor->post_parent );
 
 			if ( ! $pledge ) {
-				esc_html_e( 'Unattached', 'wordpressorg' );
+				esc_html_e( 'Unattached', 'wporg-5ftf' );
 				break;
 			}
 
@@ -266,9 +266,9 @@ function get_pledge_contributors_data( $pledge_id ) {
 					'name'          => $name,
 					'displayName'   => $contributor->display_name,
 					'publishDate'   => get_the_date( '', $contributor_post ),
-					'resendLabel'   => __( 'Resend Confirmation', 'wporg' ),
+					'resendLabel'   => __( 'Resend Confirmation', 'wporg-5ftf' ),
 					'removeConfirm' => sprintf( __( 'Remove %s from this pledge?', 'wporg-5ftf' ), $name ),
-					'removeLabel'   => sprintf( __( 'Remove %s', 'wporg' ), $name ),
+					'removeLabel'   => sprintf( __( 'Remove %s', 'wporg-5ftf' ), $name ),
 				];
 			},
 			$group

@@ -52,7 +52,7 @@ get_header();
 			</header>
 
 			<div class="entry-content">
-				<h2><?php esc_html_e( 'About', 'wporg' ); ?></h2>
+				<h2><?php esc_html_e( 'About', 'wporg-5ftf' ); ?></h2>
 
 				<div class="pledge-company-description">
 					<?php
@@ -62,15 +62,15 @@ get_header();
 				</div>
 
 				<?php if ( ! empty( $contributors ) ) : ?>
-					<h2><?php esc_html_e( 'Contributions', 'wporg' ); ?></h2>
+					<h2><?php esc_html_e( 'Contributions', 'wporg-5ftf' ); ?></h2>
 
 					<p>
 						<?php
 						echo wp_kses_post( sprintf(
-							__( '%1$s sponsors %2$s for a total of <strong>%3$s</strong> hours per week.', 'wporg' ),
+							__( '%1$s sponsors %2$s for a total of <strong>%3$s</strong> hours per week.', 'wporg-5ftf' ),
 							get_the_title(),
 							sprintf(
-								_n( '<strong>%d</strong> contributor', '<strong>%d</strong> contributors', $contribution_data['contributors'], 'wporg' ),
+								_n( '<strong>%d</strong> contributor', '<strong>%d</strong> contributors', $contribution_data['contributors'], 'wporg-5ftf' ),
 								number_format_i18n( absint( $contribution_data['contributors'] ) )
 							),
 							number_format_i18n( absint( $contribution_data['hours'] ) )
@@ -80,7 +80,7 @@ get_header();
 					<p>
 						<?php
 						echo wp_kses_post( sprintf(
-							__( 'Contributors from %s work on the following teams:', 'wporg' ),
+							__( 'Contributors from %s work on the following teams:', 'wporg-5ftf' ),
 							get_the_title()
 						) );
 						?>
@@ -97,7 +97,7 @@ get_header();
 					</ul>
 				<?php endif; ?>
 
-				<h2><?php esc_html_e( 'Contributors', 'wporg' ); ?></h2>
+				<h2><?php esc_html_e( 'Contributors', 'wporg-5ftf' ); ?></h2>
 
 				<?php if ( ! empty( $contributors ) ) : ?>
 					<ul class="pledge-contributors has-contrib-names">
@@ -122,14 +122,14 @@ get_header();
 						<?php endforeach; ?>
 					</ul>
 				<?php else : ?>
-					<p><?php esc_html_e( 'No confirmed contributors yet.', 'wporg' ); ?></p>
+					<p><?php esc_html_e( 'No confirmed contributors yet.', 'wporg-5ftf' ); ?></p>
 				<?php endif; ?>
 			</div>
 
 			<footer class="entry-footer">
 				<div class="report-wrapper">
 					<a href="<?php the_permalink( $report_page ); ?>">
-						<?php esc_html_e( 'Report a problem', 'wporg' ); ?>
+						<?php esc_html_e( 'Report a problem', 'wporg-5ftf' ); ?>
 					</a>
 				</div>
 

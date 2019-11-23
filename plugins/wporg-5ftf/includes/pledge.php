@@ -58,28 +58,28 @@ function admin_menu() {
  */
 function register_custom_post_type() {
 	$labels = array(
-		'name'                  => _x( 'Pledges', 'Pledges General Name', 'wporg' ),
-		'singular_name'         => _x( 'Pledge', 'Pledge Singular Name', 'wporg' ),
-		'menu_name'             => __( 'Five for the Future', 'wporg' ),
-		'archives'              => __( 'Pledge Archives', 'wporg' ),
-		'attributes'            => __( 'Pledge Attributes', 'wporg' ),
-		'parent_item_colon'     => __( 'Parent Pledge:', 'wporg' ),
-		'all_items'             => __( 'Pledges', 'wporg' ),
-		'add_new_item'          => __( 'Add New Pledge', 'wporg' ),
-		'add_new'               => __( 'Add New', 'wporg' ),
-		'new_item'              => __( 'New Pledge', 'wporg' ),
-		'edit_item'             => __( 'Edit Pledge', 'wporg' ),
-		'update_item'           => __( 'Update Pledge', 'wporg' ),
-		'view_item'             => __( 'View Pledge', 'wporg' ),
-		'view_items'            => __( 'View Pledges', 'wporg' ),
-		'search_items'          => __( 'Search Pledges', 'wporg' ),
-		'not_found'             => __( 'Not found', 'wporg' ),
-		'not_found_in_trash'    => __( 'Not found in Trash', 'wporg' ),
-		'insert_into_item'      => __( 'Insert into pledge', 'wporg' ),
-		'uploaded_to_this_item' => __( 'Uploaded to this pledge', 'wporg' ),
-		'items_list'            => __( 'Pledges list', 'wporg' ),
-		'items_list_navigation' => __( 'Pledges list navigation', 'wporg' ),
-		'filter_items_list'     => __( 'Filter pledges list', 'wporg' ),
+		'name'                  => _x( 'Pledges', 'Pledges General Name', 'wporg-5ftf' ),
+		'singular_name'         => _x( 'Pledge', 'Pledge Singular Name', 'wporg-5ftf' ),
+		'menu_name'             => __( 'Five for the Future', 'wporg-5ftf' ),
+		'archives'              => __( 'Pledge Archives', 'wporg-5ftf' ),
+		'attributes'            => __( 'Pledge Attributes', 'wporg-5ftf' ),
+		'parent_item_colon'     => __( 'Parent Pledge:', 'wporg-5ftf' ),
+		'all_items'             => __( 'Pledges', 'wporg-5ftf' ),
+		'add_new_item'          => __( 'Add New Pledge', 'wporg-5ftf' ),
+		'add_new'               => __( 'Add New', 'wporg-5ftf' ),
+		'new_item'              => __( 'New Pledge', 'wporg-5ftf' ),
+		'edit_item'             => __( 'Edit Pledge', 'wporg-5ftf' ),
+		'update_item'           => __( 'Update Pledge', 'wporg-5ftf' ),
+		'view_item'             => __( 'View Pledge', 'wporg-5ftf' ),
+		'view_items'            => __( 'View Pledges', 'wporg-5ftf' ),
+		'search_items'          => __( 'Search Pledges', 'wporg-5ftf' ),
+		'not_found'             => __( 'Not found', 'wporg-5ftf' ),
+		'not_found_in_trash'    => __( 'Not found in Trash', 'wporg-5ftf' ),
+		'insert_into_item'      => __( 'Insert into pledge', 'wporg-5ftf' ),
+		'uploaded_to_this_item' => __( 'Uploaded to this pledge', 'wporg-5ftf' ),
+		'items_list'            => __( 'Pledges list', 'wporg-5ftf' ),
+		'items_list_navigation' => __( 'Pledges list navigation', 'wporg-5ftf' ),
+		'filter_items_list'     => __( 'Filter pledges list', 'wporg-5ftf' ),
 	);
 
 	$args = array(
@@ -120,8 +120,8 @@ function register_custom_post_status() {
 	register_post_status(
 		FiveForTheFuture\PREFIX . '-deactivated',
 		array(
-			'label'       => __( 'Deactivated', 'wporg' ),
-			'label_count' => _n_noop( 'Deactivated <span class="count">(%s)</span>', 'Deactivated <span class="count">(%s)</span>', 'wporg' ),
+			'label'       => __( 'Deactivated', 'wporg-5ftf' ),
+			'label_count' => _n_noop( 'Deactivated <span class="count">(%s)</span>', 'Deactivated <span class="count">(%s)</span>', 'wporg-5ftf' ),
 			'public'      => false,
 			'internal'    => false,
 			'protected'   => true,
@@ -142,8 +142,8 @@ function add_list_table_columns( $columns ) {
 	$last  = array_slice( $columns, 2, null, true );
 
 	$new_columns = array(
-		'contributor_counts' => __( 'Contributors', 'wporg' ),
-		'domain'             => __( 'Domain', 'wporg' ),
+		'contributor_counts' => __( 'Contributors', 'wporg-5ftf' ),
+		'domain'             => __( 'Domain', 'wporg-5ftf' ),
 	);
 
 	return array_merge( $first, $new_columns, $last );

@@ -17,7 +17,7 @@ use WP_Post;
 		<p>
 			<?php
 			printf(
-				wp_kses_post( __( "Thank you for confirming your address! We've emailed confirmation links to the contributors you mentioned, and your pledge will show up in <a href=\"%s\">the directory</a> once one contributor confirms their participation.", 'wporg' ) ),
+				wp_kses_post( __( 'Thank you for confirming your address! We’ve emailed confirmation links to the contributors you mentioned, and your pledge will show up in <a href=\"%s\">the directory</a> once one contributor confirms their participation.', 'wporg-5ftf' ) ),
 				esc_url( $directory_url )
 			);
 			?>
@@ -26,7 +26,7 @@ use WP_Post;
 		<?php if ( $pledge instanceof WP_Post ) : ?>
 			<p>
 				<?php echo wp_kses_post( sprintf(
-					__( 'In the meantime, your pledge will be visible here: %s', 'wporg' ),
+					__( 'In the meantime, your pledge will be visible here: %s', 'wporg-5ftf' ),
 					sprintf(
 						'<a href="%1$s">%1$s</a>',
 						esc_url( get_permalink( $pledge ) )
@@ -36,7 +36,7 @@ use WP_Post;
 		<?php endif; ?>
 
 		<p>
-			<?php esc_html_e( "Thanks again for pledging your organization's resources to contribute to WordPress! We can do great things together!", 'wporg' ); ?>
+			<?php esc_html_e( 'Thanks again for pledging your organization’s resources to contribute to WordPress! We can do great things together!', 'wporg-5ftf' ); ?>
 		</p>
 	</div>
 

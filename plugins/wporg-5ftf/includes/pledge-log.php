@@ -29,7 +29,7 @@ add_action( FiveForTheFuture\PREFIX . '_email_result', __NAMESPACE__ . '\capture
 function add_log_meta_box() {
 	add_meta_box(
 		'activity-log',
-		__( 'Log', 'wordpressorg' ),
+		__( 'Log', 'wporg-5ftf' ),
 		__NAMESPACE__ . '\render_log_meta_box',
 		Pledge\CPT_ID,
 		'advanced',

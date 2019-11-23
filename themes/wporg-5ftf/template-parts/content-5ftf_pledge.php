@@ -20,26 +20,26 @@ $allowed_html = array_merge(
 	wp_kses_allowed_html( 'data' ),
 	array(
 		'span' => array(
-			'class' => true
-		)
+			'class' => true,
+		),
 	)
 );
 
-$more = sprintf(
-	__( '&hellip; <a href="%s">continue reading <span class="screen-reader-text">%s</span></a>', 'wporg-5ftf' ),
+$more_text = sprintf(
+	__( '&hellip; <a href="%1$s">continue reading <span class="screen-reader-text">%2$s</span></a>', 'wporg-5ftf' ),
 	esc_url( get_permalink() ),
 	esc_html( get_the_title() )
 );
 
 $content = apply_filters( 'the_content', $data['org-description'] );
 $content = strip_tags( $content );
-$content = wp_trim_words( $content, 55, $more );
+$content = wp_trim_words( $content, 55, $more_text );
 
 $total_hours = $pledge->{ PledgeMeta\META_PREFIX . 'pledge-total-hours' };
 
 $contributor_title = sprintf(
 	esc_html(
-		_n( '%1$s has pledged %2$d hour a week', '%1$s has pledged %2$d hours a week', $total_hours, 'wordpressorg' )
+		_n( '%1$s has pledged %2$d hour a week', '%1$s has pledged %2$d hours a week', $total_hours, 'wporg-5ftf' )
 	),
 	wp_kses_post( get_the_title() ),
 	intval( $total_hours )
