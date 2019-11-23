@@ -24,8 +24,8 @@ get_header(); ?>
 				</p>
 
 				<div class="logo-swing">
-					<img src="<?php echo esc_url( get_theme_file_uri( '/images/wp-logo-blue-trans-blur.png' ) ); ?>" class="wp-logo" />
-					<img src="<?php echo esc_url( get_theme_file_uri( '/images/wp-logo-blue.png' ) ); ?>" class="wp-logo" />
+					<img src="<?php echo esc_url( get_theme_file_uri( '/images/wp-logo-blue-trans-blur.png' ) ); ?>" class="wp-logo" alt="" />
+					<img src="<?php echo esc_url( get_theme_file_uri( '/images/wp-logo-blue.png' ) ); ?>" class="wp-logo" alt="" />
 				</div>
 			</div><!-- .page-content -->
 		</section><!-- .error-404 -->
