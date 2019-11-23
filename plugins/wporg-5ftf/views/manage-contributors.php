@@ -10,7 +10,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 
 <script type="text/template" id="tmpl-5ftf-contributor-lists">
 	<# if ( data.publish.length ) { #>
-		<h3 class="contributor-list-heading"><?php esc_html_e( 'Confirmed', 'wporg' ); ?></h3>
+		<h3 class="contributor-list-heading"><?php esc_html_e( 'Confirmed', 'wporg-5ftf' ); ?></h3>
 		<table class="contributor-list publish striped widefat">
 			<thead>
 				<th scope="col"><?php esc_html_e( 'Contributor', 'wporg-5ftf' ); ?></th>
@@ -21,7 +21,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 		</table>
 	<# } #>
 	<# if ( data.pending.length ) { #>
-		<h3 class="contributor-list-heading"><?php esc_html_e( 'Unconfirmed', 'wporg' ); ?></h3>
+		<h3 class="contributor-list-heading"><?php esc_html_e( 'Unconfirmed', 'wporg-5ftf' ); ?></h3>
 		<table class="contributor-list pending striped widefat">
 			<thead>
 				<tr>
@@ -84,7 +84,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 			);
 			?>
 		<?php else : ?>
-			<p><?php esc_html_e( 'There are no contributors added to this pledge yet.', 'wporg' ); ?></p>
+			<p><?php esc_html_e( 'There are no contributors added to this pledge yet.', 'wporg-5ftf' ); ?></p>
 		<?php endif; ?>
 	</div>
 
@@ -99,6 +99,6 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 		class="button-primary"
 		data-action="add-contributor"
 	>
-		<?php esc_html_e( 'Add new contributors', 'wporg' ); ?>
+		<?php esc_html_e( 'Add new contributors', 'wporg-5ftf' ); ?>
 	</button>
 </div>

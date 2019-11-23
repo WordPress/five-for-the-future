@@ -7,7 +7,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 <div class="form-field">
 	<label for="5ftf-org-name">
-		<?php esc_html_e( 'Organization Name', 'wordpressorg' ); ?>
+		<?php esc_html_e( 'Organization Name', 'wporg-5ftf' ); ?>
 	</label>
 	<input
 		type="text"
@@ -22,7 +22,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 <?php if ( ! is_admin() ) : ?>
 	<div class="form-field form-field__logo">
 		<label for="5ftf-org-logo">
-			<?php esc_html_e( 'Logo', 'wordpressorg' ); ?>
+			<?php esc_html_e( 'Logo', 'wporg-5ftf' ); ?>
 		</label>
 		<br />
 		<input
@@ -35,7 +35,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 <div class="form-field">
 	<label for="5ftf-org-url">
-		<?php esc_html_e( 'Website Address', 'wordpressorg' ); ?>
+		<?php esc_html_e( 'Website Address', 'wporg-5ftf' ); ?>
 	</label>
 	<input
 		type="url"
@@ -50,7 +50,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 <div class="form-field">
 	<label for="5ftf-org-description">
-		<?php esc_html_e( 'Organization Blurb', 'wordpressorg' ); ?>
+		<?php esc_html_e( 'Organization Blurb', 'wporg-5ftf' ); ?>
 	</label>
 	<textarea
 		id="5ftf-org-description"

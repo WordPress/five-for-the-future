@@ -99,7 +99,7 @@ function send_manage_email_handler() {
 		if ( $message_sent ) {
 			$result = [
 				'success' => true,
-				'message' => __( "Thanks! We've emailed you a link you can open in order to update your pledge.", 'wporg-5ftf' ),
+				'message' => __( 'Thanks! We’ve emailed you a link you can open in order to update your pledge.', 'wporg-5ftf' ),
 			];
 		} else {
 			$result = [
@@ -109,7 +109,7 @@ function send_manage_email_handler() {
 		}
 	} else {
 		$error_message = sprintf(
-			__( 'That\'s not the address that we have for this pledge. If you don\'t know the email associated with this pledge, <a href="%s">please contact us for help.</a>', 'wporg-5ftf' ),
+			__( 'That’s not the address that we have for this pledge. If you don’t know the email associated with this pledge, <a href="%s">please contact us for help.</a>', 'wporg-5ftf' ),
 			get_permalink( get_page_by_path( 'report' ) )
 		);
 
