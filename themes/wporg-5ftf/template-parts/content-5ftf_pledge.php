@@ -25,7 +25,7 @@ $allowed_html = array_merge(
 	)
 );
 
-$more = sprintf(
+$more_text = sprintf(
 	__( '&hellip; <a href="%1$s">continue reading <span class="screen-reader-text">%2$s</span></a>', 'wporg-5ftf' ),
 	esc_url( get_permalink() ),
 	esc_html( get_the_title() )
@@ -33,7 +33,7 @@ $more = sprintf(
 
 $content = apply_filters( 'the_content', $data['org-description'] );
 $content = strip_tags( $content );
-$content = wp_trim_words( $content, 55, $more );
+$content = wp_trim_words( $content, 55, $more_text );
 
 $total_hours = $pledge->{ PledgeMeta\META_PREFIX . 'pledge-total-hours' };
 
