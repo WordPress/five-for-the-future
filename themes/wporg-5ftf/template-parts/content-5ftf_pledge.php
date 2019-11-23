@@ -26,7 +26,7 @@ $allowed_html = array_merge(
 );
 
 $more = sprintf(
-	__( '&hellip; <a href="%s">continue reading <span class="screen-reader-text">%s</span></a>', 'wporg-5ftf' ),
+	__( '&hellip; <a href="%1$s">continue reading <span class="screen-reader-text">%2$s</span></a>', 'wporg-5ftf' ),
 	esc_url( get_permalink() ),
 	esc_html( get_the_title() )
 );
