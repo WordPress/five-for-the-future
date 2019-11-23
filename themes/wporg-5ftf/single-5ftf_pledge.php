@@ -52,7 +52,7 @@ get_header();
 			</header>
 
 			<div class="entry-content">
-				<h2><?php esc_html_e( 'About', 'wporg' ); ?></h2>
+				<h2><?php esc_html_e( 'About', 'wporg-5ftf' ); ?></h2>
 
 				<div class="pledge-company-description">
 					<?php
@@ -97,7 +97,7 @@ get_header();
 					</ul>
 				<?php endif; ?>
 
-				<h2><?php esc_html_e( 'Contributors', 'wporg' ); ?></h2>
+				<h2><?php esc_html_e( 'Contributors', 'wporg-5ftf' ); ?></h2>
 
 				<?php if ( ! empty( $contributors ) ) : ?>
 					<ul class="pledge-contributors has-contrib-names">

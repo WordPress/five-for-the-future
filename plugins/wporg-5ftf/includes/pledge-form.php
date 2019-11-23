@@ -293,7 +293,7 @@ function parse_contributors( $contributors ) {
 
 	if ( ! empty( $invalid_contributors ) ) {
 		/* translators: Used between sponsor names in a list, there is a space after the comma. */
-		$item_separator = _x( ', ', 'list item separator', 'wporg' );
+		$item_separator = _x( ', ', 'list item separator', 'wporg-5ftf' );
 
 		return new WP_Error(
 			'invalid_contributor',

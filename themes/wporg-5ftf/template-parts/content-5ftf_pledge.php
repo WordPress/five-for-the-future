@@ -39,7 +39,7 @@ $total_hours = $pledge->{ PledgeMeta\META_PREFIX . 'pledge-total-hours' };
 
 $contributor_title = sprintf(
 	esc_html(
-		_n( '%1$s has pledged %2$d hour a week', '%1$s has pledged %2$d hours a week', $total_hours, 'wordpressorg' )
+		_n( '%1$s has pledged %2$d hour a week', '%1$s has pledged %2$d hours a week', $total_hours, 'wporg-5ftf' )
 	),
 	wp_kses_post( get_the_title() ),
 	intval( $total_hours )
