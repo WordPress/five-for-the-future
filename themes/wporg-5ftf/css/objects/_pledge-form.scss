@@ -29,7 +29,7 @@
 			height: auto;
 		}
 
-		> p {
+		[id*="help"] p {
 			margin-top: ms(-5);
 			font-size: ms(-2);
 		}
