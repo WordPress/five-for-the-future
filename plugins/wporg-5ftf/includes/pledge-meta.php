@@ -459,6 +459,9 @@ function get_pledge_meta( $pledge_id = 0, $subset = '' ) {
 
 	// Get POST'd submission, if it exists.
 	$submission = PledgeForm\get_form_submission();
+	if ( $submission['empty_post'] ) {
+		$submission = array();
+	}
 
 	foreach ( $keys as $key => $config ) {
 		if ( isset( $submission[ $key ] ) ) {

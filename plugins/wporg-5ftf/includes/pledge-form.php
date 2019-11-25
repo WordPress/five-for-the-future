@@ -22,6 +22,7 @@ add_shortcode( '5ftf_pledge_form_manage', __NAMESPACE__ . '\render_form_manage' 
  */
 function render_form_new() {
 	$action        = isset( $_GET['action'] ) ? filter_input( INPUT_GET, 'action' ) : filter_input( INPUT_POST, 'action' );
+	$pledge_id     = 0;
 	$data          = get_form_submission();
 	$errors        = [];
 	$pledge        = null;
@@ -256,7 +257,8 @@ function get_form_submission() {
 
 	$result = filter_input_array( INPUT_POST, $input_filters );
 	if ( ! $result ) {
-		return [];
+		$result = array_fill_keys( array_keys( $input_filters ), '' );
+		$result['empty_post'] = true;
 	}
 
 	return $result;
