@@ -350,8 +350,15 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 			update_post_meta( $object_id, META_PREFIX . 'org-domain', $domain );
 			break;
 
-		case META_PREFIX . 'pledge-email':
+		case META_PREFIX . 'org-pledge-email':
+			$form_page_id = get_page_by_path( 'for-organizations' )->ID;
+			Email\send_pledge_confirmation_email( $object_id, $form_page_id );
 			delete_post_meta( $object_id, META_PREFIX . 'pledge-email-confirmed' );
+			// Flip pledge back to pending.
+			wp_update_post( array(
+				'ID'          => $object_id,
+				'post_status' => 'pending',
+			) );
 			break;
 	}
 }
