@@ -280,10 +280,11 @@ function save_pledge( $pledge_id, $pledge ) {
 
 	save_pledge_meta( $pledge_id, $submitted_meta );
 
+	// Fired if the "Resend Confirmation" button was clicked in wp-admin.
 	if ( filter_input( INPUT_POST, 'resend-pledge-confirmation' ) ) {
 		Email\send_pledge_confirmation_email(
 			filter_input( INPUT_GET, 'resend-pledge-id', FILTER_VALIDATE_INT ),
-			get_page_by_path( 'for-organizations' )->ID
+			get_page_by_path( 'manage-pledge' )->ID
 		);
 	}
 }
@@ -351,8 +352,8 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 			break;
 
 		case META_PREFIX . 'org-pledge-email':
-			$form_page_id = get_page_by_path( 'for-organizations' )->ID;
-			Email\send_pledge_confirmation_email( $object_id, $form_page_id );
+			$landing_page = get_page_by_path( 'manage-pledge' )->ID;
+			Email\send_pledge_confirmation_email( $object_id, $landing_page );
 			delete_post_meta( $object_id, META_PREFIX . 'pledge-email-confirmed' );
 			// Flip pledge back to pending.
 			wp_update_post( array(
