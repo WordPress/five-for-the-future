@@ -4,8 +4,9 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 use WP_Post;
 
 /**
- * @var bool         $email_confirmed
  * @var string       $directory_url
+ * @var bool         $email_confirmed
+ * @var bool         $is_new_pledge
  * @var int          $pledge_id
  * @var WP_Post|null $pledge
  */
@@ -16,10 +17,17 @@ use WP_Post;
 	<div class="notice notice-success notice-alt">
 		<p>
 			<?php
-			printf(
-				wp_kses_post( __( 'Thank you for confirming your address! We’ve emailed confirmation links to the contributors you mentioned, and your pledge will show up in <a href=\"%s\">the directory</a> once one contributor confirms their participation.', 'wporg-5ftf' ) ),
-				esc_url( $directory_url )
-			);
+			if ( $is_new_pledge ) {
+				printf(
+					wp_kses_post( __( 'Thank you for confirming your address! We’ve emailed confirmation links to the contributors you mentioned, and your pledge will show up in <a href=\"%s\">the directory</a> once one contributor confirms their participation.', 'wporg-5ftf' ) ),
+					esc_url( $directory_url )
+				);
+			} else {
+				printf(
+					wp_kses_post( __( 'Thank you for confirming your address! If you have confirmed contributors, your pledge is visible in <a href=\"%s\">the directory</a> again. Otherwise, your pledge wiill show up once one contributor confirms their participation.', 'wporg-5ftf' ) ),
+					esc_url( $directory_url )
+				);
+			}
 			?>
 		</p>
 
@@ -54,11 +62,11 @@ use WP_Post;
 
 		<form action="" method="get">
 			<input type="hidden" name="pledge_id" value="<?php echo esc_attr( $pledge_id ); ?>" />
+			<input type="hidden" name="action" value="resend_pledge_confirmation" />
 
 			<p>
 				<input
 					type="submit"
-					name="resend_pledge_confirmation"
 					value="Resend Confirmation"
 				/>
 			</p>
