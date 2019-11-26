@@ -33,6 +33,11 @@ require __DIR__ . '/partial-result-messages.php';
 				value="<?php esc_attr_e( 'Update Pledge', 'wporg-5ftf' ); ?>"
 			/>
 		</div>
+
+		<h2><?php esc_html_e( 'Contributors', 'wporg-5ftf' ); ?></h2>
+
+		<?php require get_views_path() . 'manage-contributors.php'; ?>
+
 	</form>
 
 <?php endif; ?>

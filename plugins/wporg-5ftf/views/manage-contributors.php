@@ -4,8 +4,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 
 /** @var array $contributors */
-/** @var array $data */
-/** @var bool  $readonly */
+/** @var int   $pledge_id */
 ?>
 
 <script type="text/template" id="tmpl-5ftf-contributor-lists">
@@ -75,7 +74,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 </script> 
 
 <div id="5ftf-contributors">
-	<div class="pledge-contributors pledge-status__<?php echo esc_attr( get_post_status() ); ?>">
+	<div class="pledge-contributors pledge-status__<?php echo esc_attr( get_post_status( $pledge_id ) ); ?>">
 		<?php if ( ! empty( $contributors ) ) : ?>
 			<?php
 			printf(
