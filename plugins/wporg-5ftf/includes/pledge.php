@@ -337,11 +337,6 @@ function enqueue_assets() {
  * @return void
  */
 function render_manage_link_request() {
-	// @todo enable when https://github.com/WordPress/five-for-the-future/issues/6 is done
-	if ( ! defined( 'WPORG_SANDBOXED' ) || ! WPORG_SANDBOXED ) {
-		return;
-	}
-
 	require_once FiveForTheFuture\get_views_path() . 'button-request-manage-link.php';
 }
 
