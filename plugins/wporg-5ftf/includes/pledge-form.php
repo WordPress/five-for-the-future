@@ -175,8 +175,6 @@ function render_form_manage() {
 		return ob_get_clean();
 	}
 
-	$contributors = Contributor\get_pledge_contributors( $pledge_id, $status = 'all' );
-
 	if ( 'Update Pledge' === $action ) {
 		$results = process_form_manage( $pledge_id, $auth_token );
 
@@ -187,7 +185,8 @@ function render_form_manage() {
 		}
 	}
 
-	$data = PledgeMeta\get_pledge_meta( $pledge_id );
+	$data         = PledgeMeta\get_pledge_meta( $pledge_id );
+	$contributors = Contributor\get_pledge_contributors_data( $pledge_id );
 
 	ob_start();
 	$readonly = false;
@@ -214,7 +213,7 @@ function process_form_manage( $pledge_id, $auth_token ) {
 	 */
 	$can_view_form = Auth\can_manage_pledge( $pledge_id, $auth_token );
 
-	if ( ! $has_valid_nonce || ! $can_view_form ) {
+	if ( ! $has_valid_nonce || is_wp_error( $can_view_form ) ) {
 		return new WP_Error(
 			'invalid_token',
 			sprintf(

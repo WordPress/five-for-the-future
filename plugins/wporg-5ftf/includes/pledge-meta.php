@@ -6,7 +6,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\PledgeMeta;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\{ Contributor, Email, Pledge, PledgeForm, XProfile };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, Pledge, PledgeForm, XProfile };
 use WP_Post, WP_Error;
 
 defined( 'WPINC' ) || die();
@@ -18,6 +18,7 @@ add_action( 'init',                   __NAMESPACE__ . '\schedule_cron_jobs' );
 add_action( 'admin_init',             __NAMESPACE__ . '\add_meta_boxes' );
 add_action( 'save_post',              __NAMESPACE__ . '\save_pledge', 10, 2 );
 add_action( 'admin_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
+add_action( 'wp_enqueue_scripts',     __NAMESPACE__ . '\enqueue_assets' );
 add_action( 'transition_post_status', __NAMESPACE__ . '\maybe_update_single_cached_pledge_data', 10, 3 );
 add_action( 'update_all_cached_pledge_data', __NAMESPACE__. '\update_all_cached_pledge_data' );
 
@@ -207,6 +208,7 @@ function add_meta_boxes() {
 function render_meta_boxes( $pledge, $box ) {
 	$readonly  = ! current_user_can( 'edit_page', $pledge->ID );
 	$is_manage = true;
+	$pledge_id = $pledge->ID;
 
 	$data = array();
 	foreach ( get_pledge_meta_config() as $key => $config ) {
@@ -502,9 +504,14 @@ function enqueue_assets() {
 	$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/admin.js' );
 	wp_register_script( '5ftf-admin', plugins_url( 'assets/js/admin.js', __DIR__ ), [ 'jquery', 'wp-util' ], $ver );
 
+	$pledge_id   = is_admin() ? get_the_ID() : absint( $_REQUEST['pledge_id'] ?? 0 );
+	$auth_token  = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );
 	$script_data = [
-		'pledgeId'    => get_the_ID(),
+		// The global ajaxurl is not set on the frontend.
+		'ajaxurl'     => admin_url( 'admin-ajax.php', 'relative' ),
+		'pledgeId'    => $pledge_id,
 		'manageNonce' => wp_create_nonce( 'manage-contributors' ),
+		'authToken'   => $auth_token,
 	];
 	wp_add_inline_script(
 		'5ftf-admin',
@@ -515,9 +522,21 @@ function enqueue_assets() {
 		'before'
 	);
 
-	$current_page = get_current_screen();
-	if ( Pledge\CPT_ID === $current_page->id ) {
-		wp_enqueue_style( '5ftf-admin' );
-		wp_enqueue_script( '5ftf-admin' );
+	if ( is_admin() ) {
+		$current_page = get_current_screen();
+		if ( Pledge\CPT_ID === $current_page->id ) {
+			wp_enqueue_style( '5ftf-admin' );
+			wp_enqueue_script( '5ftf-admin' );
+		}
+	} else {
+		global $post;
+		if ( is_a( $post, 'WP_Post' ) ) {
+			$pledge_id  = absint( $_REQUEST['pledge_id'] ?? 0 );
+			$auth_token = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );
+			$can_manage = Auth\can_manage_pledge( $pledge_id, $auth_token );
+			if ( ! is_wp_error( $can_manage ) && has_shortcode( $post->post_content, '5ftf_pledge_form_manage' ) ) {
+				wp_enqueue_script( '5ftf-admin' );
+			}
+		}
 	}
 }

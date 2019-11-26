@@ -248,6 +248,9 @@ function get_pledge_contributors( $pledge_id, $status = 'publish', $contributor_
  * @return array An array of contributor data, ready to be used in the JS templates.
  */
 function get_pledge_contributors_data( $pledge_id ) {
+	if ( ! $pledge_id ) {
+		return array();
+	}
 	$contrib_data = array();
 	$contributors = get_pledge_contributors( $pledge_id, 'all' );
 
