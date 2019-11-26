@@ -25,6 +25,8 @@ add_action( 'update_all_cached_pledge_data', __NAMESPACE__. '\update_all_cached_
 // Both hooks must be used because `updated` doesn't fire if the post meta didn't previously exist.
 add_action( 'updated_postmeta', __NAMESPACE__ . '\update_generated_meta', 10, 4 );
 add_action( 'added_post_meta',  __NAMESPACE__ . '\update_generated_meta', 10, 4 );
+// Email (re-)confirmation is only hooked into updates, otherwise it sends duplicate emails.
+add_action( 'updated_postmeta', __NAMESPACE__ . '\trigger_confirmation_email', 10, 4 );
 
 /**
  * Define pledge meta fields and their properties.
@@ -318,9 +320,9 @@ function save_pledge_meta( $pledge_id, $new_values ) {
 /**
  * Updated some generated meta values based on changes in user input meta values.
  *
- * This is hooked to the `updated_{$meta_type}_meta` action, which only fires if a submitted post meta value
- * is different from the previous value. Thus here we assume the values of specific meta keys are changed
- * when they come through this function.
+ * This is hooked to the `updated_{$meta_type}_meta` & `added_{$meta_type}_meta` actions, which fires if a
+ * submitted post meta value is new or different from the previous value. Thus here we assume the values of
+ * specific meta keys are changed when they come through this function.
  *
  * @param int    $meta_id
  * @param int    $object_id
@@ -350,17 +352,38 @@ function update_generated_meta( $meta_id, $object_id, $meta_key, $_meta_value ) 
 			$domain = get_normalized_domain_from_url( $_meta_value );
 			update_post_meta( $object_id, META_PREFIX . 'org-domain', $domain );
 			break;
+	}
+}
 
-		case META_PREFIX . 'org-pledge-email':
-			$landing_page = get_page_by_path( 'manage-pledge' )->ID;
-			Email\send_pledge_confirmation_email( $object_id, $landing_page );
-			delete_post_meta( $object_id, META_PREFIX . 'pledge-email-confirmed' );
-			// Flip pledge back to pending.
-			wp_update_post( array(
-				'ID'          => $object_id,
-				'post_status' => 'pending',
-			) );
-			break;
+/**
+ * Trigger the "Confirm your Email" email for pledge owners.
+ *
+ * See above for hook information, but this function is only hooked into `updated_{$meta_type}_meta`, so it does
+ * not run when the pledge is created, only when it's updated.
+ *
+ * @param int    $meta_id
+ * @param int    $object_id
+ * @param string $meta_key
+ * @param mixed  $_meta_value
+ *
+ * @return void
+ */
+function trigger_confirmation_email( $meta_id, $object_id, $meta_key, $_meta_value ) {
+	$post_type = get_post_type( $object_id );
+
+	if ( Pledge\CPT_ID !== $post_type ) {
+		return;
+	}
+
+	if ( META_PREFIX . 'org-pledge-email' === $meta_key ) {
+		$landing_page = get_page_by_path( 'manage-pledge' )->ID;
+		Email\send_pledge_confirmation_email( $object_id, $landing_page );
+		delete_post_meta( $object_id, META_PREFIX . 'pledge-email-confirmed' );
+		// Flip pledge back to pending.
+		wp_update_post( array(
+			'ID'          => $object_id,
+			'post_status' => 'pending',
+		) );
 	}
 }
 
