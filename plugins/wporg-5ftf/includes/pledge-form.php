@@ -137,6 +137,11 @@ function render_form_manage() {
 			$errors = $results->get_error_messages();
 		} else {
 			$messages = array( __( 'Your pledge has been updated.', 'wporg-5ftf' ) );
+
+			$meta_key = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
+			if ( ! get_post( $pledge_id )->$meta_key ) {
+				$messages[] = __( 'You must confirm your new email address before it will be visible.', 'wporg-5ftf' );
+			}
 		}
 	}
 
