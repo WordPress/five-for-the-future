@@ -6,7 +6,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\PledgeMeta;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\{ Contributor, Email, Pledge, PledgeForm, XProfile };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, Pledge, PledgeForm, XProfile };
 use WP_Post, WP_Error;
 
 defined( 'WPINC' ) || die();
@@ -531,8 +531,13 @@ function enqueue_assets() {
 		}
 	} else {
 		global $post;
-		if ( $post instanceof WP_Post && has_shortcode( $post->post_content, '5ftf_pledge_form_manage' ) ) {
-			wp_enqueue_script( '5ftf-admin' );
+		if ( is_a( $post, 'WP_Post' ) ) {
+			$pledge_id  = absint( $_REQUEST['pledge_id'] ?? 0 );
+			$auth_token = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );
+			$can_manage = Auth\can_manage_pledge( $pledge_id, $auth_token );
+			if ( ! is_wp_error( $can_manage ) && has_shortcode( $post->post_content, '5ftf_pledge_form_manage' ) ) {
+				wp_enqueue_script( '5ftf-admin' );
+			}
 		}
 	}
 }
