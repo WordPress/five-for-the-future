@@ -25,9 +25,16 @@ use WP_Post;
 		aria-describedby="5ftf-pledge-email-help"
 		<?php echo $readonly ? 'readonly' : ''; ?>
 	/>
-	<p id="5ftf-pledge-email-help">
-		<?php esc_html_e( 'This address will be used to confirm your organization’s contribution profile, and later manage any changes. Please make sure that it’s a group address (e.g., wp-contributors@example.com) so that it persists across employee transitions.', 'wporg-5ftf' ); ?>
-	</p>
+	<div id="5ftf-pledge-email-help">
+		<p>
+			<?php esc_html_e( 'This address will be used to confirm your organization’s contribution profile, and later manage any changes. Please make sure that it’s a group address (e.g., wp-contributors@example.com) so that it persists across employee transitions.', 'wporg-5ftf' ); ?>
+		</p>
+		<?php if ( ! empty( $data['org-pledge-email'] ) ) : ?>
+			<p>
+				<?php esc_html_e( 'If you change this email, you will need to confirm the new email. Your pledge will be unpublished until the new email is confirmed.', 'wporg-5ftf' ); ?>
+			</p>
+		<?php endif; ?>
+	</div>
 
 	<?php if ( is_admin() ) : ?>
 		<?php if ( $data['pledge-email-confirmed'] ) : ?>

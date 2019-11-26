@@ -23,6 +23,7 @@ require __DIR__ . '/partial-result-messages.php';
 		wp_nonce_field( 'manage_pledge_' . $pledge_id );
 
 		require get_views_path() . 'inputs-pledge-org-info.php';
+		require get_views_path() . 'inputs-pledge-org-email.php';
 		?>
 
 		<div>

@@ -15,6 +15,11 @@ defined( 'WPINC' ) || die();
 add_shortcode( '5ftf_pledge_form_new', __NAMESPACE__ . '\render_form_new' );
 add_shortcode( '5ftf_pledge_form_manage', __NAMESPACE__ . '\render_form_manage' );
 
+// Short-circuit out of both shortcodes for shared functionality (confirming admin email, resending the pledge
+// confirmation email).
+add_filter( 'pre_do_shortcode_tag', __NAMESPACE__ . '\process_confirmed_email', 10, 2 );
+add_filter( 'pre_do_shortcode_tag', __NAMESPACE__ . '\process_resend_confirm_email', 10, 2 );
+
 /**
  * Render the form(s) for creating new pledges.
  *
@@ -38,18 +43,6 @@ function render_form_new() {
 		} elseif ( is_int( $pledge_id ) ) {
 			$complete = true;
 		}
-	} elseif ( 'confirm_pledge_email' === $action ) {
-		$view             = 'form-pledge-confirm-email.php';
-		$pledge_id        = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
-		$unverified_token = filter_input( INPUT_GET, 'auth_token', FILTER_SANITIZE_STRING );
-		$email_confirmed  = process_pledge_confirmation_email( $pledge_id, $action, $unverified_token );
-		$pledge           = get_post( $pledge_id );
-
-	} elseif ( filter_input( INPUT_GET, 'resend_pledge_confirmation' ) ) {
-		$pledge_id = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
-		$complete  = true;
-
-		Email\send_pledge_confirmation_email( $pledge_id, get_post()->ID );
 	}
 
 	ob_start();
@@ -107,44 +100,6 @@ function process_form_new() {
 }
 
 /**
- * Process a request to confirm a company's email address.
- *
- * @param int    $pledge_id
- * @param string $action
- * @param array  $unverified_token
- *
- * @return bool
- */
-function process_pledge_confirmation_email( $pledge_id, $action, $unverified_token ) {
-	$meta_key          = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
-	$already_confirmed = get_post( $pledge_id )->$meta_key;
-
-	if ( $already_confirmed ) {
-		/*
-		 * If they refresh the page after confirming, they'd otherwise get an error because the token had been
-		 * used, and might be confused and think that the address wasn't confirmed.
-		 *
-		 * This leaks the fact that the address is confirmed, because it will return true even if the token is
-		 * invalid, but there aren't any security/privacy implications of that.
-		 */
-		return true;
-	}
-
-	$email_confirmed = Auth\is_valid_authentication_token( $pledge_id, $action, $unverified_token );
-
-	if ( $email_confirmed ) {
-		update_post_meta( $pledge_id, $meta_key, true );
-		wp_update_post( array(
-			'ID'          => $pledge_id,
-			'post_status' => 'publish',
-		) );
-		Email\send_contributor_confirmation_emails( $pledge_id );
-	}
-
-	return $email_confirmed;
-}
-
-/**
  * Render the form(s) for managing existing pledges.
  *
  * @return false|string
@@ -182,6 +137,11 @@ function render_form_manage() {
 			$errors = $results->get_error_messages();
 		} else {
 			$messages = array( __( 'Your pledge has been updated.', 'wporg-5ftf' ) );
+
+			$meta_key = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
+			if ( ! get_post( $pledge_id )->$meta_key ) {
+				$messages[] = __( 'You must confirm your new email address before it will be visible.', 'wporg-5ftf' );
+			}
 		}
 	}
 
@@ -189,7 +149,7 @@ function render_form_manage() {
 	$contributors = Contributor\get_pledge_contributors_data( $pledge_id );
 
 	ob_start();
-	$readonly = false;
+	$readonly  = false;
 	$is_manage = true;
 	require FiveForTheFuture\PATH . 'views/form-pledge-manage.php';
 
@@ -224,7 +184,7 @@ function process_form_manage( $pledge_id, $auth_token ) {
 	}
 
 	$submission = get_form_submission();
-	$has_error = check_invalid_submission( $submission, 'update' );
+	$has_error  = check_invalid_submission( $submission, 'update' );
 	if ( $has_error ) {
 		return $has_error;
 	}
@@ -261,6 +221,96 @@ function process_form_manage( $pledge_id, $auth_token ) {
 }
 
 /**
+ * Process a request to confirm a company's email address.
+ *
+ * @param string|false $value Short-circuit return value.
+ * @param string       $tag   Shortcode name.
+ *
+ * @return bool|string
+ */
+function process_confirmed_email( $value, $tag ) {
+	if ( ! in_array( $tag, [ '5ftf_pledge_form_new', '5ftf_pledge_form_manage' ] ) ) {
+		return $value;
+	}
+
+	$action = sanitize_text_field( $_REQUEST['action'] ?? '' );
+	if ( 'confirm_pledge_email' !== $action ) {
+		return $value;
+	}
+
+	$pledge_id  = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
+	$auth_token = filter_input( INPUT_GET, 'auth_token', FILTER_SANITIZE_STRING );
+
+	$meta_key          = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
+	$already_confirmed = get_post( $pledge_id )->$meta_key;
+	$email_confirmed   = false;
+	$is_new_pledge     = '5ftf_pledge_form_new' === $tag;
+
+	if ( $already_confirmed ) {
+		/*
+		 * If they refresh the page after confirming, they'd otherwise get an error because the token had been
+		 * used, and might be confused and think that the address wasn't confirmed.
+		 *
+		 * This leaks the fact that the address is confirmed, because it will return true even if the token is
+		 * invalid, but there aren't any security/privacy implications of that.
+		 */
+		$email_confirmed = true;
+	}
+
+	$email_confirmed = Auth\is_valid_authentication_token( $pledge_id, $action, $auth_token );
+
+	if ( $email_confirmed ) {
+		update_post_meta( $pledge_id, $meta_key, true );
+		wp_update_post( array(
+			'ID'          => $pledge_id,
+			'post_status' => 'publish',
+		) );
+		if ( $is_new_pledge ) {
+			Email\send_contributor_confirmation_emails( $pledge_id );
+		}
+	}
+
+	ob_start();
+	$directory_url = home_url( 'pledges' );
+	$pledge        = get_post( $pledge_id );
+	require FiveForTheFuture\get_views_path() . 'form-pledge-confirm-email.php';
+	return ob_get_clean();
+}
+
+/**
+ * Process a request to resed a company's confirmation email.
+ *
+ * @param string|false $value Short-circuit return value.
+ * @param string       $tag   Shortcode name.
+ *
+ * @return bool|string
+ */
+function process_resend_confirm_email( $value, $tag ) {
+	if ( ! in_array( $tag, [ '5ftf_pledge_form_new', '5ftf_pledge_form_manage' ] ) ) {
+		return $value;
+	}
+
+	$action = sanitize_text_field( $_REQUEST['action'] ?? '' );
+	if ( 'resend_pledge_confirmation' !== $action ) {
+		return $value;
+	}
+
+	$pledge_id = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
+	Email\send_pledge_confirmation_email( $pledge_id, get_post()->ID );
+
+	$messages = array(
+		sprintf(
+			__( 'We’ve emailed you a new link to confirm your address for %s.', 'wporg-5ftf' ),
+			get_the_title( $pledge_id )
+		),
+	);
+
+	ob_start();
+	require FiveForTheFuture\get_views_path() . 'partial-result-messages.php';
+	return ob_get_clean();
+}
+
+/**
  * Get and sanitize $_POST values from a form submission.
  *
  * @return array
@@ -278,7 +328,7 @@ function get_form_submission() {
 
 	$result = filter_input_array( INPUT_POST, $input_filters );
 	if ( ! $result ) {
-		$result = array_fill_keys( array_keys( $input_filters ), '' );
+		$result               = array_fill_keys( array_keys( $input_filters ), '' );
 		$result['empty_post'] = true;
 	}
 
