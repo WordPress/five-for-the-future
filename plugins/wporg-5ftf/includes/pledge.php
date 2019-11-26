@@ -14,9 +14,10 @@ use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 defined( 'WPINC' ) || die();
 
-const SLUG    = 'pledge';
-const SLUG_PL = 'pledges';
-const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
+const SLUG             = 'pledge';
+const SLUG_PL          = 'pledges';
+const CPT_ID           = FiveForTheFuture\PREFIX . '_' . SLUG;
+const DEACTIVE_STATUS  = FiveForTheFuture\PREFIX . '-deactivated';
 
 // Admin hooks.
 add_action( 'init',          __NAMESPACE__ . '\register', 0 );
@@ -26,10 +27,12 @@ add_action( 'pre_get_posts', __NAMESPACE__ . '\filter_query' );
 add_filter( 'manage_edit-' . CPT_ID . '_columns',        __NAMESPACE__ . '\add_list_table_columns' );
 add_action( 'manage_' . CPT_ID . '_posts_custom_column', __NAMESPACE__ . '\populate_list_table_columns', 10, 2 );
 // Deactivate & reactivate handling.
-add_filter( 'post_row_actions',       __NAMESPACE__ . '\add_row_action', 10, 2 );
-add_action( 'post_action_deactivate', __NAMESPACE__ . '\handle_activation_action', 10, 3 );
-add_action( 'post_action_reactivate', __NAMESPACE__ . '\handle_activation_action', 10, 3 );
-add_action( 'admin_notices',          __NAMESPACE__ . '\action_success_message' );
+add_filter( 'post_row_actions',            __NAMESPACE__ . '\add_row_action', 10, 2 );
+add_action( 'post_action_deactivate',      __NAMESPACE__ . '\handle_activation_action', 10, 3 );
+add_action( 'post_action_reactivate',      __NAMESPACE__ . '\handle_activation_action', 10, 3 );
+add_action( 'admin_notices',               __NAMESPACE__ . '\action_success_message' );
+add_filter( 'display_post_states',         __NAMESPACE__ . '\add_status_to_display', 10, 2 );
+add_action( 'post_submitbox_misc_actions', __NAMESPACE__ . '\inject_status_label' );
 
 // Front end hooks.
 add_action( 'wp_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
@@ -122,15 +125,20 @@ function register_custom_post_type() {
  * @return void
  */
 function register_custom_post_status() {
+	$label_count = _n_noop(
+		'Deactivated <span class="count">(%s)</span>',
+		'Deactivated <span class="count">(%s)</span>',
+		'wporg-5ftf'
+	);
 	register_post_status(
-		FiveForTheFuture\PREFIX . '-deactivated',
+		DEACTIVE_STATUS,
 		array(
-			'label'       => __( 'Deactivated', 'wporg-5ftf' ),
-			'label_count' => _n_noop( 'Deactivated <span class="count">(%s)</span>', 'Deactivated <span class="count">(%s)</span>', 'wporg-5ftf' ),
-			'public'      => false,
-			'internal'    => false,
-			'protected'   => true,
-			CPT_ID        => true, // Custom parameter to streamline its use with the Pledge CPT.
+			'label'                  => __( 'Deactivated', 'wporg-5ftf' ),
+			'label_count'            => $label_count,
+			'public'                 => false,
+			'internal'               => false,
+			'protected'              => true,
+			'show_in_admin_all_list' => false,
 		)
 	);
 }
@@ -146,9 +154,9 @@ function add_row_action( $actions, $post ) {
 		return $actions;
 	}
 	$post_type_object = get_post_type_object( $post->post_type );
-	if ( FiveForTheFuture\PREFIX . '-deactivated' === $post->post_status ) {
+	if ( DEACTIVE_STATUS === $post->post_status ) {
 		$actions['reactivate'] = sprintf(
-			'<a href="%s" aria-label="%s">%s</a>',
+			'<a href="%s" style="color:#297531;" aria-label="%s">%s</a>',
 			wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=reactivate', $post->ID ) ), 'reactivate-post_' . $post->ID ),
 			/* translators: %s: Post title. */
 			esc_attr( sprintf( __( 'Reactivate pledge &#8220;%s&#8221;', 'wporg-5ftf' ), $post->post_title ) ),
@@ -157,7 +165,7 @@ function add_row_action( $actions, $post ) {
 	} else {
 		unset( $actions['trash'] );
 		$actions['deactivate'] = sprintf(
-			'<a href="%s" aria-label="%s">%s</a>',
+			'<a href="%s" style="color:#dc3232;" aria-label="%s">%s</a>',
 			wp_nonce_url( admin_url( sprintf( $post_type_object->_edit_link . '&amp;action=deactivate', $post->ID ) ), 'deactivate-post_' . $post->ID ),
 			/* translators: %s: Post title. */
 			esc_attr( sprintf( __( 'Deactivate pledge &#8220;%s&#8221;', 'wporg-5ftf' ), $post->post_title ) ),
@@ -193,7 +201,7 @@ function handle_activation_action( $post_id ) {
 	if ( 'deactivate' === $action ) {
 		wp_update_post( array(
 			'ID'          => $post_id,
-			'post_status' => FiveForTheFuture\PREFIX . '-deactivated',
+			'post_status' => DEACTIVE_STATUS,
 		) );
 		wp_redirect( add_query_arg( 'deactivated', 1, $sendback ) );
 		exit();
@@ -221,6 +229,51 @@ function action_success_message() {
 	<div id="message" class="notice notice-success is-dismissable">
 		<p><?php esc_html_e( 'Pledge reactivated.', 'wporg-5ftf' ); ?></p>
 	</div>
+	<?php endif;
+}
+
+/**
+ * Add "Deactivated" to the list of post states (displayed on each post in the list table).
+ *
+ * @param string[] $post_states An array of post display states.
+ * @param WP_Post  $post        The current post object.
+ *
+ * @return array The filtered list of post display states.
+ */
+function add_status_to_display( $post_states, $post ) {
+	if ( isset( $_REQUEST['post_status'] ) ) {
+		$showing_status = $_REQUEST['post_status'];
+	} else {
+		$showing_status = '';
+	}
+
+	$status = DEACTIVE_STATUS;
+	if ( $showing_status !== $status && $status === $post->post_status ) {
+		$post_states[ $status ] = _x( 'Deactivated', 'pledge label', 'wporg-5ftf' );
+	}
+
+	return $post_states;
+}
+
+/**
+ * Use JS to replace the empty status label on deactivated pledges.
+ *
+ * @param WP_Post $post The current post object.
+ *
+ * @return void
+ */
+function inject_status_label( $post ) {
+	if ( CPT_ID === $post->post_type && DEACTIVE_STATUS === $post->post_status ) : ?>
+		<script type="text/javascript">
+		jQuery( document ).ready( function( $ ) {
+			$("#post-status-display").text("Deactivated");
+			$("#save-action").remove();
+			$("#publishing-action").remove();
+		} );
+		</script>
+		<div class="misc-pub-section misc-pub-visibility">
+			<p><?php esc_html_e( 'This pledge is deactivated, it cannot be edited.', 'wporg-5ftf' ); ?></p>
+		</div>
 	<?php endif;
 }
 
