@@ -213,7 +213,7 @@ function process_form_manage( $pledge_id, $auth_token ) {
 	 */
 	$can_view_form = Auth\can_manage_pledge( $pledge_id, $auth_token );
 
-	if ( ! $has_valid_nonce || ! $can_view_form ) {
+	if ( ! $has_valid_nonce || is_wp_error( $can_view_form ) ) {
 		return new WP_Error(
 			'invalid_token',
 			sprintf(
