@@ -7,7 +7,7 @@
 	flex-wrap: wrap;
 	margin: 0;
 	list-style: none;
-	
+
 	li {
 		display: flex;
 		align-items: center;
@@ -193,4 +193,20 @@
 }
 .badge-test-team:before {
 	color: rgb(136, 79, 174);
+}
+
+.badge-bbpress {
+	background: rgba(45, 142, 66, 0.25);
+	box-shadow: 0 0 0 4px rgb(45, 142, 66);
+}
+.badge-bbpress:before {
+	color: rgb(45, 142, 66);
+}
+
+.badge-buddypress {
+	background: rgba(216, 72, 0, 0.25);
+	box-shadow: 0 0 0 4px rgb(216, 72, 0);
+}
+.badge-buddypress:before {
+	color: rgb(216, 72, 0);
 }

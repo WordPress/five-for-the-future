@@ -224,6 +224,14 @@ function get_badge_classes( $team ) {
 			$classes = array( 'badge-accessibility', 'dashicons-universal-access' );
 			break;
 
+		case 'bbpress':
+			$classes = array( 'badge-bbpress', 'dashicons-buddicons-bbpress-logo' );
+			break;
+
+		case 'buddypress':
+			$classes = array( 'badge-buddypress', 'dashicons-buddicons-buddypress-logo' );
+			break;
+
 		case 'cli':
 			$classes = array( 'badge-wp-cli', 'dashicons-arrow-right-alt2' );
 			break;
