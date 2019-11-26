@@ -187,6 +187,15 @@ function capture_updated_postmeta( $meta_id, $object_id, $meta_key, $meta_value 
 				$meta_key => $meta_value,
 			)
 		);
+	} else if ( '_thumbnail_id' === $meta_key ) {
+		add_log_entry(
+			$object_id,
+			'pledge_logo_changed',
+			sprintf(
+				'Changed logo to <code>%s</code>.',
+				get_the_post_thumbnail_url( $object_id, 'pledge-logo' )
+			)
+		);
 	}
 }
 
