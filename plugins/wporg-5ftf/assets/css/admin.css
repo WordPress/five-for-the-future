@@ -52,6 +52,7 @@
 	margin-bottom: 1.5rem;
 }
 
+.pledge-contributors.pledge-status__5ftf-deactivated .resend-confirm,
 .pledge-contributors.pledge-status__draft .resend-confirm {
 	display: none;
 }
