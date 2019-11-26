@@ -8,7 +8,8 @@ namespace WordPressDotOrg\FiveForTheFuture\Endpoints;
 use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
-add_action( 'wp_ajax_manage-contributors', __NAMESPACE__ . '\manage_contributors_handler' );
+add_action( 'wp_ajax_manage-contributors',        __NAMESPACE__ . '\manage_contributors_handler' );
+add_action( 'wp_ajax_nopriv_manage-contributors', __NAMESPACE__ . '\manage_contributors_handler' );
 
 add_action( 'wp_ajax_send-manage-email',        __NAMESPACE__ . '\send_manage_email_handler' );
 add_action( 'wp_ajax_nopriv_send-manage-email', __NAMESPACE__ . '\send_manage_email_handler' );
@@ -29,7 +30,7 @@ function manage_contributors_handler() {
 	if ( is_wp_error( $authenticated ) ) {
 		wp_die( wp_json_encode( [
 			'success' => false,
-			'message' => $authenticated->get_error_message(),
+			'message' => __( 'Sorry, you don\'t have permissions to do that.', 'wporg-5ftf' ),
 		] ) );
 	}
 
