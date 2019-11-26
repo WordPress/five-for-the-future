@@ -16,6 +16,7 @@ add_action( 'admin_init', __NAMESPACE__ . '\add_log_meta_box' );
 add_action( 'save_post_' . Pledge\CPT_ID, __NAMESPACE__ . '\capture_save_post', 99, 3 );
 add_action( 'updated_postmeta', __NAMESPACE__ . '\capture_updated_postmeta', 99, 4 );
 add_action( 'added_post_meta', __NAMESPACE__ . '\capture_added_post_meta', 99, 4 );
+add_action( 'deleted_post_meta', __NAMESPACE__ . '\capture_deleted_post_meta', 99, 4 );
 add_action( 'transition_post_status', __NAMESPACE__ . '\capture_transition_post_status', 99, 3 );
 add_action( FiveForTheFuture\PREFIX . '_add_pledge_contributors', __NAMESPACE__ . '\capture_add_pledge_contributors', 99, 3 );
 add_action( FiveForTheFuture\PREFIX . '_remove_contributor', __NAMESPACE__ . '\capture_remove_contributor', 99, 3 );
@@ -187,8 +188,44 @@ function capture_updated_postmeta( $meta_id, $object_id, $meta_key, $meta_value 
 				$meta_key => $meta_value,
 			)
 		);
+	} else if ( '_thumbnail_id' === $meta_key ) {
+		add_log_entry(
+			$object_id,
+			'pledge_logo_changed',
+			sprintf(
+				'Changed logo to <code>%s</code>.',
+				get_the_post_thumbnail_url( $object_id, 'pledge-logo' )
+			)
+		);
 	}
 }
+
+/**
+ * Record logs for events when postmeta is deleted.
+ *
+ * @param array  $meta_ids   An array of deleted metadata entry IDs.
+ * @param int    $object_id  Post ID.
+ * @param string $meta_key   Meta key.
+ * @param mixed  $meta_value Meta value.
+ *
+ * @return void
+ */
+function capture_deleted_post_meta( $meta_ids, $object_id, $meta_key, $meta_value ) {
+	$post_type = get_post_type( $object_id );
+
+	if ( Pledge\CPT_ID !== $post_type ) {
+		return;
+	}
+
+	if ( '_thumbnail_id' === $meta_key ) {
+		add_log_entry(
+			$object_id,
+			'pledge_logo_removed',
+			'Removed logo from pledge.'
+		);
+	}
+}
+
 
 /**
  * Record logs for events when new postmeta values are added (not changed).
