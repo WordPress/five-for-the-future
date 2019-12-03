@@ -7,7 +7,7 @@ namespace WordPressDotOrg\FiveForTheFuture\PledgeForm;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, Pledge, PledgeMeta };
-use WP_Error, WP_User;
+use WP_Error;
 
 defined( 'WPINC' ) || die();
 
@@ -27,6 +27,7 @@ add_filter( 'pre_do_shortcode_tag', __NAMESPACE__ . '\process_resend_confirm_ema
  */
 function render_form_new() {
 	$action        = isset( $_GET['action'] ) ? filter_input( INPUT_GET, 'action' ) : filter_input( INPUT_POST, 'action' );
+	$is_manage     = false;
 	$pledge_id     = 0;
 	$data          = get_form_submission();
 	$errors        = [];
@@ -229,7 +230,7 @@ function process_form_manage( $pledge_id, $auth_token ) {
  * @return bool|string
  */
 function process_confirmed_email( $value, $tag ) {
-	if ( ! in_array( $tag, [ '5ftf_pledge_form_new', '5ftf_pledge_form_manage' ] ) ) {
+	if ( ! in_array( $tag, array( '5ftf_pledge_form_new', '5ftf_pledge_form_manage' ), true ) ) {
 		return $value;
 	}
 
@@ -286,7 +287,7 @@ function process_confirmed_email( $value, $tag ) {
  * @return bool|string
  */
 function process_resend_confirm_email( $value, $tag ) {
-	if ( ! in_array( $tag, [ '5ftf_pledge_form_new', '5ftf_pledge_form_manage' ] ) ) {
+	if ( ! in_array( $tag, array( '5ftf_pledge_form_new', '5ftf_pledge_form_manage' ), true ) ) {
 		return $value;
 	}
 

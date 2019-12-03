@@ -444,7 +444,7 @@ function has_required_pledge_meta( array $submission, $context ) {
 	$required    = array_keys( $meta_config );
 
 	foreach ( $required as $key ) {
-		if ( ! in_array( $context, $meta_config[ $key ]['context'] ) ) {
+		if ( ! in_array( $context, $meta_config[ $key ]['context'], true ) ) {
 			continue;
 		}
 
@@ -529,11 +529,20 @@ function get_normalized_domain_from_url( $url ) {
  * @return void
  */
 function enqueue_assets() {
-	$ver = filemtime( FiveForTheFuture\PATH . '/assets/css/admin.css' );
-	wp_register_style( '5ftf-admin', plugins_url( 'assets/css/admin.css', __DIR__ ), [], $ver );
+	wp_register_style(
+		'5ftf-admin',
+		plugins_url( 'assets/css/admin.css', __DIR__ ),
+		array(),
+		filemtime( FiveForTheFuture\PATH . '/assets/css/admin.css' )
+	);
 
-	$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/admin.js' );
-	wp_register_script( '5ftf-admin', plugins_url( 'assets/js/admin.js', __DIR__ ), [ 'jquery', 'wp-util' ], $ver );
+	wp_register_script(
+		'5ftf-admin',
+		plugins_url( 'assets/js/admin.js', __DIR__ ),
+		array( 'jquery', 'wp-util' ),
+		filemtime( FiveForTheFuture\PATH . '/assets/js/admin.js' ),
+		true
+	);
 
 	$pledge_id   = is_admin() ? get_the_ID() : absint( $_REQUEST['pledge_id'] ?? 0 );
 	$auth_token  = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );

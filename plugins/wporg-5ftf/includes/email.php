@@ -8,6 +8,7 @@ namespace WordPressDotOrg\FiveForTheFuture\Email;
 use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor };
 use const WordPressDotOrg\FiveForTheFuture\PREFIX;
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
+use WP_Error;
 
 defined( 'WPINC' ) || die();
 

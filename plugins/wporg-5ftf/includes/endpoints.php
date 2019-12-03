@@ -30,7 +30,7 @@ function manage_contributors_handler() {
 	if ( is_wp_error( $authenticated ) ) {
 		wp_die( wp_json_encode( [
 			'success' => false,
-			'message' => __( 'Sorry, you don\'t have permissions to do that.', 'wporg-5ftf' ),
+			'message' => __( "Sorry, you don't have permissions to do that.", 'wporg-5ftf' ),
 		] ) );
 	}
 
@@ -54,7 +54,7 @@ function manage_contributors_handler() {
 			break;
 
 		case 'add-contributor':
-			$pledge = get_post( $pledge_id );
+			$pledge           = get_post( $pledge_id );
 			$new_contributors = Contributor\parse_contributors( $_POST['contributors'] );
 			if ( is_wp_error( $new_contributors ) ) {
 				wp_die( wp_json_encode( [
@@ -62,6 +62,7 @@ function manage_contributors_handler() {
 					'message' => $new_contributors->get_error_message(),
 				] ) );
 			}
+
 			$contributor_ids = Contributor\add_pledge_contributors( $pledge_id, $new_contributors );
 			if ( 'publish' === $pledge->post_status ) {
 				foreach ( $contributor_ids as $contributor_id ) {
