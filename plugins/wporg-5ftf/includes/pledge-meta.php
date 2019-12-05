@@ -208,7 +208,10 @@ function add_meta_boxes() {
  * @param array   $box
  */
 function render_meta_boxes( $pledge, $box ) {
-	$readonly  = ! current_user_can( 'edit_page', $pledge->ID );
+	$readonly = (
+		! current_user_can( 'edit_page', $pledge->ID ) ||
+		Pledge\DEACTIVE_STATUS === $pledge->post_status
+	);
 	$is_manage = true;
 	$pledge_id = $pledge->ID;
 

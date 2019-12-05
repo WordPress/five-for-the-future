@@ -5,8 +5,8 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 
 /** @var array $contributors */
 /** @var int   $pledge_id */
+/** @var bool  $readonly */
 ?>
-
 <script type="text/template" id="tmpl-5ftf-contributor-lists">
 	<# if ( data.publish.length ) { #>
 		<h3 class="contributor-list-heading"><?php esc_html_e( 'Confirmed', 'wporg-5ftf' ); ?></h3>
@@ -14,7 +14,9 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 			<thead>
 				<th scope="col"><?php esc_html_e( 'Contributor', 'wporg-5ftf' ); ?></th>
 				<th scope="col"><?php esc_html_e( 'Date Confirmed', 'wporg-5ftf' ); ?></th>
+				<?php if ( ! $readonly ) : ?>
 				<th scope="col"><?php esc_html_e( 'Remove Contributor', 'wporg-5ftf' ); ?></th>
+				<?php endif; ?>
 			</thead>
 			<tbody>{{{ data.publish }}}</tbody>
 		</table>
@@ -26,7 +28,9 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 				<tr>
 					<th scope="col"><?php esc_html_e( 'Contributor', 'wporg-5ftf' ); ?></th>
 					<th scope="col" class="resend-confirm"><?php esc_html_e( 'Resend Confirmation', 'wporg-5ftf' ); ?></th>
+					<?php if ( ! $readonly ) : ?>
 					<th scope="col"><?php esc_html_e( 'Remove Contributor', 'wporg-5ftf' ); ?></th>
+					<?php endif; ?>
 				</tr>
 			</thead>
 			<tbody>{{{ data.pending }}}</tbody>
@@ -58,6 +62,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 		<# } else { #>
 			<td>{{ data.publishDate }}</td>
 		<# } #>
+		<?php if ( ! $readonly ) : ?>
 		<td>
 			<button
 				class="button-link button-link-delete"
@@ -70,6 +75,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 				<?php esc_html_e( 'Remove', 'wporg-5ftf' ); ?>
 			</button>
 		</td>
+		<?php endif; ?>
 	</tr>
 </script> 
 
@@ -88,16 +94,18 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 	</div>
 
 	<?php
-	$data = [ 'pledge-contributors' => '' ];
-	require get_views_path() . 'inputs-pledge-contributors.php';
-	?>
+	if ( ! $readonly ) :
+		$data = [ 'pledge-contributors' => '' ];
+		require get_views_path() . 'inputs-pledge-contributors.php';
+		?>
 
-	<div id="add-contrib-message" role="alert" aria-atomic="true"></div>
+		<div id="add-contrib-message" role="alert" aria-atomic="true"></div>
 
-	<button
-		class="button-primary"
-		data-action="add-contributor"
-	>
-		<?php esc_html_e( 'Add new contributors', 'wporg-5ftf' ); ?>
-	</button>
+		<button
+			class="button-primary"
+			data-action="add-contributor"
+		>
+			<?php esc_html_e( 'Add new contributors', 'wporg-5ftf' ); ?>
+		</button>
+	<?php endif; ?>
 </div>
