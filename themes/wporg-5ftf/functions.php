@@ -220,79 +220,71 @@ add_filter( 'script_loader_src', __NAMESPACE__ . '\loader_src', 10, 2 );
  */
 function get_badge_classes( $team ) {
 	switch ( strtolower( $team ) ) {
-		case 'accessibility':
+		case 'accessibility team':
 			$classes = array( 'badge-accessibility', 'dashicons-universal-access' );
 			break;
 
-		case 'cli':
+		case 'wp-cli team':
 			$classes = array( 'badge-wp-cli', 'dashicons-arrow-right-alt2' );
 			break;
 
-		case 'community':
+		case 'community team':
 			$classes = array( 'badge-community', 'dashicons-groups' );
 			break;
 
-		case 'core':
+		case 'core team':
 			$classes = array( 'badge-code-committer', 'dashicons-editor-code' );
 			break;
 
-		case 'design':
+		case 'design team':
 			$classes = array( 'badge-design', 'dashicons-art' );
 			break;
 
-		case 'documentation':
+		case 'documentation team':
 			$classes = array( 'badge-documentation', 'dashicons-admin-page' );
 			break;
 
-		case 'hosting':
+		case 'hosting team':
 			$classes = array( 'badge-hosting', 'dashicons-cloud' );
 			break;
 
-		case 'marketing':
+		case 'marketing team':
 			$classes = array( 'badge-marketing', 'dashicons-format-status' );
 			break;
 
-		case 'meta':
+		case 'meta team':
 			$classes = array( 'badge-meta', 'dashicons-networking' );
 			break;
 
-		case 'mobile':
+		case 'mobile team':
 			$classes = array( 'badge-mobile', 'dashicons-smartphone' );
 			break;
 
-		case 'plugins':
-			$classes = array( 'badge-plugins-reviewer ', 'dashicons-admin-plugins' );
-			break;
-
-		case 'polyglots':
+		case 'polyglots team':
 			$classes = array( 'badge-translation-editor', 'dashicons-translation' );
 			break;
 
-		case 'security':
-			$classes = array( 'badge-security-team', 'dashicons-lock' );
-			break;
-
-		case 'support':
+		case 'support team':
 			$classes = array( 'badge-support', 'dashicons-format-chat' );
 			break;
 
-		case 'test':
+		case 'test team':
 			$classes = array( 'badge-test-team', 'dashicons-desktop' );
 			break;
 
-		case 'themes':
+		case 'themes review team':
 			$classes = array( 'badge-themes-reviewer', 'dashicons-admin-appearance' );
 			break;
 
-		case 'tide':
+		case 'tide team':
 			$classes = array( 'badge-tide', 'dashicons-tide' );
 			break;
 
-		case 'training':
+		case 'training team':
 			$classes = array( 'badge-training', 'dashicons-welcome-learn-more' );
 			break;
 
-		case 'tv':
+		case 'tv team':
 			$classes = array( 'badge-wordpress-tv', 'dashicons-video-alt2' );
 			break;
 
