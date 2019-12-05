@@ -186,6 +186,12 @@ function handle_activation_action( $post_id ) {
 		return;
 	}
 
+	if ( 'deactivate' === $action ) {
+		check_admin_referer( 'deactivate-post_' . $post_id );
+	} else {
+		check_admin_referer( 'reactivate-post_' . $post_id );
+	}
+
 	$post = get_post( $post_id );
 	if ( ! is_a( $post, 'WP_Post' ) || CPT_ID !== $post->post_type ) {
 		return;
