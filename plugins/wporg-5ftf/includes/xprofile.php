@@ -71,11 +71,11 @@ function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 
 	$aggregate_data = array_reduce( $data, function( $carry, $item ) {
 		switch ( $item['field_id'] ) {
-			case 29: // Hours.
+			case FIELD_IDS['hours_per_week']:
 				$carry['hours'] += absint( $item['value'] );
 				break;
 
-			case 30: // Teams.
+			case FIELD_IDS['team_names']:
 				$value          = (array) maybe_unserialize( $item['value'] );
 				$carry['teams'] = array_merge( $carry['teams'], $value );
 				break;
