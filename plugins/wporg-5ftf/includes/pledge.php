@@ -462,21 +462,26 @@ function has_existing_pledge( $key, $key_type, int $current_pledge_id = 0 ) {
  * @return void
  */
 function enqueue_assets() {
-	wp_register_script( 'wicg-inert', plugins_url( 'assets/js/inert.min.js', __DIR__ ), [], '3.0.0', true );
+	wp_register_script( 'wicg-inert', plugins_url( 'assets/js/inert.min.js', __DIR__ ), array(), '3.0.0', true );
 
 	if ( CPT_ID === get_post_type() ) {
-		$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/frontend.js' );
-		wp_enqueue_script( '5ftf-frontend', plugins_url( 'assets/js/frontend.js', __DIR__ ), [ 'jquery', 'wp-a11y', 'wp-util', 'wicg-inert' ], $ver, true );
+		wp_enqueue_script(
+			'5ftf-dialog',
+			plugins_url( 'assets/js/dialog.js', __DIR__ ),
+			array( 'jquery', 'wp-a11y', 'wp-util', 'wicg-inert' ),
+			filemtime( FiveForTheFuture\PATH . '/assets/js/dialog.js' ),
+			true
+		);
 
-		$script_data = [
-			'ajaxurl'   => admin_url( 'admin-ajax.php', 'relative' ), // The global ajaxurl is not set on the frontend.
-			'pledgeId'  => get_the_ID(),
-			'ajaxNonce' => wp_create_nonce( 'send-manage-email' ),
-		];
+		$script_data = array(
+			'ajaxurl'      => admin_url( 'admin-ajax.php', 'relative' ), // The global ajaxurl is not set on the frontend.
+			'pledgeId'     => get_the_ID(),
+			'ajaxNonce'    => wp_create_nonce( 'send-manage-email' ),
+		);
 		wp_add_inline_script(
-			'5ftf-frontend',
+			'5ftf-dialog',
 			sprintf(
-				'var FiveForTheFuture = JSON.parse( decodeURIComponent( \'%s\' ) );',
+				'var FFTF_Dialog = JSON.parse( decodeURIComponent( \'%s\' ) );',
 				rawurlencode( wp_json_encode( $script_data ) )
 			),
 			'before'
