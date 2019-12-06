@@ -549,13 +549,14 @@ function enqueue_assets() {
 
 	$pledge_id   = is_admin() ? get_the_ID() : absint( $_REQUEST['pledge_id'] ?? 0 );
 	$auth_token  = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );
-	$script_data = [
+	$script_data = array(
 		// The global ajaxurl is not set on the frontend.
 		'ajaxurl'     => admin_url( 'admin-ajax.php', 'relative' ),
 		'pledgeId'    => $pledge_id,
 		'manageNonce' => wp_create_nonce( 'manage-contributors' ),
 		'authToken'   => $auth_token,
-	];
+		'removePrompt' => __( 'Are you sure you want to remove this pledge?', 'wporg-5ftf' ),
+	);
 	wp_add_inline_script(
 		'5ftf-admin',
 		sprintf(
