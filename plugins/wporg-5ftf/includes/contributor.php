@@ -325,12 +325,9 @@ function get_contributor_user_ids( $contributor_posts ) {
 		WHERE user_login IN( $usernames_placeholders )
 	";
 
-	$rows = $wpdb->get_results(
-		$wpdb->prepare( $query, $usernames ),
-		ARRAY_A
+	$user_ids = $wpdb->get_col(
+		$wpdb->prepare( $query, $usernames )
 	);
-
-	$user_ids = wp_list_pluck( $rows, 'id' );
 
 	return $user_ids;
 }

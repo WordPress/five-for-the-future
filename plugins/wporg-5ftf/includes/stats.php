@@ -10,13 +10,17 @@ use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\{ Contributor, Pledge, XProfile };
 use WP_Query;
 
+use const WordPressDotOrg\FiveForTheFuture\PREFIX;
+
 defined( 'WPINC' ) || die();
 
-add_action( 'init',                 __NAMESPACE__ . '\register_post_types' );
-add_action( 'init',                 __NAMESPACE__ . '\schedule_cron_jobs' );
-add_action( '5ftf_record_snapshot', __NAMESPACE__ . '\record_snapshot' );
+const CPT_ID  = PREFIX . '_stats_snapshot';
 
-add_shortcode( '5ftf_stats', __NAMESPACE__ . '\render_shortcode' );
+add_action( 'init',                      __NAMESPACE__ . '\register_post_types' );
+add_action( 'init',                      __NAMESPACE__ . '\schedule_cron_jobs' );
+add_action( PREFIX . '_record_snapshot', __NAMESPACE__ . '\record_snapshot' );
+
+add_shortcode( PREFIX . '_stats', __NAMESPACE__ . '\render_shortcode' );
 
 
 /**
@@ -29,27 +33,27 @@ function register_post_types() {
 		'show_in_rest' => true,
 
 		// Only allow posts to be created programmatically.
-		'capability_type' => '5ftf_stats',
+		'capability_type' => CPT_ID,
 		'capabilities'    => array(
 			'create_posts' => 'do_not_allow',
 		),
 	);
 
-	register_post_type( '5ftf_stats_snapshot', $args );
+	register_post_type( CPT_ID, $args );
 }
 
 /**
  * Schedule the cron job to record a stats snapshot.
  */
 function schedule_cron_jobs() {
-	if ( wp_next_scheduled( '5ftf_record_snapshot' ) ) {
+	if ( wp_next_scheduled( PREFIX . '_record_snapshot' ) ) {
 		return;
 	}
 
 	// Schedule a repeating "single" event to avoid having to create a custom schedule.
 	wp_schedule_single_event(
 		time() + ( 2 * WEEK_IN_SECONDS ),
-		'5ftf_record_snapshot'
+		PREFIX . '_record_snapshot'
 	);
 }
 
@@ -60,16 +64,16 @@ function record_snapshot() {
 	$stats = get_snapshot_data();
 
 	$post_id = wp_insert_post( array(
-		'post_type'   => '5ftf_stats_snapshot',
+		'post_type'   => CPT_ID,
 		'post_author' => 0,
 		'post_title'  => sprintf( '5ftF Stats Snapshot %s', date( 'Y-m-d' ) ),
 		'post_status' => 'publish',
 	) );
 
-	add_post_meta( $post_id, '5ftf_total_pledged_hours',             $stats['confirmed_hours'] );
-	add_post_meta( $post_id, '5ftf_total_pledged_contributors',      $stats['confirmed_contributors'] );
-	add_post_meta( $post_id, '5ftf_total_pledged_companies',         $stats['confirmed_pledges'] );
-	add_post_meta( $post_id, '5ftf_total_pledged_team_contributors', $stats['confirmed_team_contributors'] );
+	add_post_meta( $post_id, PREFIX . '_total_pledged_hours',             $stats['confirmed_hours'] );
+	add_post_meta( $post_id, PREFIX . '_total_pledged_contributors',      $stats['confirmed_contributors'] );
+	add_post_meta( $post_id, PREFIX . '_total_pledged_companies',         $stats['confirmed_pledges'] );
+	add_post_meta( $post_id, PREFIX . '_total_pledged_team_contributors', $stats['confirmed_team_contributors'] );
 }
 
 /**
@@ -153,16 +157,16 @@ function get_snapshot_data() {
  */
 function render_shortcode() {
 	$snapshots = get_posts( array(
-		'post_type'      => '5ftf_stats_snapshot',
+		'post_type'      => CPT_ID,
 		'posts_per_page' => 500,
 		'order'          => 'ASC',
 	) );
 
 	$stat_keys = array(
-		'5ftf_total_pledged_hours',
-		'5ftf_total_pledged_contributors',
-		'5ftf_total_pledged_companies',
-		'5ftf_total_pledged_team_contributors',
+		PREFIX . '_total_pledged_hours',
+		PREFIX . '_total_pledged_contributors',
+		PREFIX . '_total_pledged_companies',
+		PREFIX . '_total_pledged_team_contributors',
 	);
 
 	$stat_values = array();
