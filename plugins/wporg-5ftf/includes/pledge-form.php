@@ -144,6 +144,23 @@ function render_form_manage() {
 				$messages[] = __( 'You must confirm your new email address before it will be visible.', 'wporg-5ftf' );
 			}
 		}
+	} else if ( 'remove-pledge' === $action ) {
+		$results = process_form_remove( $pledge_id, $auth_token );
+
+		if ( is_wp_error( $results ) ) {
+			$errors = $results->get_error_messages();
+		} else {
+			$messages = array(
+				sprintf(
+					__( 'Your pledge has been removed. If this was a mistake, please <a href="%s">contact us</a> to reactivate your pledge.', 'wporg-5ftf' ),
+					get_permalink( get_page_by_path( 'report' ) )
+				),
+			);
+		}
+
+		ob_start();
+		require FiveForTheFuture\PATH . 'views/partial-result-messages.php';
+		return ob_get_clean();
 	}
 
 	$data         = PledgeMeta\get_pledge_meta( $pledge_id );
@@ -215,9 +232,45 @@ function process_form_manage( $pledge_id, $auth_token ) {
 		}
 	}
 
-	// @todo Save contributors.
-
 	// If we made it to here, we've successfully saved the pledge.
+	return true;
+}
+
+/**
+ * Process a submission from the Manage Pledge form.
+ *
+ * @return WP_Error|true An error if the pledge could not be saved. Otherwise true.
+ */
+function process_form_remove( $pledge_id, $auth_token ) {
+	$errors          = array();
+	$nonce           = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+	$nonce_action    = 'remove_pledge_' . $pledge_id;
+	$has_valid_nonce = wp_verify_nonce( $nonce, $nonce_action );
+	$can_view_form   = Auth\can_manage_pledge( $pledge_id, $auth_token );
+
+	if ( ! $has_valid_nonce || is_wp_error( $can_view_form ) ) {
+		return new WP_Error(
+			'invalid_token',
+			sprintf(
+				__( 'Your link has expired, please <a href="%s">obtain a new one</a>.', 'wporg-5ftf' ),
+				get_permalink( $pledge_id )
+			)
+		);
+	}
+
+	$result = wp_update_post(
+		array(
+			'ID'          => $pledge_id,
+			'post_status' => Pledge\DEACTIVE_STATUS,
+		),
+		true // Return a WP_Error.
+	);
+
+	if ( is_wp_error( $result ) ) {
+		return $result;
+	}
+
+	// If we made it to here, we've successfully removed the pledge.
 	return true;
 }
 
