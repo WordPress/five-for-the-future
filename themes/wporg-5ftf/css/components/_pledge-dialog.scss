@@ -29,6 +29,29 @@
 		border-bottom-color: $color-gray-light-400;
 	}
 
+	.pledge-dialog__close {
+		position: absolute;
+		top: 0;
+		right: 0;
+		padding: 10px;
+		text-decoration: none;
+	}
+}
+
+.pledge-dialog__background {
+	position: fixed;
+	z-index: 99;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+.pledge-email-form {
 	label {
 		display: inline-block;
 		margin-bottom: 4px;
@@ -52,26 +75,5 @@
 
 	.notice p {
 		font-size: 1em;
-	}
-
-	.pledge-dialog__close {
-		position: absolute;
-		top: 0;
-		right: 0;
-		padding: 10px;
-		text-decoration: none;
-	}
-}
-
-.pledge-dialog__background {
-	position: fixed;
-	z-index: 99;
-	top: 0;
-	left: 0;
-	bottom: 0;
-	right: 0;
-
-	&[hidden] {
-		display: none;
 	}
 }

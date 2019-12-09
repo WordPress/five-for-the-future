@@ -122,7 +122,7 @@ function render_form_manage() {
 	$can_view_form = Auth\can_manage_pledge( $pledge_id, $auth_token );
 
 	if ( is_wp_error( $can_view_form ) ) {
-		$errors = array( $can_view_form->get_error_message() );
+		$errors = array( strip_tags( $can_view_form->get_error_message() ) );
 	} else if ( ! Pledge\is_active_pledge( $pledge_id ) ) {
 		$errors = array(
 			sprintf(
@@ -130,6 +130,12 @@ function render_form_manage() {
 				get_permalink( get_page_by_path( 'report' ) )
 			),
 		);
+	}
+
+	if ( Pledge\is_active_pledge( $pledge_id ) && is_wp_error( $can_view_form ) ) {
+		ob_start();
+		require FiveForTheFuture\get_views_path() . 'partial-request-manage-link.php';
+		return ob_get_clean();
 	}
 
 	if ( count( $errors ) > 0 ) {
