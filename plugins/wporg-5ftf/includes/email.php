@@ -154,3 +154,25 @@ function send_manage_pledge_link( $pledge_id ) {
 
 	return $result;
 }
+
+/**
+ * Email pledge manager to notify that the pledge has been removed.
+ *
+ * @param WP_Post $pledge The pledge object, used to add the title now that the pledge itself has been deleted.
+ *
+ * @return bool
+ */
+function send_pledge_deactivation_email( $pledge ) {
+	$message = sprintf(
+		"Your organization, %s, has been removed from the Five for the Future listing.\n\n" .
+		'Please reply to this email if this was a mistake.',
+		$pledge->post_title
+	);
+
+	return send_email(
+		$pledge->{'5ftf_org-pledge-email'},
+		'Pledge removed from Five for the Future',
+		$message,
+		$pledge->ID
+	);
+}

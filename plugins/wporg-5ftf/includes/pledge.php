@@ -205,10 +205,7 @@ function handle_activation_action( $post_id ) {
 	$sendback = remove_query_arg( [ 'deactivated', 'reactivated' ], $sendback );
 
 	if ( 'deactivate' === $action ) {
-		wp_update_post( array(
-			'ID'          => $post_id,
-			'post_status' => DEACTIVE_STATUS,
-		) );
+		deactivate( $post_id );
 		wp_redirect( add_query_arg( 'deactivated', 1, $sendback ) );
 		exit();
 	} else {
@@ -353,6 +350,31 @@ function create_new_pledge( $name ) {
 	}
 
 	return $pledge_id;
+}
+
+/**
+ * Remove a pledge from view by setting its status to "deactivated".
+ *
+ * @param int  $pledge_id The pledge to deactivate.
+ * @param bool $notify    Whether the pledge admin should be notified of the deactivation.
+ *
+ * @return int|WP_Error Post ID on success. Otherwise WP_Error.
+ */
+function deactivate( $pledge_id, $notify = false ) {
+	$pledge = get_post( $pledge_id );
+	$result = wp_update_post(
+		array(
+			'ID'          => $pledge_id,
+			'post_status' => DEACTIVE_STATUS,
+		),
+		true // Return a WP_Error.
+	);
+
+	if ( $notify && ! is_wp_error( $result ) ) {
+		Email\send_pledge_deactivation_email( $pledge );
+	}
+
+	return $result;
 }
 
 /**

@@ -258,13 +258,7 @@ function process_form_remove( $pledge_id, $auth_token ) {
 		);
 	}
 
-	$result = wp_update_post(
-		array(
-			'ID'          => $pledge_id,
-			'post_status' => Pledge\DEACTIVE_STATUS,
-		),
-		true // Return a WP_Error.
-	);
+	$result = Pledge\deactivate( $pledge_id, true );
 
 	if ( is_wp_error( $result ) ) {
 		return $result;
