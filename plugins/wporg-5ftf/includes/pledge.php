@@ -327,6 +327,17 @@ function populate_list_table_columns( $column, $post_id ) {
 			break;
 	}
 }
+/**
+ * Check if a post is an active pledge (pending or published).
+ *
+ * @param int $post_id The ID of a post to check.
+ *
+ * @return bool
+ */
+function is_active_pledge( $post_id ) {
+	return CPT_ID === get_post_type( $post_id ) &&
+		in_array( get_post_status( $post_id ), array( 'pending', 'publish' ), true );
+}
 
 /**
  * Create a new pledge post.

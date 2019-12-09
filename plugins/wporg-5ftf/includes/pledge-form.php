@@ -123,7 +123,7 @@ function render_form_manage() {
 
 	if ( is_wp_error( $can_view_form ) ) {
 		$errors = array( $can_view_form->get_error_message() );
-	} else if ( ! in_array( get_post_status( $pledge_id ), array( 'pending', 'publish' ), true ) ) {
+	} else if ( ! Pledge\is_active_pledge( $pledge_id ) ) {
 		$errors = array(
 			sprintf(
 				__( 'This pledge has been removed from Five for the Future. If this was a mistake, please <a href="%s">contact us</a> to reactivate your pledge.', 'wporg-5ftf' ),
