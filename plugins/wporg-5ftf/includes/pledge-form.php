@@ -34,7 +34,6 @@ function render_form_new() {
 	$pledge        = null;
 	$complete      = false;
 	$directory_url = home_url( 'pledges' );
-	$view          = 'form-pledge-new.php';
 
 	if ( 'Submit Pledge' === $action ) {
 		$pledge_id = process_form_new();
@@ -48,7 +47,7 @@ function render_form_new() {
 
 	ob_start();
 	$readonly = false;
-	require FiveForTheFuture\get_views_path() . $view;
+	require FiveForTheFuture\get_views_path() . 'form-pledge-new.php';
 
 	return ob_get_clean();
 }
