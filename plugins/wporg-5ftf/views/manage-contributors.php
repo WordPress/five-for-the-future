@@ -102,7 +102,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 		<div id="add-contrib-message" role="alert" aria-atomic="true"></div>
 
 		<button
-			class="button-primary"
+			class="button button-secondary"
 			data-action="add-contributor"
 		>
 			<?php esc_html_e( 'Add new contributors', 'wporg-5ftf' ); ?>

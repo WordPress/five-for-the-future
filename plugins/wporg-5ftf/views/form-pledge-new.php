@@ -57,6 +57,7 @@ require __DIR__ . '/partial-result-messages.php';
 		<div>
 			<input
 				type="submit"
+				class="button"
 				id="5ftf-pledge-submit"
 				name="action"
 				value="<?php esc_attr_e( 'Submit Pledge', 'wporg-5ftf' ); ?>"

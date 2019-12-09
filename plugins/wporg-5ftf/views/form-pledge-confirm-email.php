@@ -67,6 +67,7 @@ use WP_Post;
 			<p>
 				<input
 					type="submit"
+					class="button"
 					value="Resend Confirmation"
 				/>
 			</p>

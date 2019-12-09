@@ -35,6 +35,7 @@ defined( 'WPINC' ) || die();
 
 			<input
 				type="submit"
+				class="button"
 				name="get_manage_pledge_link"
 				value="<?php esc_attr_e( 'Submit', 'wporg-5ftf' ); ?>"
 			/>
