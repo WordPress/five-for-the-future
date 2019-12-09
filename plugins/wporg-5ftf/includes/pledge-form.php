@@ -123,28 +123,23 @@ function render_form_manage() {
 	$can_view_form = Auth\can_manage_pledge( $pledge_id, $auth_token );
 
 	if ( is_wp_error( $can_view_form ) ) {
-		// Can't manage pledge, only show errors.
 		$errors = array( $can_view_form->get_error_message() );
+	} else if ( ! in_array( get_post_status( $pledge_id ), array( 'pending', 'publish' ), true ) ) {
+		$errors = array(
+			sprintf(
+				__( 'This pledge has been removed from Five for the Future. If this was a mistake, please <a href="%s">contact us</a> to reactivate your pledge.', 'wporg-5ftf' ),
+				get_permalink( get_page_by_path( 'report' ) )
+			),
+		);
+	}
 
+	if ( count( $errors ) > 0 ) {
 		ob_start();
 		require FiveForTheFuture\PATH . 'views/partial-result-messages.php';
 		return ob_get_clean();
 	}
 
-	if ( 'Update Pledge' === $action ) {
-		$results = process_form_manage( $pledge_id, $auth_token );
-
-		if ( is_wp_error( $results ) ) {
-			$errors = $results->get_error_messages();
-		} else {
-			$messages = array( __( 'Your pledge has been updated.', 'wporg-5ftf' ) );
-
-			$meta_key = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
-			if ( ! get_post( $pledge_id )->$meta_key ) {
-				$messages[] = __( 'You must confirm your new email address before it will be visible.', 'wporg-5ftf' );
-			}
-		}
-	} else if ( 'remove-pledge' === $action ) {
+	if ( 'remove-pledge' === $action ) {
 		$results = process_form_remove( $pledge_id, $auth_token );
 
 		if ( is_wp_error( $results ) ) {
@@ -161,6 +156,19 @@ function render_form_manage() {
 		ob_start();
 		require FiveForTheFuture\PATH . 'views/partial-result-messages.php';
 		return ob_get_clean();
+	} else if ( 'Update Pledge' === $action ) {
+		$results = process_form_manage( $pledge_id, $auth_token );
+
+		if ( is_wp_error( $results ) ) {
+			$errors = $results->get_error_messages();
+		} else {
+			$messages = array( __( 'Your pledge has been updated.', 'wporg-5ftf' ) );
+
+			$meta_key = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
+			if ( ! get_post( $pledge_id )->$meta_key ) {
+				$messages[] = __( 'You must confirm your new email address before it will be visible.', 'wporg-5ftf' );
+			}
+		}
 	}
 
 	$data         = PledgeMeta\get_pledge_meta( $pledge_id );
