@@ -135,7 +135,7 @@ function render_form_manage() {
 
 	if ( count( $errors ) > 0 ) {
 		ob_start();
-		require FiveForTheFuture\PATH . 'views/partial-result-messages.php';
+		require FiveForTheFuture\get_views_path() . 'partial-result-messages.php';
 		return ob_get_clean();
 	}
 
@@ -154,7 +154,7 @@ function render_form_manage() {
 		}
 
 		ob_start();
-		require FiveForTheFuture\PATH . 'views/partial-result-messages.php';
+		require FiveForTheFuture\get_views_path() . 'partial-result-messages.php';
 		return ob_get_clean();
 	} else if ( 'Update Pledge' === $action ) {
 		$results = process_form_manage( $pledge_id, $auth_token );
@@ -177,7 +177,7 @@ function render_form_manage() {
 	ob_start();
 	$readonly  = false;
 	$is_manage = true;
-	require FiveForTheFuture\PATH . 'views/form-pledge-manage.php';
+	require FiveForTheFuture\get_views_path() . 'form-pledge-manage.php';
 
 	return ob_get_clean();
 }
