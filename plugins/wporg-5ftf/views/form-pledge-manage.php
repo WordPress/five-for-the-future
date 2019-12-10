@@ -42,4 +42,6 @@ require __DIR__ . '/partial-result-messages.php';
 
 	</form>
 
+	<?php require get_views_path() . 'form-pledge-remove.php'; ?>
+
 <?php endif; ?>

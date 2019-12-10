@@ -1,4 +1,4 @@
-/* global FiveForTheFuture, jQuery */
+/* global FFTF_Dialog, jQuery */
 jQuery( document ).ready( function( $ ) {
 	const button = document.getElementById( 'toggle-management-link-form' );
 	const template = wp.template( '5ftf-send-link-dialog' );
@@ -84,12 +84,12 @@ jQuery( document ).ready( function( $ ) {
 		$( event.target.querySelector( '.message' ) ).html( '' );
 		$.ajax( {
 			type: 'POST',
-			url: FiveForTheFuture.ajaxurl,
+			url: FFTF_Dialog.ajaxurl,
 			data: {
 				action: 'send-manage-email',
-				pledge_id: FiveForTheFuture.pledgeId,
+				pledge_id: FFTF_Dialog.pledgeId,
 				email,
-				_ajax_nonce: FiveForTheFuture.ajaxNonce,
+				_ajax_nonce: FFTF_Dialog.ajaxNonce,
 			},
 			success( response ) {
 				if ( response.message ) {

@@ -1,4 +1,4 @@
-/* global ajaxurl, FiveForTheFuture, fftfContributors, jQuery */
+/* global FiveForTheFuture, fftfContributors, jQuery */
 /* eslint no-alert: "off" */
 jQuery( document ).ready( function( $ ) {
 	let ajaxurl = window.ajaxurl;
@@ -151,6 +151,12 @@ jQuery( document ).ready( function( $ ) {
 		if ( 13 === event.which ) {
 			event.preventDefault();
 			_addContributors();
+		}
+	} );
+
+	$( '#5ftf-pledge-remove' ).on( 'click', function( event ) {
+		if ( ! confirm( FiveForTheFuture.removePrompt ) ) {
+			event.preventDefault();
 		}
 	} );
 } );

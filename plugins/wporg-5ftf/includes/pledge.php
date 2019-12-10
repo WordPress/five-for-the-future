@@ -205,10 +205,7 @@ function handle_activation_action( $post_id ) {
 	$sendback = remove_query_arg( [ 'deactivated', 'reactivated' ], $sendback );
 
 	if ( 'deactivate' === $action ) {
-		wp_update_post( array(
-			'ID'          => $post_id,
-			'post_status' => DEACTIVE_STATUS,
-		) );
+		deactivate( $post_id );
 		wp_redirect( add_query_arg( 'deactivated', 1, $sendback ) );
 		exit();
 	} else {
@@ -356,6 +353,31 @@ function create_new_pledge( $name ) {
 }
 
 /**
+ * Remove a pledge from view by setting its status to "deactivated".
+ *
+ * @param int  $pledge_id The pledge to deactivate.
+ * @param bool $notify    Whether the pledge admin should be notified of the deactivation.
+ *
+ * @return int|WP_Error Post ID on success. Otherwise WP_Error.
+ */
+function deactivate( $pledge_id, $notify = false ) {
+	$pledge = get_post( $pledge_id );
+	$result = wp_update_post(
+		array(
+			'ID'          => $pledge_id,
+			'post_status' => DEACTIVE_STATUS,
+		),
+		true // Return a WP_Error.
+	);
+
+	if ( $notify && ! is_wp_error( $result ) ) {
+		Email\send_pledge_deactivation_email( $pledge );
+	}
+
+	return $result;
+}
+
+/**
  * Filter query for archive & search pages to ensure we're only showing the expected data.
  *
  * @param WP_Query $query The WP_Query instance (passed by reference).
@@ -462,21 +484,26 @@ function has_existing_pledge( $key, $key_type, int $current_pledge_id = 0 ) {
  * @return void
  */
 function enqueue_assets() {
-	wp_register_script( 'wicg-inert', plugins_url( 'assets/js/inert.min.js', __DIR__ ), [], '3.0.0', true );
+	wp_register_script( 'wicg-inert', plugins_url( 'assets/js/inert.min.js', __DIR__ ), array(), '3.0.0', true );
 
 	if ( CPT_ID === get_post_type() ) {
-		$ver = filemtime( FiveForTheFuture\PATH . '/assets/js/frontend.js' );
-		wp_enqueue_script( '5ftf-frontend', plugins_url( 'assets/js/frontend.js', __DIR__ ), [ 'jquery', 'wp-a11y', 'wp-util', 'wicg-inert' ], $ver, true );
+		wp_enqueue_script(
+			'5ftf-dialog',
+			plugins_url( 'assets/js/dialog.js', __DIR__ ),
+			array( 'jquery', 'wp-a11y', 'wp-util', 'wicg-inert' ),
+			filemtime( FiveForTheFuture\PATH . '/assets/js/dialog.js' ),
+			true
+		);
 
-		$script_data = [
-			'ajaxurl'   => admin_url( 'admin-ajax.php', 'relative' ), // The global ajaxurl is not set on the frontend.
-			'pledgeId'  => get_the_ID(),
-			'ajaxNonce' => wp_create_nonce( 'send-manage-email' ),
-		];
+		$script_data = array(
+			'ajaxurl'      => admin_url( 'admin-ajax.php', 'relative' ), // The global ajaxurl is not set on the frontend.
+			'pledgeId'     => get_the_ID(),
+			'ajaxNonce'    => wp_create_nonce( 'send-manage-email' ),
+		);
 		wp_add_inline_script(
-			'5ftf-frontend',
+			'5ftf-dialog',
 			sprintf(
-				'var FiveForTheFuture = JSON.parse( decodeURIComponent( \'%s\' ) );',
+				'var FFTF_Dialog = JSON.parse( decodeURIComponent( \'%s\' ) );',
 				rawurlencode( wp_json_encode( $script_data ) )
 			),
 			'before'
