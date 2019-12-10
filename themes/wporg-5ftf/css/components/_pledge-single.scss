@@ -31,6 +31,15 @@ body.single.single-5ftf_pledge {
 				margin-top: ms(2);
 			}
 		}
+
+		.pledge-status {
+			display: inline-block;
+			padding: 4px 12px;
+			font-size: ms(-1);
+			text-transform: uppercase;
+			background-color: $color-error-red;
+			color: white;
+		}
 	}
 
 	.entry-title {

@@ -6,6 +6,7 @@ use WordPressDotOrg\FiveForTheFuture\XProfile;
 use WP_Post;
 
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
+use const WordPressDotOrg\FiveForTheFuture\Pledge\DEACTIVE_STATUS;
 
 $contribution_data = XProfile\get_aggregate_contributor_data_for_pledge( get_the_ID() );
 
@@ -30,6 +31,9 @@ get_header();
 		<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 			<header class="entry-header">
 				<div>
+					<?php if ( DEACTIVE_STATUS === get_post_status() ) : ?>
+						<span class="pledge-status"><?php esc_html_e( 'deactivated', 'wporg-5ftf' ); ?></span>
+					<?php endif; ?>
 					<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
 					<span class="pledge-url">
 						<?php
