@@ -99,6 +99,7 @@ jQuery( document ).ready( function( $ ) {
 						closeModal();
 						$( button ).after( $( '<p>' ).html( '<em>' + response.message + '<em>' ) );
 					} else {
+						$( 'div.notice' ).remove();
 						const $message = $( '<div>' )
 							.addClass( 'notice notice-alt' )
 							.addClass( response.success ? 'notice-success' : 'notice-error' )
