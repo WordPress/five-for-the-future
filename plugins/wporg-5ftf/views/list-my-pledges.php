@@ -17,6 +17,11 @@ use WP_User, WP_Post;
 
 $has_contributions = $contributor_pending_posts || $contributor_publish_posts;
 
+$edit_link = sprintf(
+	'<a aria-label="%1$s" href="https://profiles.wordpress.org/me/profile/edit/group/5/">%2$s</a>',
+	__( 'edit hours pledged', 'wporg-5ftf' ),
+	__( '(edit)', 'wporg-5ftf' )
+);
 ?>
 
 <?php if ( is_user_logged_in() ) : ?>
@@ -32,15 +37,17 @@ $has_contributions = $contributor_pending_posts || $contributor_publish_posts;
 
 		<?php if ( $profile_data['hours_per_week'] && $profile_data['team_names'] ) : ?>
 			<p class="my-pledges__dedication">
-				<?php echo esc_html( sprintf(
+				<?php echo wp_kses_data( sprintf(
+					/* translators: %1$s is the number of hours, %2$s is the number of organizations, and %3$s is an edit link. */
 					_n(
-						'Pledged %1$s hours a week across %2$s organization',
-						'Pledged %1$s hours a week across %2$s organizations',
+						'Pledged <strong>%1$s hours a week</strong> %3$s across %2$s organization.',
+						'Pledged <strong>%1$s hours a week</strong> %3$s across %2$s organizations.',
 						count( $confirmed_pledge_ids ),
 						'wporg-5ftf'
 					),
 					$profile_data['hours_per_week'],
-					count( $confirmed_pledge_ids )
+					count( $confirmed_pledge_ids ),
+					$edit_link
 				) ); ?>
 			</p>
 
