@@ -18,6 +18,11 @@ use WP_User, WP_Post;
 $has_contributions = $contributor_pending_posts || $contributor_publish_posts;
 $has_profile_data  = $profile_data['hours_per_week'] && $profile_data['team_names'];
 
+$edit_link = sprintf(
+	'<a aria-label="%1$s" href="https://profiles.wordpress.org/me/profile/edit/group/5/">%2$s</a>',
+	__( 'edit hours pledged', 'wporg-5ftf' ),
+	__( '(edit)', 'wporg-5ftf' )
+);
 ?>
 
 <?php if ( is_user_logged_in() ) : ?>
@@ -33,15 +38,17 @@ $has_profile_data  = $profile_data['hours_per_week'] && $profile_data['team_name
 
 		<?php if ( $has_profile_data ) : ?>
 			<p class="my-pledges__dedication">
-				<?php echo esc_html( sprintf(
+				<?php echo wp_kses_data( sprintf(
+					/* translators: %1$s is the number of hours, %2$s is the number of organizations, and %3$s is an edit link. */
 					_n(
-						'Pledged %1$s hours a week across %2$s organization',
-						'Pledged %1$s hours a week across %2$s organizations',
+						'Pledged <strong>%1$s hours a week</strong> %3$s across %2$s organization.',
+						'Pledged <strong>%1$s hours a week</strong> %3$s across %2$s organizations.',
 						count( $confirmed_pledge_ids ),
 						'wporg-5ftf'
 					),
 					$profile_data['hours_per_week'],
-					count( $confirmed_pledge_ids )
+					count( $confirmed_pledge_ids ),
+					$edit_link
 				) ); ?>
 			</p>
 
@@ -109,7 +116,10 @@ $has_profile_data  = $profile_data['hours_per_week'] && $profile_data['team_name
 
 	<?php else : ?>
 
-		<p>You don't currently have any sponsorships. If your employer is sponsoring part of your time to contribute to WordPress, please ask them to <a href="<?php echo esc_url( $pledge_url ); ?>">submit a pledge</a> and list you as a contributor.</p>
+		<?php echo wp_kses_data( sprintf(
+			__( 'You don’t currently have any sponsorships. If your employer is sponsoring part of your time to contribute to WordPress, please ask them to <a href="%s">submit a pledge</a> and list you as a contributor.', 'wporg-5ftf' ),
+			esc_url( $pledge_url )
+		) ); ?>
 
 		<?php // todo add some resources here about how they can convince their boss to sponsor some of their time? ?>
 
@@ -129,7 +139,10 @@ $has_profile_data  = $profile_data['hours_per_week'] && $profile_data['team_name
 
 	<div class="notice notice-error notice-alt">
 		<p>
-			Please <a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>">log in to your WordPress.org account</a> in order to view your pledges.
+			<?php echo wp_kses_data( sprintf(
+				__( 'Please <a href="%s">log in to your WordPress.org account</a> in order to view your pledges.', 'wporg-5ftf' ),
+				esc_url( wp_login_url( get_permalink() ) )
+			) ); ?>
 		</p>
 	</div>
 
