@@ -4,6 +4,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 
 /**
  * @var WP_Post $contributor_post
+ * @var bool    $has_profile_data
  * @var WP_Post $pledge
  */
 
@@ -51,6 +52,9 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 					class="button button-default"
 					name="join_organization"
 					value="Join Organization"
+					<?php if ( ! $has_profile_data ) : ?>
+						disabled="disabled"
+					<?php endif; ?>
 				/>
 
 				<input

@@ -16,6 +16,7 @@ use WP_User, WP_Post;
  */
 
 $has_contributions = $contributor_pending_posts || $contributor_publish_posts;
+$has_profile_data  = $profile_data['hours_per_week'] && $profile_data['team_names'];
 
 ?>
 
@@ -30,7 +31,7 @@ $has_contributions = $contributor_pending_posts || $contributor_publish_posts;
 			<?php esc_html_e( 'My Pledges', 'wporg-5ftf' ); ?>
 		</h1>
 
-		<?php if ( $profile_data['hours_per_week'] && $profile_data['team_names'] ) : ?>
+		<?php if ( $has_profile_data ) : ?>
 			<p class="my-pledges__dedication">
 				<?php echo esc_html( sprintf(
 					_n(
@@ -84,6 +85,17 @@ $has_contributions = $contributor_pending_posts || $contributor_publish_posts;
 
 			<div class="my-pledges__list is-pending-list">
 				<h2><?php esc_html_e( 'Pending Pledges', 'wporg-5ftf' ); ?></h2>
+
+				<?php if ( ! $has_profile_data ) : ?>
+					<div class="notice notice-error notice-alt">
+						<p>
+							<?php echo wp_kses_data( sprintf(
+								__( 'You need to <a href="%s">update your profile</a> before joining an organization.', 'wporg-5ftf' ),
+								'https://profiles.wordpress.org/me/profile/edit/group/5/'
+							) ); ?>
+						</p>
+					</div>
+				<?php endif; ?>
 
 				<?php
 				foreach ( $contributor_pending_posts as $contributor_post ) {
