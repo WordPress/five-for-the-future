@@ -425,7 +425,7 @@ function filter_query( $query ) {
 				break;
 
 			default:
-				$date = date( 'Ymd' );
+				$date = date( 'YmdH' );
 				$query->set( 'orderby', "RAND($date)" );
 				break;
 		}
