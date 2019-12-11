@@ -29,6 +29,10 @@
 		border-bottom-color: $color-gray-light-400;
 	}
 
+	.notice p {
+		font-size: 1em;
+	}
+
 	.pledge-dialog__close {
 		position: absolute;
 		top: 0;
@@ -71,9 +75,5 @@
 
 	input[type="submit"] {
 		font-size: ms(-3);
-	}
-
-	.notice p {
-		font-size: 1em;
 	}
 }

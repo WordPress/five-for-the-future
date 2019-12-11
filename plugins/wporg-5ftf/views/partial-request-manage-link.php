@@ -15,7 +15,7 @@ $pledge_name = get_the_title( $pledge_id );
 
 	<p>
 		<?php echo esc_html( sprintf(
-			__( "If you're the admin for %s, enter your email address and a confirmation link will be sent to you.", 'wporg-5ftf' ),
+			__( "If you're an admin for %s, you can request a new edit link using this form. Enter your email address and we'll send you a new link.", 'wporg-5ftf' ),
 			$pledge_name
 		) ); ?>
 	</p>

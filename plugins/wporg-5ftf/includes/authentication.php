@@ -178,10 +178,7 @@ function can_manage_pledge( $requested_pledge_id, $auth_token = '' ) {
 
 	return new WP_Error(
 		'invalid_token',
-		sprintf(
-			__( 'Your link has expired, please <a href="%s">obtain a new one.</a>', 'wporg-5ftf' ),
-			get_permalink( $requested_pledge_id )
-		)
+		__( 'Your link has expired.', 'wporg-5ftf' )
 	);
 }
 
