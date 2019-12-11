@@ -104,7 +104,10 @@ $edit_link = sprintf(
 
 	<?php else : ?>
 
-		<p>You don't currently have any sponsorships. If your employer is sponsoring part of your time to contribute to WordPress, please ask them to <a href="<?php echo esc_url( $pledge_url ); ?>">submit a pledge</a> and list you as a contributor.</p>
+		<?php echo wp_kses_data( sprintf(
+			__( 'You don’t currently have any sponsorships. If your employer is sponsoring part of your time to contribute to WordPress, please ask them to <a href="%s">submit a pledge</a> and list you as a contributor.', 'wporg-5ftf' ),
+			esc_url( $pledge_url )
+		) ); ?>
 
 		<?php // todo add some resources here about how they can convince their boss to sponsor some of their time? ?>
 
@@ -124,7 +127,10 @@ $edit_link = sprintf(
 
 	<div class="notice notice-error notice-alt">
 		<p>
-			Please <a href="<?php echo esc_url( wp_login_url( get_permalink() ) ); ?>">log in to your WordPress.org account</a> in order to view your pledges.
+			<?php echo wp_kses_data( sprintf(
+				__( 'Please <a href="%s">log in to your WordPress.org account</a> in order to view your pledges.', 'wporg-5ftf' ),
+				esc_url( wp_login_url( get_permalink() ) )
+			) ); ?>
 		</p>
 	</div>
 
