@@ -37,6 +37,9 @@ get_header(); ?>
 						<option value="alphabetical" <?php selected( $pledge_order, 'alphabetical' ); ?>>
 							<?php esc_html_e( 'Alphabetical', 'wporg-5ftf' ); ?>
 						</option>
+						<option value="contributors" <?php selected( $pledge_order, 'contributors' ); ?>>
+							<?php esc_html_e( 'Total Contributors', 'wporg-5ftf' ); ?>
+						</option>
 						<option value="hours" <?php selected( $pledge_order, 'hours' ); ?>>
 							<?php esc_html_e( 'Total Hours', 'wporg-5ftf' ); ?>
 						</option>
