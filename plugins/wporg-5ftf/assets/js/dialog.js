@@ -1,14 +1,12 @@
 /* global FFTF_Dialog, jQuery */
 jQuery( document ).ready( function( $ ) {
 	const button = document.getElementById( 'toggle-management-link-form' );
-	const template = wp.template( '5ftf-send-link-dialog' );
+	const template = document.getElementById( 'tmpl-5ftf-send-link-dialog' ) && wp.template( '5ftf-send-link-dialog' );
 
-	if ( ! template && ! button ) {
-		// No modal on this page.
-		return;
+	if ( !! template ) {
+		$( document.body ).prepend( template() );
 	}
 
-	$( document.body ).prepend( template() );
 	const modal = document.getElementById( 'send-link-dialog' );
 	const modalBg = document.getElementById( 'send-link-dialog-bg' );
 	const children = document.querySelectorAll( 'body > *:not([role="dialog"])' );
@@ -81,14 +79,15 @@ jQuery( document ).ready( function( $ ) {
 	function sendRequest( event ) {
 		event.preventDefault();
 		const email = $( event.target.querySelector( 'input[type="email"]' ) ).val();
+		const pledgeId = $( event.target.querySelector( 'input[name="pledge_id"]' ) ).val();
 		$( event.target.querySelector( '.message' ) ).html( '' );
 		$.ajax( {
 			type: 'POST',
 			url: FFTF_Dialog.ajaxurl,
 			data: {
 				action: 'send-manage-email',
-				pledge_id: FFTF_Dialog.pledgeId,
-				email,
+				pledge_id: pledgeId,
+				email: email,
 				_ajax_nonce: FFTF_Dialog.ajaxNonce,
 			},
 			success( response ) {
@@ -96,10 +95,11 @@ jQuery( document ).ready( function( $ ) {
 					// Say the message for screen reader users.
 					wp.a11y.speak( response.message );
 
-					if ( response.success ) {
+					if ( response.success && !! button ) {
 						closeModal();
 						$( button ).after( $( '<p>' ).html( '<em>' + response.message + '<em>' ) );
 					} else {
+						$( 'div.notice' ).remove();
 						const $message = $( '<div>' )
 							.addClass( 'notice notice-alt' )
 							.addClass( response.success ? 'notice-success' : 'notice-error' )
@@ -124,13 +124,16 @@ jQuery( document ).ready( function( $ ) {
 		}
 	} );
 
-	$( modalBg ).on( 'click', closeModal );
-	$( modal ).on( 'click', '.pledge-dialog__close', closeModal );
-	$( document ).on( 'keydown', function( event ) {
-		if ( 27 === event.which ) { // Esc
-			closeModal( event );
-		}
-	} );
+	// Make sure `modal` exists before using it.
+	if ( !! modal ) {
+		$( modalBg ).on( 'click', closeModal );
+		$( modal ).on( 'click', '.pledge-dialog__close', closeModal );
+		$( document ).on( 'keydown', function( event ) {
+			if ( 27 === event.which ) { // Esc
+				closeModal( event );
+			}
+		} );
 
-	$( modal.querySelector( 'form' ) ).submit( sendRequest );
+		$( modal.querySelector( 'form' ) ).submit( sendRequest );
+	}
 } );

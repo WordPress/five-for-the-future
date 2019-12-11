@@ -34,7 +34,6 @@ function render_form_new() {
 	$pledge        = null;
 	$complete      = false;
 	$directory_url = home_url( 'pledges' );
-	$view          = 'form-pledge-new.php';
 
 	if ( 'Submit Pledge' === $action ) {
 		$pledge_id = process_form_new();
@@ -48,7 +47,7 @@ function render_form_new() {
 
 	ob_start();
 	$readonly = false;
-	require FiveForTheFuture\get_views_path() . $view;
+	require FiveForTheFuture\get_views_path() . 'form-pledge-new.php';
 
 	return ob_get_clean();
 }
@@ -123,8 +122,8 @@ function render_form_manage() {
 	$can_view_form = Auth\can_manage_pledge( $pledge_id, $auth_token );
 
 	if ( is_wp_error( $can_view_form ) ) {
-		$errors = array( $can_view_form->get_error_message() );
-	} else if ( ! in_array( get_post_status( $pledge_id ), array( 'pending', 'publish' ), true ) ) {
+		$errors = array( strip_tags( $can_view_form->get_error_message() ) );
+	} else if ( ! Pledge\is_active_pledge( $pledge_id ) ) {
 		$errors = array(
 			sprintf(
 				__( 'This pledge has been removed from Five for the Future. If this was a mistake, please <a href="%s">contact us</a> to reactivate your pledge.', 'wporg-5ftf' ),
@@ -133,9 +132,15 @@ function render_form_manage() {
 		);
 	}
 
+	if ( Pledge\is_active_pledge( $pledge_id ) && is_wp_error( $can_view_form ) ) {
+		ob_start();
+		require FiveForTheFuture\get_views_path() . 'partial-request-manage-link.php';
+		return ob_get_clean();
+	}
+
 	if ( count( $errors ) > 0 ) {
 		ob_start();
-		require FiveForTheFuture\PATH . 'views/partial-result-messages.php';
+		require FiveForTheFuture\get_views_path() . 'partial-result-messages.php';
 		return ob_get_clean();
 	}
 
@@ -154,7 +159,7 @@ function render_form_manage() {
 		}
 
 		ob_start();
-		require FiveForTheFuture\PATH . 'views/partial-result-messages.php';
+		require FiveForTheFuture\get_views_path() . 'partial-result-messages.php';
 		return ob_get_clean();
 	} else if ( 'Update Pledge' === $action ) {
 		$results = process_form_manage( $pledge_id, $auth_token );
@@ -177,7 +182,7 @@ function render_form_manage() {
 	ob_start();
 	$readonly  = false;
 	$is_manage = true;
-	require FiveForTheFuture\PATH . 'views/form-pledge-manage.php';
+	require FiveForTheFuture\get_views_path() . 'form-pledge-manage.php';
 
 	return ob_get_clean();
 }
