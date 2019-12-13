@@ -26,10 +26,11 @@ function main( $file, $args ) {
 	WP_CLI::line();
 
 	WP_CLI::confirm(
-		"Be very careful when using this, as it will modify production data. It should only be run manually after careful review of the code. Take a backup of the db table before running this, in case anything goes wrong. Proceed?"
+		"Be very careful when using this, as it will modify production data. It should only be run manually after careful review of the code. When adding new code, try to make it idempotent so this can be safely re-run. Take a backup of the db table before running this, in case anything goes wrong. Proceed?"
 	);
 
 	update_chosen_teams();
+	update_inaccurate_hours();
 
 	WP_CLI::success( 'Done. Please manually check everything to make sure it worked correctly.' );
 }
@@ -101,4 +102,28 @@ function update_chosen_teams() {
 			);
 		}
 	}
+}
+
+/**
+ * Remove invalid hours values, now that they're prevented from being entered.
+ *
+ * @see https://github.com/WordPress/five-for-the-future/issues/125
+ */
+function update_inaccurate_hours() {
+	global $wpdb;
+
+	$query = $wpdb->prepare( "
+		UPDATE `bpmain_bp_xprofile_data`
+		SET value = 0
+		WHERE
+			field_id = %d AND
+			(
+				value > 60 OR
+				value REGEXP '[a-zA-Z]'
+			)
+		",
+		XProfile\FIELD_IDS['hours_per_week']
+	);
+
+	$wpdb->query( $query );
 }
