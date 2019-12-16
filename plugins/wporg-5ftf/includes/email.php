@@ -126,9 +126,13 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
  * @param WP_Post $contributor
  */
 function send_contributor_removed_email( $pledge_id, $contributor ) {
-	$pledge  = get_post( $pledge_id );
-	$subject = "Removed from {$pledge->post_title} sponsorship";
-	$message = "Howdy\n\n{$pledge->post_title} has removed you from their pledge.";
+	$pledge   = get_post( $pledge_id );
+	$subject  = "Removed from {$pledge->post_title} Five for the Future pledge";
+	$message  = "Howdy {$contributor->post_title},\n\n";
+	$message .= sprintf(
+		'This email is to notify you that your WordPress.org contributor profile is no longer linked to %1$s’s Five for the Future pledge. If this is unexpected news, it’s best to reach out directly to %1$s with questions. Have a great day!',
+		$pledge->post_title
+	);
 
 	$user = get_user_by( 'login', $contributor->post_title );
 	send_email( $user->user_email, $subject, $message, $pledge_id );
