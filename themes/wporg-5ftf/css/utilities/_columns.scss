@@ -25,13 +25,14 @@
 				top: 40px;
 				left: 30px;
 				z-index: 2;
+				padding-right: 90px; // parallelograms overlap by about 70px, plus 20px for breathing space.
 			}
 
 			&:last-child {
 				position: relative;
 				z-index: 1;
 				right: 30px;
-				padding-left: 4rem;
+				padding-left: 90px; // see above.
 			}
 
 			&:before {
