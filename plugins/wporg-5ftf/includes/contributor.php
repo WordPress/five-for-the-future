@@ -331,6 +331,7 @@ function get_contributor_user_ids( $contributor_posts ) {
 	";
 
 	$user_ids = $wpdb->get_col(
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- phpcs is confused by the variable, but it does correctly prepare.
 		$wpdb->prepare( $query, $usernames )
 	);
 
