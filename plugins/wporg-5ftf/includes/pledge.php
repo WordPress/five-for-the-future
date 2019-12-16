@@ -435,6 +435,12 @@ function filter_query( $query ) {
 				$query->set( 'order', 'DESC' );
 				break;
 
+			case 'contributors':
+				$query->set( 'meta_key', $contributor_count_key );
+				$query->set( 'orderby', 'meta_value_num' );
+				$query->set( 'order', 'DESC' );
+				break;
+
 			default:
 				$date = date( 'YmdH' );
 				$query->set( 'orderby', "RAND($date)" );
