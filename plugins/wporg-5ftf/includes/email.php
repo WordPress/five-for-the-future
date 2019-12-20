@@ -152,17 +152,18 @@ function send_manage_pledge_link( $pledge_id ) {
 		return new WP_Error( 'invalid_email', 'Invalid email address.' );
 	}
 
-	$subject = __( 'Updating your Pledge', 'wporg-5ftf' );
-	$message =
-		'Howdy, please open this link to update your pledge:' . "\n\n" .
-
+	$subject = __( 'Next steps to update your Pledge', 'wporg-5ftf' );
+	$message = sprintf(
+		"Hi there!\n\nThanks for confirming your email! Here is the link to update your pledge: \n\n%s\n\nIf you have any questions about how to update your pledge, or about Five for the Future in general, please visit %s.\n\nThanks for participating in Five for the Future. Your contribution ensures that WordPress continues to thrive!",
 		Auth\get_authentication_url(
 			$pledge_id,
 			'manage_pledge',
 			get_page_by_path( 'manage-pledge' )->ID,
 			// The token needs to be reused so that the admin can view the form, submit it, and view the result.
 			false
-		);
+		),
+		home_url()
+	);
 
 	$result = send_email( $admin_email, $subject, $message, $pledge_id );
 
