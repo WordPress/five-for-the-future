@@ -10,6 +10,11 @@
 	background: none;
 	color: $color__link-button;
 	text-decoration: none;
+
+	&:hover,
+	&:visited {
+		color: $color__link-button;		
+	}
 }
 
 // Add "danger" button styles, red text on grey background.
