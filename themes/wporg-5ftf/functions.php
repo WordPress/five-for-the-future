@@ -272,6 +272,10 @@ function get_badge_classes( $team ) {
 			$classes = array( 'badge-test-team', 'dashicons-desktop' );
 			break;
 
+		case 'themes team':
+			$classes = array( 'badge-themes', 'dashicons-admin-appearance' );
+			break;
+
 		case 'theme review team':
 			$classes = array( 'badge-themes-reviewer', 'dashicons-admin-appearance' );
 			break;
