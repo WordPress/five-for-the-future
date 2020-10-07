@@ -48,14 +48,18 @@ function get_xprofile_contribution_data( array $user_ids ) {
  *
  * @param int $pledge_id
  *
- * @return array|false
+ * @return array
  */
 function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 	$contributor_posts = Contributor\get_pledge_contributors( $pledge_id, 'publish' );
 
 	// All of their contributors might have declined the invitation and had their posts deleted.
 	if ( ! $contributor_posts ) {
-		return false;
+		return array(
+			'contributors' => 0,
+			'hours'        => 0,
+			'teams'        => array(),
+		);
 	}
 
 	$contributor_users = Contributor\get_contributor_user_objects( $contributor_posts );
