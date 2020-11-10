@@ -41,7 +41,7 @@ how to visualize teams? maybe a dropdown w/ each team, so not a huge long list o
 
 		<?php foreach ( $values as $timestamp => $value ) : ?>
 			<li>
-				<?php echo esc_html( $timestamp ); ?> -
+				<?php echo esc_html( date( 'Y-m-d', $timestamp ) ); ?> -
 
 				<?php if ( is_array( $value ) ) : ?>
 					<?php echo esc_html( print_r( $value, true ) ); ?>
