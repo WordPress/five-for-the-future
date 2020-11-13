@@ -10,6 +10,10 @@ use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\{ Contributor, Pledge, XProfile };
 use WP_Query;
 
+use function WordPressDotOrg\FiveForTheFuture\XProfile\{
+	get_xprofile_contribution_data, prepare_xprofile_contribution_data
+};
+
 use const WordPressDotOrg\FiveForTheFuture\PREFIX;
 
 defined( 'WPINC' ) || die();
@@ -72,6 +76,8 @@ function record_snapshot() {
 
 	add_post_meta( $post_id, PREFIX . '_total_pledged_hours',             $stats['confirmed_hours'] );
 	add_post_meta( $post_id, PREFIX . '_total_pledged_contributors',      $stats['confirmed_contributors'] );
+	add_post_meta( $post_id, PREFIX . '_total_sponsored_hours',           $stats['confirmed_sponsored_hours'] );
+	add_post_meta( $post_id, PREFIX . '_total_sponsored_contributors',    $stats['confirmed_sponsored_contributors'] );
 	add_post_meta( $post_id, PREFIX . '_total_pledged_companies',         $stats['confirmed_pledges'] );
 	add_post_meta( $post_id, PREFIX . '_total_pledged_team_contributors', $stats['confirmed_team_contributors'] );
 }
@@ -116,13 +122,24 @@ function get_snapshot_data() {
 	 */
 	$confirmed_user_ids                      = array_unique( Contributor\get_contributor_user_ids( $confirmed_contributors ) );
 	$snapshot_data['confirmed_contributors'] = count( $confirmed_user_ids );
+	$snapshot_data['confirmed_sponsored_contributors'] = 0;
 
-	$contributors_profile_data = XProfile\get_xprofile_contribution_data( $confirmed_user_ids );
+	$contributors_profile_data = get_xprofile_contribution_data( $confirmed_user_ids );
+	$prepared_profile_data     = prepare_xprofile_contribution_data( $contributors_profile_data );
 
+	// Note: This was set before `$prepared_profile_data` was available. Refactoring to use that would simplify this.
 	foreach ( $contributors_profile_data as $profile_data ) {
 		switch ( (int) $profile_data['field_id'] ) {
 			case XProfile\FIELD_IDS['hours_per_week']:
+				$user_id   = (int) $profile_data['user_id'];
+
 				$snapshot_data['confirmed_hours'] += absint( $profile_data['value'] );
+
+				if ( $prepared_profile_data[ $user_id ]['sponsored'] ) {
+					$snapshot_data['confirmed_sponsored_hours'] += absint( $profile_data['value'] );
+					$snapshot_data['confirmed_sponsored_contributors']++;
+				}
+
 				break;
 
 			case XProfile\FIELD_IDS['team_names']:
@@ -165,6 +182,8 @@ function render_shortcode() {
 	$stat_keys = array(
 		PREFIX . '_total_pledged_hours',
 		PREFIX . '_total_pledged_contributors',
+		PREFIX . '_total_sponsored_hours',
+		PREFIX . '_total_sponsored_contributors',
 		PREFIX . '_total_pledged_companies',
 		PREFIX . '_total_pledged_team_contributors',
 	);

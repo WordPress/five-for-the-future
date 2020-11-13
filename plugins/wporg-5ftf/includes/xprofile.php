@@ -9,6 +9,7 @@ use wpdb;
  * because those are more likely to change.
  */
 const FIELD_IDS = array(
+	'sponsored'      => 24,
 	'hours_per_week' => 29,
 	'team_names'     => 30,
 );
@@ -18,7 +19,8 @@ defined( 'WPINC' ) || die();
 /**
  * Pull relevant data from profiles.wordpress.org.
  *
- * Note that this does not unserialize anything, it just pulls the raw values from the database table.
+ * Note that this does not unserialize anything, it just pulls the raw values from the database table. If you
+ * want unserialized data, use `prepare_xprofile_contribution_data()`.
  *
  * @global wpdb $wpdb
  *
@@ -41,6 +43,38 @@ function get_xprofile_contribution_data( array $user_ids ) {
 	);
 
 	return $wpdb->get_results( $sql, ARRAY_A ); // phpcs:ignore WordPress.DB.PreparedSQL -- prepare called above.
+}
+
+/**
+ * Reindex the values by user ID, normalize it, and format it.
+ *
+ * This makes the data much easier to work with in many cases.
+ *
+ * @param array $raw_data
+ *
+ * @return array
+ */
+function prepare_xprofile_contribution_data( array $raw_data ) {
+	$prepared_data     = array();
+	$field_keys_by_id = array_flip( FIELD_IDS );
+
+	foreach ( $raw_data as $datum ) {
+		$user_id     = $datum['user_id'];
+		$field_key   = $field_keys_by_id[ (int) $datum['field_id'] ];
+		$field_value = maybe_unserialize( $datum['value'] );
+
+		if ( ! isset( $prepared_data[ $user_id ]['sponsored'] ) ) {
+			$prepared_data[ $user_id ]['sponsored'] = false;
+		}
+
+		if ( 'sponsored' === $field_key ) {
+			$prepared_data[ $user_id ]['sponsored'] = 'Yes' === $field_value;
+		} else {
+			$prepared_data[ $user_id ][ $field_key ] = $field_value;
+		}
+	}
+
+	return $prepared_data;
 }
 
 /**
