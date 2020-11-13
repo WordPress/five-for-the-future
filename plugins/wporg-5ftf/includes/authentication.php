@@ -46,7 +46,7 @@ add_action( 'wp_head', __NAMESPACE__ . '\prevent_caching_auth_tokens', 99 );
  * etc could create situations where they're leaked to others.
  */
 function prevent_caching_auth_tokens() {
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce not required, not processing form data.
+	// phpcs:ignore WordPress.Security.NonceVerification -- Nonce not required, not processing form data.
 	if ( isset( $_GET['auth_token'] ) || isset( $_POST['auth_token'] ) ) {
 		nocache_headers();
 	}
@@ -162,7 +162,7 @@ function can_manage_pledge( $requested_pledge_id, $auth_token = '' ) {
 	// A valid token supersedes other auth methods.
 	if ( true === is_valid_authentication_token( $requested_pledge_id, 'manage_pledge', $auth_token ) ) {
 		return true;
-	} else if ( is_user_logged_in() ) {
+	} elseif ( is_user_logged_in() ) {
 		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}

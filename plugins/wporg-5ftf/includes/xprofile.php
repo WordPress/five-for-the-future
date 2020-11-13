@@ -31,13 +31,11 @@ defined( 'WPINC' ) || die();
 function get_xprofile_contribution_data( array $user_ids ) {
 	global $wpdb;
 
-	$sql = $wpdb->prepare(
-		'
-			SELECT user_id, field_id, value
-			FROM bpmain_bp_xprofile_data
-			WHERE user_id IN ( %1$s )
-			AND field_id IN ( %2$s )
-		',
+	$sql = $wpdb->prepare( '
+		SELECT user_id, field_id, value
+		FROM bpmain_bp_xprofile_data
+		WHERE user_id IN ( %1$s )
+		AND field_id IN ( %2$s )',
 		implode( ', ', array_map( 'absint', $user_ids ) ),
 		implode( ', ', array_map( 'absint', array_values( FIELD_IDS ) ) )
 	);

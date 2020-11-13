@@ -30,7 +30,7 @@ function render_form_new() {
 	$is_manage     = false;
 	$pledge_id     = 0;
 	$data          = get_form_submission();
-	$errors        = [];
+	$errors        = array();
 	$pledge        = null;
 	$complete      = false;
 	$directory_url = home_url( 'pledges' );
@@ -113,8 +113,8 @@ function render_form_manage() {
 		return '';
 	}
 
-	$messages = [];
-	$errors   = [];
+	$messages = array();
+	$errors   = array();
 
 	$action        = sanitize_text_field( $_REQUEST['action'] ?? '' );
 	$pledge_id     = absint( $_REQUEST['pledge_id'] ?? 0 );
@@ -123,7 +123,7 @@ function render_form_manage() {
 
 	if ( is_wp_error( $can_view_form ) ) {
 		$errors = array( strip_tags( $can_view_form->get_error_message() ) );
-	} else if ( ! Pledge\is_active_pledge( $pledge_id ) ) {
+	} elseif ( ! Pledge\is_active_pledge( $pledge_id ) ) {
 		$errors = array(
 			sprintf(
 				__( 'This pledge has been removed from Five for the Future. If this was a mistake, please <a href="%s">contact us</a> to reactivate your pledge.', 'wporg-5ftf' ),
@@ -161,7 +161,7 @@ function render_form_manage() {
 		ob_start();
 		require FiveForTheFuture\get_views_path() . 'partial-result-messages.php';
 		return ob_get_clean();
-	} else if ( 'Update Pledge' === $action ) {
+	} elseif ( 'Update Pledge' === $action ) {
 		$results = process_form_manage( $pledge_id, $auth_token );
 
 		if ( is_wp_error( $results ) ) {

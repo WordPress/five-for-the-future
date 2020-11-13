@@ -28,39 +28,39 @@ function manage_contributors_handler() {
 	$authenticated  = Auth\can_manage_pledge( $pledge_id, $token );
 
 	if ( is_wp_error( $authenticated ) ) {
-		wp_die( wp_json_encode( [
+		wp_die( wp_json_encode( array(
 			'success' => false,
 			'message' => __( "Sorry, you don't have permissions to do that.", 'wporg-5ftf' ),
-		] ) );
+		) ) );
 	}
 
 	switch ( $action ) {
 		case 'resend-contributor-confirmation':
 			$contribution = get_post( $contributor_id );
 			Email\send_contributor_confirmation_emails( $pledge_id, $contributor_id );
-			wp_die( wp_json_encode( [
+			wp_die( wp_json_encode( array(
 				'success' => true,
 				'message' => sprintf( __( 'Confirmation email sent to %s.', 'wporg-5ftf' ), $contribution->post_title ),
-			] ) );
+			) ) );
 			break;
 
 		case 'remove-contributor':
 			// Trash contributor.
 			Contributor\remove_contributor( $contributor_id );
-			wp_die( wp_json_encode( [
+			wp_die( wp_json_encode( array(
 				'success'      => true,
 				'contributors' => Contributor\get_pledge_contributors_data( $pledge_id ),
-			] ) );
+			) ) );
 			break;
 
 		case 'add-contributor':
 			$pledge           = get_post( $pledge_id );
 			$new_contributors = Contributor\parse_contributors( $_POST['contributors'] );
 			if ( is_wp_error( $new_contributors ) ) {
-				wp_die( wp_json_encode( [
+				wp_die( wp_json_encode( array(
 					'success' => false,
 					'message' => $new_contributors->get_error_message(),
-				] ) );
+				) ) );
 			}
 
 			$contributor_ids = Contributor\add_pledge_contributors( $pledge_id, $new_contributors );
@@ -73,10 +73,10 @@ function manage_contributors_handler() {
 			// Fetch all contributors, now that the new ones have been added.
 			$contributors = Contributor\get_pledge_contributors_data( $pledge_id );
 
-			wp_die( wp_json_encode( [
+			wp_die( wp_json_encode( array(
 				'success'      => true,
 				'contributors' => $contributors,
-			] ) );
+			) ) );
 			break;
 	}
 
@@ -99,15 +99,15 @@ function send_manage_email_handler() {
 		$message_sent = Email\send_manage_pledge_link( $pledge_id );
 
 		if ( $message_sent ) {
-			$result = [
+			$result = array(
 				'success' => true,
 				'message' => __( 'Thanks! We’ve emailed you a link you can open in order to update your pledge.', 'wporg-5ftf' ),
-			];
+			);
 		} else {
-			$result = [
+			$result = array(
 				'success' => false,
 				'message' => __( 'There was an error while trying to send the email.', 'wporg-5ftf' ),
-			];
+			);
 		}
 	} else {
 		$error_message = sprintf(
@@ -115,10 +115,10 @@ function send_manage_email_handler() {
 			get_permalink( get_page_by_path( 'report' ) )
 		);
 
-		$result = [
+		$result = array(
 			'success' => false,
 			'message' => $error_message,
-		];
+		);
 	}
 
 	wp_die( wp_json_encode( $result ) );

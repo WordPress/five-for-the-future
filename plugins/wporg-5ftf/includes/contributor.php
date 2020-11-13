@@ -265,7 +265,7 @@ function get_pledge_contributors_data( $pledge_id ) {
 				$name        = $contributor_post->post_title;
 				$contributor = get_user_by( 'login', $name );
 
-				return [
+				return array(
 					'pledgeId'      => $pledge_id,
 					'contributorId' => $contributor_post->ID,
 					'status'        => $contributor_status,
@@ -277,7 +277,7 @@ function get_pledge_contributors_data( $pledge_id ) {
 					'resendLabel'   => __( 'Resend Confirmation', 'wporg-5ftf' ),
 					'removeConfirm' => sprintf( __( 'Remove %s from this pledge?', 'wporg-5ftf' ), $name ),
 					'removeLabel'   => sprintf( __( 'Remove %s', 'wporg-5ftf' ), $name ),
-				];
+				);
 			},
 			$group
 		);

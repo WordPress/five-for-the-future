@@ -208,7 +208,7 @@ function add_meta_boxes() {
  * @param array   $box
  */
 function render_meta_boxes( $pledge, $box ) {
-	$readonly = (
+	$readonly  = (
 		! current_user_can( 'edit_page', $pledge->ID ) ||
 		Pledge\DEACTIVE_STATUS === $pledge->post_status
 	);
@@ -259,7 +259,7 @@ function save_pledge( $pledge_id, $pledge ) {
 	 * This is only intended to run when the front end form and wp-admin forms are submitted, not when posts are
 	 * programmatically updated.
 	 */
-	if ( ! in_array( $post_action, [ 'Submit Pledge', 'editpost' ], true ) ) {
+	if ( ! in_array( $post_action, array( 'Submit Pledge', 'editpost' ), true ) ) {
 		return;
 	}
 
@@ -551,10 +551,10 @@ function enqueue_assets() {
 	$auth_token  = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );
 	$script_data = array(
 		// The global ajaxurl is not set on the frontend.
-		'ajaxurl'     => admin_url( 'admin-ajax.php', 'relative' ),
-		'pledgeId'    => $pledge_id,
-		'manageNonce' => wp_create_nonce( 'manage-contributors' ),
-		'authToken'   => $auth_token,
+		'ajaxurl'      => admin_url( 'admin-ajax.php', 'relative' ),
+		'pledgeId'     => $pledge_id,
+		'manageNonce'  => wp_create_nonce( 'manage-contributors' ),
+		'authToken'    => $auth_token,
 		'removePrompt' => __( 'Are you sure you want to remove this pledge?', 'wporg-5ftf' ),
 	);
 	wp_add_inline_script(

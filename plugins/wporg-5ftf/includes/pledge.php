@@ -14,10 +14,10 @@ use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 defined( 'WPINC' ) || die();
 
-const SLUG             = 'pledge';
-const SLUG_PL          = 'pledges';
-const CPT_ID           = FiveForTheFuture\PREFIX . '_' . SLUG;
-const DEACTIVE_STATUS  = FiveForTheFuture\PREFIX . '-deactivated';
+const SLUG            = 'pledge';
+const SLUG_PL         = 'pledges';
+const CPT_ID          = FiveForTheFuture\PREFIX . '_' . SLUG;
+const DEACTIVE_STATUS = FiveForTheFuture\PREFIX . '-deactivated';
 
 // Admin hooks.
 add_action( 'init',          __NAMESPACE__ . '\register', 0 );
@@ -182,7 +182,7 @@ function add_row_action( $actions, $post ) {
  */
 function handle_activation_action( $post_id ) {
 	$action = $_REQUEST['action'];
-	if ( ! in_array( $action, [ 'deactivate', 'reactivate' ] ) ) {
+	if ( ! in_array( $action, array( 'deactivate', 'reactivate' ) ) ) {
 		return;
 	}
 
@@ -202,7 +202,7 @@ function handle_activation_action( $post_id ) {
 	}
 
 	$sendback = wp_get_referer();
-	$sendback = remove_query_arg( [ 'deactivated', 'reactivated' ], $sendback );
+	$sendback = remove_query_arg( array( 'deactivated', 'reactivated' ), $sendback );
 
 	if ( 'deactivate' === $action ) {
 		deactivate( $post_id );

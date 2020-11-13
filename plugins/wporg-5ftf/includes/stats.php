@@ -18,7 +18,7 @@ use const WordPressDotOrg\FiveForTheFuture\PREFIX;
 
 defined( 'WPINC' ) || die();
 
-const CPT_ID  = PREFIX . '_stats_snapshot';
+const CPT_ID = PREFIX . '_stats_snapshot';
 
 add_action( 'init',                      __NAMESPACE__ . '\register_post_types' );
 add_action( 'init',                      __NAMESPACE__ . '\schedule_cron_jobs' );
@@ -32,9 +32,9 @@ add_shortcode( PREFIX . '_stats', __NAMESPACE__ . '\render_shortcode' );
  */
 function register_post_types() {
 	$args = array(
-		'supports'     => array( 'custom-fields' ),
-		'public'       => false,
-		'show_in_rest' => true,
+		'supports'        => array( 'custom-fields' ),
+		'public'          => false,
+		'show_in_rest'    => true,
 
 		// Only allow posts to be created programmatically.
 		'capability_type' => CPT_ID,
@@ -120,8 +120,8 @@ function get_snapshot_data() {
 	 * but `WP_Query` doesn't support `DISTINCT` directly, and it's premature at this point. It may be possible
 	 * with the filters mentioned above.
 	 */
-	$confirmed_user_ids                      = array_unique( Contributor\get_contributor_user_ids( $confirmed_contributors ) );
-	$snapshot_data['confirmed_contributors'] = count( $confirmed_user_ids );
+	$confirmed_user_ids                                = array_unique( Contributor\get_contributor_user_ids( $confirmed_contributors ) );
+	$snapshot_data['confirmed_contributors']           = count( $confirmed_user_ids );
 	$snapshot_data['confirmed_sponsored_contributors'] = 0;
 
 	$contributors_profile_data = get_xprofile_contribution_data( $confirmed_user_ids );
@@ -131,7 +131,7 @@ function get_snapshot_data() {
 	foreach ( $contributors_profile_data as $profile_data ) {
 		switch ( (int) $profile_data['field_id'] ) {
 			case XProfile\FIELD_IDS['hours_per_week']:
-				$user_id   = (int) $profile_data['user_id'];
+				$user_id = (int) $profile_data['user_id'];
 
 				$snapshot_data['confirmed_hours'] += absint( $profile_data['value'] );
 
