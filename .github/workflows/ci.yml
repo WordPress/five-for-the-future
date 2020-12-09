@@ -12,18 +12,37 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - name: composer install
-      run: |
-        composer install
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-    - name: Lint PHP
+    - name: Get Composer cache directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Set up Composer caching
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-composer-dependencies
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-composer-
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '7.4'
+        coverage: none
+        tools: composer, cs2pr
+
+    - name: Install Composer dependencies
       run: |
-        touch ./tmp.php
-        CHANGED_FILES=$(git diff --name-only --diff-filter=AM ${{ github.base_ref }} | tr '\n' ' ')
-        composer run-script phpcs ./tmp.php $(echo $CHANGED_FILES) -- -n
+        composer install --prefer-dist --no-suggest --no-progress --no-ansi --no-interaction
+        echo "${PWD}/vendor/bin" >> $GITHUB_PATH
+
+    - name: Run PHPCS on all Core files
+      run: composer run-script phpcs -- -n | cs2pr
 
   phpunit:
     name: PHP Unit Tests
@@ -33,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['7.4'] # 8.0 -- Add back to matrix when 8.0 is supported.
+        php-version: ['7.4']
 
     services:
       mysql:
@@ -64,7 +83,7 @@ jobs:
 
     - name: Install WordPress
       run: |
-        bash .docker/bin/install-wp-tests.sh wporg_5ftf_test root root 127.0.0.1 trunk
+        bash bin/install-wp-tests.sh wporg_5ftf_test root root 127.0.0.1 trunk
 
     - name: Install required plugins
       run: |
