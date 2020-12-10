@@ -14,6 +14,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
 
     - name: Get Composer cache directory
       id: composer-cache
@@ -42,7 +44,10 @@ jobs:
         echo "${PWD}/vendor/bin" >> $GITHUB_PATH
 
     - name: Run PHPCS on all Core files
-      run: composer run-script phpcs -- -n | cs2pr
+      run: |
+        touch $GITHUB_WORKSPACE/tmp.php
+        export CHANGED_FILES=$(git diff --name-only --diff-filter=AM ${{ github.base_ref }} | tr '\n' ' ')
+        composer run-script phpcs $GITHUB_WORKSPACE/tmp.php $(echo $CHANGED_FILES) -- -n | cs2pr
 
   phpunit:
     name: PHP Unit Tests
