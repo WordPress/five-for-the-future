@@ -41,13 +41,13 @@ jobs:
     - name: Install Composer dependencies
       run: |
         composer install --prefer-dist --no-suggest --no-progress --no-ansi --no-interaction
-        echo "${PWD}/vendor/bin" >> $GITHUB_PATH
+        echo "${PWD}/mu-plugins/vendor/bin" >> $GITHUB_PATH
 
     - name: Run PHPCS on all Core files
       run: |
         touch $GITHUB_WORKSPACE/tmp.php
         export CHANGED_FILES=$(git diff --name-only --diff-filter=AM remotes/origin/${{ github.base_ref }} | tr '\n' ' ')
-         phpcs -q -n --report=checkstyle $GITHUB_WORKSPACE/tmp.php $(echo $CHANGED_FILES) -- -n | cs2pr
+        phpcs -q -n --report=checkstyle $GITHUB_WORKSPACE/tmp.php $(echo $CHANGED_FILES) | cs2pr
 
   phpunit:
     name: PHP Unit Tests
