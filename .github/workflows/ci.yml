@@ -47,7 +47,7 @@ jobs:
       run: |
         touch $GITHUB_WORKSPACE/tmp.php
         export CHANGED_FILES=$(git diff --name-only --diff-filter=AM remotes/origin/${{ github.base_ref }} | tr '\n' ' ')
-        composer run-script phpcs $GITHUB_WORKSPACE/tmp.php $(echo $CHANGED_FILES) -- -n | cs2pr
+         phpcs -q -n --report=checkstyle $GITHUB_WORKSPACE/tmp.php $(echo $CHANGED_FILES) -- -n | cs2pr
 
   phpunit:
     name: PHP Unit Tests
