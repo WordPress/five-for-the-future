@@ -7,13 +7,12 @@
 	flex-wrap: wrap;
 	margin: 0;
 	list-style: none;
-	
+
 	li {
 		display: flex;
 		align-items: center;
-		margin: 0 0 1em;
-		width: 25%;
-		min-width: 10em;
+		margin: 0 1em .5em 0;
+		width: 100%;
 	}
 
 	div.dashicons {
@@ -26,9 +25,10 @@
 		}
 	}
 
-	@include breakpoint( 0, $breakpoint-small ) {
+	@include breakpoint( 30em ) {
 		li {
-			width: 100%;
+			width: calc( 50% - 1em);
+			min-width: 10em;
 		}
 	}
 }

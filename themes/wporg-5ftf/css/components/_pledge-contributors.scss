@@ -1,4 +1,8 @@
 .pledge-contributors {
+	display: flex;
+	flex-wrap: wrap;
+	list-style: none;
+	margin-left: 0;
 
 	h3 {
 		margin-top: 0;
@@ -6,60 +10,20 @@
 		color: $color__text-lighter;
 	}
 
+	li {
+		width: 100px;
+		height: 100px;
+		margin: 0 1em 1em 0;
+	}
+
 	.pledge-contributor__avatar {
 		display: inline-block;
 		background: $color-gray-light-700;
-		margin-right: 4px;
-		margin-bottom: 4px;
+		border-radius: $avatar__border-radius;
 
 		img {
 			vertical-align: middle;
-		}
-	}
-
-	&.has-contrib-names {
-		margin: ms(2) 0;
-		list-style: none;
-
-		li {
-			display: inline-block;
-			margin: 0 20px 40px 0;
-			width: calc( 50% - 15px );
-
-			&:nth-of-type(2n) {
-				margin-right: 0;
-			}
-
-			@include breakpoint( $breakpoint-small ) {
-				margin-right: 48px;
-				width: calc( 33% - 33px );
-
-				&:nth-of-type(2n) {
-					margin-right: 48px;
-				}
-
-				&:nth-of-type(3n) {
-					margin-right: 0;
-				}
-			}
-		}
-
-		li:first-child:last-child {
-			width: 100%;
-			margin-right: 0;
-			
-			a {
-				max-width: 280px;
-			}
-		}
-
-		.pledge-contributor__avatar {
-			margin-bottom: 20px;
-		}
-
-		.pledge-contributor__name {
-			display: block;
-			text-align: center;
+			border-radius: $avatar__border-radius;
 		}
 	}
 }

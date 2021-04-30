@@ -2,33 +2,38 @@ body.single.single-5ftf_pledge {
 
 	// Expand archive content area to full-width of header.
 	.site-content .site-main {
-		padding: 0 10px;
 		max-width: $size__site-main;
 	}
 
 	.entry-header {
-		margin: ms(12) 0;
+		margin: 0;
 		padding-bottom: ms(4);
-		border-bottom: 1px solid $color-gray-light-500;
+		text-align: center;
 
 		@include breakpoint( $breakpoint-mobile ) {
-			display: flex;
 			align-items: center;
-
-			> div {
-				flex: auto;
-			}
-
-			.entry-image {
-				max-width: 330px;
-			}
 		}
 
 		@include breakpoint( 0, $breakpoint-mobile ) {
 			text-align: center;
+		}
 
-			.entry-image {
-				margin-top: ms(2);
+		.pledge-introduction {
+			background-color: $color-gray-light-200;
+			padding: 1em;
+			font-size: 1.5em;
+
+			p {
+				max-width: 525px; /* Keep it on two lines, ala https://stackoverflow.com/q/61923996/450127 */
+				margin: 1em auto;
+
+				&:first-child {
+					margin-top: 0;
+				}
+
+				&:last-child {
+					margin-bottom: 0;
+				}
 			}
 		}
 
@@ -46,12 +51,53 @@ body.single.single-5ftf_pledge {
 		margin-bottom: 0;
 	}
 
-	.entry-image__logo {
-		background: transparent;
+	.has-post-thumbnail .pledge-introduction {
+		padding-bottom: 2em;
 	}
 
-	.pledge-company-description {
-		max-width: $size__content-width;
+	.has-post-thumbnail .pledge-company-summary {
+		position: relative;
+		top: -30px;
+	}
+
+	.entry-image__logo {
+		background: transparent;
+		padding: 0;
+
+		img {
+			background-color: white;
+			max-width: 330px;
+			border-radius: 10px;
+			border: 5px solid white;
+		}
+	}
+
+	.entry-content {
+		h2 {
+			margin-top: 0;
+		}
+
+		@include breakpoint( $breakpoint-tablet ) {
+			display: grid;
+			grid-template-areas:
+				"about contributions"
+				"contributors contributors"
+			;
+			grid-template-columns: calc( 50% - 40px ) calc( 50% - 40px );
+			grid-gap: 80px;
+
+			.pledge-company-description {
+				grid-area: about;
+			}
+
+			.pledge-company-contributions {
+				grid-area: contributions;
+			}
+
+			.pledge-company-contributors {
+				grid-area: contributors;
+			}
+		}
 	}
 
 	.team-grid {

@@ -7,11 +7,12 @@ WordPress theme for [the Five for the Future subsite](https://wordpress.org/five
 
 ```
 npm install
-grunt watch
+npm start
 ```
 
 Make CSS changes in the `css/` folder, and `css/style.css` will be rebuilt automatically.
 
+See `./css/README.md` for docs on how SASS files are structured.
 
 ## Committing
 
@@ -20,6 +21,4 @@ Before committing changes to `css/`, please run `grunt build` to keep the file s
 
 ## Miscellaneous
 
-The canonical source for this project is [github.com/WordPress/five-for-the-future](https://github.com/WordPress/five-for-the-future). The contents are synced to the dotorg SVN repo to run on production, because we don't deploy directly from GitHub, for reliability reasons. 
-
-The production copy lives in `themes/` instead of `themes/pub`, because it's already open in GitHub, and we don't want to clutter the Meta repo logs and Slack channels with noise from "Syncing w/ Git repository..." commits.
+See the root README for information on syncing changes from Git to SVN.

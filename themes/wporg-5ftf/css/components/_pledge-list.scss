@@ -3,7 +3,6 @@ body.search.search-results {
 
 	// Expand archive content area to full-width of header.
 	.site-content .site-main {
-		padding: 0 10px;
 		max-width: $size__site-main;
 	}
 
@@ -82,7 +81,7 @@ body.search.search-results {
 				grid-row: 2;
 			}
 		}
-		
+
 		@include breakpoint( $breakpoint-tablet ) {
 			grid-template-columns: 330px auto;
 		}
@@ -91,5 +90,21 @@ body.search.search-results {
 	.entry-title {
 		font-size: ms(2);
 		font-weight: 400;
+	}
+
+	.pledge-contributors {
+		li {
+			width: 40px;
+			height: 40px;
+			margin: 0 5px 5px 0;
+		}
+
+		.pledge-contributor__avatar {
+			border-radius: calc( #{$avatar__border-radius} / 3.75 );
+
+			img {
+				border-radius: calc( #{$avatar__border-radius} / 3.75 );
+			}
+		}
 	}
 }

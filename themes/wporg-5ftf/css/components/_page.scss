@@ -14,10 +14,10 @@ body.page:not(.home) {
 	}
 
 	.entry-content {
-		padding: 0 0 ms( 10 );
+		padding-top: 0;
 	}
 
 	.entry-footer {
-		padding: ms( 10 ) 0;
+		padding: ms( 10 ) ms(2);
 	}
 }
