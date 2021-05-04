@@ -11,7 +11,7 @@ if ( ! have_posts() ) {
 }
 
 $new_pledge_link = get_permalink( get_page_by_path( 'for-organizations' ) );
-$pledge_order = isset( $_GET['order'] ) ? $_GET['order'] : '';
+$pledge_order    = isset( $_GET['order'] ) ? $_GET['order'] : '';
 
 get_header(); ?>
 

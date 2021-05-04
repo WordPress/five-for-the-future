@@ -8,7 +8,7 @@ namespace WordPressdotorg\Five_for_the_Future\Theme;
 use WordPressDotOrg\FiveForTheFuture\{Contributor, PledgeMeta };
 
 $pledge = get_post();
-$data = array();
+$data   = array();
 
 foreach ( PledgeMeta\get_pledge_meta_config() as $key => $config ) {
 	$data[ $key ] = get_post_meta( get_the_ID(), PledgeMeta\META_PREFIX . $key, $config['single'] );
@@ -34,7 +34,7 @@ $more_text = sprintf(
 );
 
 $content = apply_filters( 'the_content', $data['org-description'] );
-$content = strip_tags( $content );
+$content = strip_tags( $content ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags -- `we're the <strong>best</strong>` should keep "best" but remove the formatting.
 $content = wp_trim_words( $content, 55, $more_text );
 
 $total_hours = $pledge->{ PledgeMeta\META_PREFIX . 'pledge-total-hours' };
