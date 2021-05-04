@@ -42,7 +42,13 @@
 	box-sizing: border-box;
 	position: relative;
 }
-
+.badge-themes {
+	background: white;
+	box-shadow: 0 0 0 4px rgb(78, 50, 136);
+}
+.badge-themes::before {
+	color: rgb(78, 50, 136);
+}
 .badge-themes-reviewer {
 	background: rgba(78, 50, 136, 0.25);
 	box-shadow: 0 0 0 4px rgb(78, 50, 136);
