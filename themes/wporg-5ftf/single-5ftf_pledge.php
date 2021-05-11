@@ -35,7 +35,7 @@ get_header();
 						<?php esc_html_e( 'This organization contributes 5% of their resources to the WordPress project.', 'wporg-5ftf' ); ?>
 					</p>
 
-					<p>
+					<p class="pledge-introduction__more">
 						<a href="<?php echo esc_url( home_url() ); ?>">
 							<?php esc_html_e( 'More about Five for the Future', 'wporg-5ftf' ); ?>
 						</a>
@@ -46,7 +46,7 @@ get_header();
 					<?php if ( has_post_thumbnail() ) : ?>
 						<div class="entry-image">
 							<div class="entry-image__logo">
-								<?php the_post_thumbnail( 'pledge-logo' ); ?>
+								<?php the_post_thumbnail(); ?>
 							</div>
 						</div>
 					<?php endif; ?>
@@ -54,17 +54,18 @@ get_header();
 					<?php if ( DEACTIVE_STATUS === get_post_status() ) : ?>
 						<span class="pledge-status"><?php esc_html_e( 'deactivated', 'wporg-5ftf' ); ?></span>
 					<?php endif; ?>
+
 					<?php the_title( '<h1 class="entry-title">', '</h1>' ); ?>
-					<span class="pledge-url">
+
+					<p class="pledge-url">
 						<?php
 						printf(
-							'<a href="%1$s" rel="nofollow">%1$s</a>',
+							'<a href="%1$s" rel="nofollow noopener">%1$s</a>',
 							esc_url( $post->{ META_PREFIX . 'org-url' } )
 						);
 						?>
-					</span>
+					</p>
 				</div>
-
 			</header>
 
 			<div class="entry-content">

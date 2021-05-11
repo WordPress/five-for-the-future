@@ -52,7 +52,7 @@ $contributor_title = sprintf(
 	<div class="entry-image">
 		<?php if ( has_post_thumbnail() ) : ?>
 			<div class="entry-image__logo">
-				<?php the_post_thumbnail( 'pledge-logo' ); ?>
+				<?php the_post_thumbnail(); ?>
 			</div>
 		<?php else : ?>
 			<div class="entry-image__placeholder"></div>

@@ -20,20 +20,21 @@ body.single.single-5ftf_pledge {
 
 		.pledge-introduction {
 			background-color: $color-gray-light-200;
-			padding: 1em;
-			font-size: 1.5em;
+			margin-bottom: 36px;
+			padding: 30px;
+			font-size: 1.1rem;
 
 			p {
-				max-width: 525px; /* Keep it on two lines, ala https://stackoverflow.com/q/61923996/450127 */
-				margin: 1em auto;
-
-				&:first-child {
-					margin-top: 0;
-				}
+				max-width: 400px; /* Balance across two lines, ala https://stackoverflow.com/q/61923996/450127 */
+				margin: 0 auto 1rem auto;
 
 				&:last-child {
 					margin-bottom: 0;
 				}
+			}
+
+			.pledge-introduction__more {
+				font-size: .9rem;
 			}
 		}
 
@@ -48,16 +49,29 @@ body.single.single-5ftf_pledge {
 	}
 
 	.entry-title {
+		margin-top: 30px;
 		margin-bottom: 0;
 	}
 
 	.has-post-thumbnail .pledge-introduction {
-		padding-bottom: 2em;
+		padding-bottom: 60px;
+	}
+
+	.pledge-company-summary {
+		h1 {
+			font-size: 2.2rem;
+			font-weight: 600;
+		}
+
+		.pledge-url {
+			font-size: .9rem;
+			margin-top: 18px;
+		}
 	}
 
 	.has-post-thumbnail .pledge-company-summary {
 		position: relative;
-		top: -30px;
+		top: -65px;
 	}
 
 	.entry-image__logo {
@@ -66,9 +80,11 @@ body.single.single-5ftf_pledge {
 
 		img {
 			background-color: white;
-			max-width: 330px;
-			border-radius: 10px;
-			border: 5px solid white;
+			max-width: 170px;
+			max-height: 100px;
+			box-sizing: content-box;
+			border-radius: 3px;
+			border: 12px solid white;
 		}
 	}
 
