@@ -2,16 +2,20 @@
 
 namespace WordPressDotOrg\FiveForTheFuture\Theme;
 
-global $wporg_global_header_options;
-$GLOBALS['pagetitle'] = wp_get_document_title();
+if ( FEATURE_2021_GLOBAL_HEADER_FOOTER ) {
+	echo do_blocks( '<!-- wp:wporg/global-header /-->' );
+} else {
+	global $wporg_global_header_options;
+	$GLOBALS['pagetitle'] = wp_get_document_title();
 
-if ( ! isset( $wporg_global_header_options['in_wrapper'] ) ) {
-	$wporg_global_header_options['in_wrapper'] = '';
+	if ( ! isset( $wporg_global_header_options['in_wrapper'] ) ) {
+		$wporg_global_header_options['in_wrapper'] = '';
+	}
+
+	$wporg_global_header_options['in_wrapper'] .= '<a class="skip-link screen-reader-text" href="#main">' . esc_html__( 'Skip to content', 'wporg-5ftf' ) . '</a>';
+
+	require WPORGPATH . 'header.php';
 }
-
-$wporg_global_header_options['in_wrapper'] .= '<a class="skip-link screen-reader-text" href="#main">' . esc_html__( 'Skip to content', 'wporg-5ftf' ) . '</a>';
-
-require WPORGPATH . 'header.php';
 
 ?>
 
