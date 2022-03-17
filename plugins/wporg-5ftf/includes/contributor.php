@@ -455,15 +455,26 @@ function process_my_pledges_form() {
  * Ensure each item in a list of usernames is valid and corresponds to a user.
  *
  * @param string $contributors A comma-separated list of username strings.
+ * @param int    $pledge_id    Optional. The ID of an existing pledge post that contributors are being added to.
  *
  * @return array|WP_Error An array of sanitized wporg usernames on success. Otherwise WP_Error.
  */
-function parse_contributors( $contributors ) {
+function parse_contributors( $contributors, $pledge_id = null ) {
 	$invalid_contributors   = array();
+	$duplicate_contributors = array();
 	$sanitized_contributors = array();
 
 	$contributors = str_replace( '@', '', $contributors );
 	$contributors = explode( ',', $contributors );
+
+	$existing_usernames = array();
+	if ( $pledge_id ) {
+		$pledge_contributors = get_pledge_contributors( $pledge_id, 'all' );
+		$existing_usernames  = wp_list_pluck(
+			$pledge_contributors['publish'] + $pledge_contributors['pending'],
+			'post_title'
+		);
+	}
 
 	foreach ( $contributors as $wporg_username ) {
 		$sanitized_username = sanitize_user( $wporg_username );
@@ -474,22 +485,38 @@ function parse_contributors( $contributors ) {
 		}
 
 		if ( $user instanceof WP_User ) {
+			if ( in_array( $user->user_login, $existing_usernames, true ) ) {
+				$duplicate_contributors[] = $user->user_login;
+				continue;
+			}
+
 			$sanitized_contributors[] = $user->user_login;
 		} else {
 			$invalid_contributors[] = $wporg_username;
 		}
 	}
 
-	if ( ! empty( $invalid_contributors ) ) {
-		/* translators: Used between sponsor names in a list, there is a space after the comma. */
-		$item_separator = _x( ', ', 'list item separator', 'wporg-5ftf' );
+	/* translators: Used between sponsor names in a list, there is a space after the comma. */
+	$item_separator = _x( ', ', 'list item separator', 'wporg-5ftf' );
 
+	if ( ! empty( $invalid_contributors ) ) {
 		return new WP_Error(
 			'invalid_contributor',
 			sprintf(
 				/* translators: %s is a list of usernames. */
 				__( 'The following contributor usernames are not valid: %s', 'wporg-5ftf' ),
 				implode( $item_separator, $invalid_contributors )
+			)
+		);
+	}
+
+	if ( ! empty( $duplicate_contributors ) ) {
+		return new WP_Error(
+			'duplicate_contributor',
+			sprintf(
+				/* translators: %s is a list of usernames. */
+				__( 'The following contributor usernames are already associated with this pledge: %s', 'wporg-5ftf' ),
+				implode( $item_separator, $duplicate_contributors )
 			)
 		);
 	}
