@@ -18,6 +18,7 @@ wp_debug_mode();    // re-set `display_errors` after WP-CLI overrides it, see ht
 /** @var array  $args The arguments passed to this script from the command line */
 main( $file, $args );
 
+defined( 'WP_CLI' ) || die( 'Nope' );
 
 /**
  * The main controller
