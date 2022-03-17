@@ -271,7 +271,7 @@ function process_form_remove( $pledge_id, $auth_token ) {
 		);
 	}
 
-	$result = Pledge\deactivate( $pledge_id, true );
+	$result = Pledge\deactivate( $pledge_id, true, 'Organization admin deactivated via Manage form.' );
 
 	if ( is_wp_error( $result ) ) {
 		return $result;

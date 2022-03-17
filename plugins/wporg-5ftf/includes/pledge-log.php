@@ -21,6 +21,8 @@ add_action( 'transition_post_status', __NAMESPACE__ . '\capture_transition_post_
 add_action( FiveForTheFuture\PREFIX . '_add_pledge_contributors', __NAMESPACE__ . '\capture_add_pledge_contributors', 99, 3 );
 add_action( FiveForTheFuture\PREFIX . '_remove_contributor', __NAMESPACE__ . '\capture_remove_contributor', 99, 3 );
 add_action( FiveForTheFuture\PREFIX . '_email_result', __NAMESPACE__ . '\capture_email_result', 99, 6 );
+add_action( FiveForTheFuture\PREFIX . '_deactivated_pledge', __NAMESPACE__ . '\capture_pledge_deactivation', 99, 4 );
+
 
 /**
  * Adds a meta box for the log on the custom post type.
@@ -121,7 +123,7 @@ function add_log_entry( $pledge_id, $type, $message, array $data = array(), $use
 
 	} elseif ( 'cli' === php_sapi_name() ) {
 		/*
-		 * `wp_shell`, etc can only be run from w.org sandboxes, and the hostname is the best way to identify
+		 * `wp shell`, etc can only be run from w.org sandboxes, and the hostname is the best way to identify
 		 * which sandbox was used.
 		 */
 		$entry['user_id'] = gethostname();
@@ -383,5 +385,20 @@ function capture_email_result( $to, $subject, $message, $headers, $result, $pled
 			$result ? 'succeeded' : 'failed'
 		),
 		compact( 'to', 'subject', 'message', 'headers', 'result' )
+	);
+}
+
+/**
+ * Capture the results of an attempt to send an email.
+ */
+function capture_pledge_deactivation( int $pledge_id, bool $notify, string $reason, /* mixed */ $result ) : void {
+	add_log_entry(
+		$pledge_id,
+		'deactivated_pledge',
+		sprintf(
+			'Reason for deactivation was: %s',
+			$reason ?? 'No reason given.'
+		),
+		compact( 'notify', 'result' )
 	);
 }

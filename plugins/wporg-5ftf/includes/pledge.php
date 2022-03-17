@@ -205,7 +205,7 @@ function handle_activation_action( $post_id ) {
 	$sendback = remove_query_arg( array( 'deactivated', 'reactivated' ), $sendback );
 
 	if ( 'deactivate' === $action ) {
-		deactivate( $post_id );
+		deactivate( $post_id, false, 'Site admin deactivated via wp-admin list table.' );
 		wp_redirect( add_query_arg( 'deactivated', 1, $sendback ) );
 		exit();
 	} else {
@@ -368,10 +368,11 @@ function create_new_pledge( $name ) {
  *
  * @param int  $pledge_id The pledge to deactivate.
  * @param bool $notify    Whether the pledge admin should be notified of the deactivation.
+ * @param string $reason  The reason why the pledge is being deactivated.
  *
  * @return int|WP_Error Post ID on success. Otherwise WP_Error.
  */
-function deactivate( $pledge_id, $notify = false ) {
+function deactivate( $pledge_id, $notify = false, $reason = '' ) {
 	$pledge = get_post( $pledge_id );
 	$result = wp_update_post(
 		array(
@@ -384,6 +385,8 @@ function deactivate( $pledge_id, $notify = false ) {
 	if ( $notify && ! is_wp_error( $result ) ) {
 		Email\send_pledge_deactivation_email( $pledge );
 	}
+
+	do_action( FiveForTheFuture\PREFIX . '_deactivated_pledge', $pledge_id, $notify, $reason, $result );
 
 	return $result;
 }
