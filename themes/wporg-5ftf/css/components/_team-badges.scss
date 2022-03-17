@@ -123,6 +123,14 @@
 	color: rgb(251, 161, 108);
 }
 
+.badge-openverse {
+	background: rgba(103, 74, 255, 0.25);
+	box-shadow: 0 0 0 4px rgb(103, 74, 255);
+}
+.badge-openverse:before {
+	color: rgb(103, 74, 255);
+}
+
 .badge-training{
 	background: rgba(233, 192, 45, 0.25);
 	box-shadow: 0 0 0 4px rgb(233, 192, 45);

@@ -265,6 +265,10 @@ function get_badge_classes( $team ) {
 			$classes = array( 'badge-mobile', 'dashicons-smartphone' );
 			break;
 
+		case 'openverse team':
+			$classes = array( 'badge-openverse', 'dashicons-search' );
+			break;
+
 		case 'polyglots team':
 			$classes = array( 'badge-translation-editor', 'dashicons-translation' );
 			break;
@@ -277,6 +281,7 @@ function get_badge_classes( $team ) {
 			$classes = array( 'badge-test-team', 'dashicons-desktop' );
 			break;
 
+		case 'themes team':
 		case 'theme review team':
 			$classes = array( 'badge-themes-reviewer', 'dashicons-admin-appearance' );
 			break;

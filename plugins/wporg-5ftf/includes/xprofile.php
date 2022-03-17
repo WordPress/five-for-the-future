@@ -120,6 +120,17 @@ function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 		return $carry;
 	}, $initial );
 
+	$aggregate_data['teams'] = array_map(
+		function( $team ) {
+			// Fix for renamed team.
+			if ( 'Theme Review Team' === $team ) {
+				$team = 'Themes Team';
+			}
+
+			return $team;
+		},
+		$aggregate_data['teams']
+	);
 	$aggregate_data['teams'] = array_unique( $aggregate_data['teams'] );
 	sort( $aggregate_data['teams'] );
 
