@@ -20,3 +20,5 @@ See [the theme README](./themes/wporg-5ftf/README.md) for scripts specific to th
 The canonical source for this project is [github.com/WordPress/five-for-the-future](https://github.com/WordPress/five-for-the-future). The contents are synced to the dotorg SVN repo to run on production, because we don't deploy directly from GitHub, for reliability reasons.
 
 The plugin and theme lives in the private SVN repo instead of `meta.svn.wordpress.org`, because the code is already open-sourced, and we don't want to clutter the Meta logs and Slack channels with noise from "Syncing w/ Git repository..." commits.
+
+To sync to SVN, run `bin/sync/5ftf.sh` from a w.org sandbox.
