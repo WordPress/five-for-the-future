@@ -287,6 +287,10 @@ function get_badge_classes( $team ) {
 			$classes = array( 'badge-openverse', 'dashicons-search' );
 			break;
 
+		case 'photos team':
+			$classes = array( 'badge-photos', 'dashicons-camera' );
+			break;
+
 		case 'polyglots team':
 			$classes = array( 'badge-translation-editor', 'dashicons-translation' );
 			break;
