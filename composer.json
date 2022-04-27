@@ -23,10 +23,10 @@
 		"spatie/phpunit-watcher": "^1.23"
 	},
 	"scripts": {
-		"phpcs": [
+		"lint": [
 			"phpcs --extensions=php -s -p"
 		],
-		"phpcbf": [
+		"format": [
 			"phpcbf -p"
 		],
 		"test" : "phpunit",

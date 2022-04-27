@@ -46,9 +46,10 @@ If you are making changes to the plugins, you can run `composer update` at `/wp-
 And lastly, you can run PHPCS for both the theme and the plugin at the root `/wp-content/` folder by running `composer install` there once, followed by `composer run phpcs` when you want to code scan.
 
 
-* `composer run phpcs` - Lint the entire codebase
-* `composer run phpcs -- -a themes/wporg-5ftf/` - Lint a specific folder, interactively
-* `composer run phpcbf` - Fix linter warnings (when possible)
+* `composer run lint` - Lint the entire codebase
+* `composer run lint -- -a themes/wporg-5ftf/` - Lint a specific folder, interactively
+* `composer run lint $(pwd)/inc*/ac*` - List file(s) in the current directory without typing the full path
+* `composer run format` - Fix linter warnings (when possible)
 * `composer run test` - Run unit tests
 * `composer run test:watch` - Run unit tests after each file change.
 
