@@ -6,7 +6,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 
 defined( 'WPINC' ) || die();
 
-$pledge_id = ( CPT_ID === get_post_type() ) ? get_post()->ID : absint( $_REQUEST['pledge_id'] ?? 0 );
+$pledge_id   = ( CPT_ID === get_post_type() ) ? get_post()->ID : absint( $_REQUEST['pledge_id'] ?? 0 );
 $pledge_name = get_the_title( $pledge_id );
 ?>
 

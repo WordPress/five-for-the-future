@@ -53,7 +53,7 @@ function get_xprofile_contribution_data( array $user_ids ) {
  * @return array
  */
 function prepare_xprofile_contribution_data( array $raw_data ) {
-	$prepared_data     = array();
+	$prepared_data    = array();
 	$field_keys_by_id = array_flip( FIELD_IDS );
 
 	foreach ( $raw_data as $datum ) {

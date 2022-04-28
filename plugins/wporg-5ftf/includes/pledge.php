@@ -182,7 +182,7 @@ function add_row_action( $actions, $post ) {
  */
 function handle_activation_action( $post_id ) {
 	$action = $_REQUEST['action'];
-	if ( ! in_array( $action, array( 'deactivate', 'reactivate' ) ) ) {
+	if ( ! in_array( $action, array( 'deactivate', 'reactivate' ), true ) ) {
 		return;
 	}
 
@@ -206,14 +206,14 @@ function handle_activation_action( $post_id ) {
 
 	if ( 'deactivate' === $action ) {
 		deactivate( $post_id, false, 'Site admin deactivated via wp-admin list table.' );
-		wp_redirect( add_query_arg( 'deactivated', 1, $sendback ) );
+		wp_safe_redirect( add_query_arg( 'deactivated', 1, $sendback ) );
 		exit();
 	} else {
 		wp_update_post( array(
 			'ID'          => $post_id,
 			'post_status' => 'publish',
 		) );
-		wp_redirect( add_query_arg( 'reactivated', 1, $sendback ) );
+		wp_safe_redirect( add_query_arg( 'reactivated', 1, $sendback ) );
 		exit();
 	}
 }
@@ -366,8 +366,8 @@ function create_new_pledge( $name ) {
 /**
  * Remove a pledge from view by setting its status to "deactivated".
  *
- * @param int  $pledge_id The pledge to deactivate.
- * @param bool $notify    Whether the pledge admin should be notified of the deactivation.
+ * @param int    $pledge_id The pledge to deactivate.
+ * @param bool   $notify    Whether the pledge admin should be notified of the deactivation.
  * @param string $reason  The reason why the pledge is being deactivated.
  *
  * @return int|WP_Error Post ID on success. Otherwise WP_Error.

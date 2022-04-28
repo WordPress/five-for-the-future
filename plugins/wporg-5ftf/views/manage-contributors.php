@@ -95,7 +95,7 @@ use function WordPressDotOrg\FiveForTheFuture\get_views_path;
 
 	<?php
 	if ( ! $readonly ) :
-		$data = [ 'pledge-contributors' => '' ];
+		$data = array( 'pledge-contributors' => '' );
 		require get_views_path() . 'inputs-pledge-contributors.php';
 		?>
 
