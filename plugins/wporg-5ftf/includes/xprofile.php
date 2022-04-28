@@ -170,3 +170,21 @@ function get_contributor_user_data( $user_id ) {
 
 	return $formatted_data;
 }
+
+/**
+ * Reset the 5ftF data on a user's profile.
+ */
+function reset_contribution_data( $user_id ) : void {
+	global $wpdb;
+
+	$wpdb->query( $wpdb->prepare( '
+		DELETE FROM `bpmain_bp_xprofile_data`
+		WHERE
+			user_id = %d AND
+			field_id IN ( %d, %d, %d )',
+		$user_id,
+		FIELD_IDS['sponsored'],
+		FIELD_IDS['hours_per_week'],
+		FIELD_IDS['team_names'],
+	) );
+}

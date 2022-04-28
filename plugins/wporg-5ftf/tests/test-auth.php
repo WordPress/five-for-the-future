@@ -6,6 +6,9 @@ use const WordPressDotOrg\FiveForTheFuture\Pledge\CPT_ID as PLEDGE_POST_TYPE;
 
 defined( 'WPINC' ) || die();
 
+/**
+ * @group auth
+ */
 class Test_Auth extends WP_UnitTestCase {
 	// phpcs:ignore PSR2.Classes.PropertyDeclaration.Multiple
 	protected static $pledge, $action, $page, $action_url, $token;

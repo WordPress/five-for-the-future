@@ -387,6 +387,10 @@ function deactivate( $pledge_id, $notify = false, $reason = '' ) {
 
 	do_action( FiveForTheFuture\PREFIX . '_deactivated_pledge', $pledge_id, $notify, $reason, $result );
 
+	if ( ! is_wp_error( $result ) ) {
+		Contributor\remove_pledge_contributors( $pledge_id );
+	}
+
 	return $result;
 }
 

@@ -167,6 +167,22 @@ function add_pledge_contributors( $pledge_id, $contributors ) {
 }
 
 /**
+ * Remove all of the contributors for the given pledge.
+ *
+ * Some contributors are sponsored by multiple companies. They'll have a `5ftf_contributor` post for each company,
+ * but only the post associated with the given pledge should be removed.
+ */
+function remove_pledge_contributors( int $pledge_id ) : void {
+	$contributors = get_pledge_contributors( $pledge_id, 'all' );
+
+	foreach ( $contributors as $status_group ) {
+		foreach ( $status_group as $contributor ) {
+			remove_contributor( $contributor->ID );
+		}
+	}
+}
+
+/**
  * Remove a contributor post from a pledge.
  *
  * This wrapper function ensures we have a standardized way of removing a contributor that will still
@@ -184,6 +200,21 @@ function remove_contributor( $contributor_post_id ) {
 
 	if ( $result && 'publish' === $old_status ) {
 		Email\send_contributor_removed_email( $pledge_id, $contributor );
+	}
+
+	$has_additional_sponsors = get_posts( array(
+		'post_type'   => CPT_ID,
+		'title'       => $contributor->post_title,
+		'post_status' => 'publish',
+	) );
+
+	// `pending` contributors never confirmed they were associated with the company, so their profile data isn't
+	// tied to the pledge, and shouldn't be reset. If a user has multiple sponsors, we don't know which hours are
+	// sponsored by which company, so just leave them all.
+	if ( 'publish' === $old_status && ! $has_additional_sponsors ) {
+		$user = get_user_by( 'login', $contributor->post_title );
+
+		XProfile\reset_contribution_data( $user->ID );
 	}
 
 	/**

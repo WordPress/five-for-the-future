@@ -128,13 +128,23 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 function send_contributor_removed_email( $pledge_id, $contributor ) {
 	$pledge   = get_post( $pledge_id );
 	$subject  = "Removed from {$pledge->post_title} Five for the Future pledge";
-	$message  = "Howdy {$contributor->post_title},\n\n";
-	$message .= sprintf(
-		'This email is to notify you that your WordPress.org contributor profile is no longer linked to %1$s’s Five for the Future pledge. If this is unexpected news, it’s best to reach out directly to %1$s with questions. Have a great day!',
+	$user     = get_user_by( 'login', $contributor->post_title );
+
+	$message = sprintf( '
+		Howdy %1$s,
+
+		This email is to notify you that your WordPress.org contributor profile is no longer linked to %2$s’s Five for the Future pledge. If this is unexpected news, it’s best to reach out directly to %2$s with questions.
+
+		If they were the only sponsor linked to your account, then the "Hours Per Week" and "Contributor Teams" fields on your profile have been reset, so that teams have accurate data. If you still plan on contributing without sponsorship, please revisit your profile and enter your new hours and teams.
+
+		https://profiles.wordpress.org/me/profile/edit/group/5/
+
+		Have a great day!',
+		$contributor->post_title,
 		$pledge->post_title
 	);
+	$message = str_replace( "\t", '', trim( $message ) );
 
-	$user = get_user_by( 'login', $contributor->post_title );
 	send_email( $user->user_email, $subject, $message, $pledge_id );
 }
 
