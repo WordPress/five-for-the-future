@@ -7,8 +7,8 @@
 namespace WordPressDotOrg\FiveForTheFuture\Pledge;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
-use WP_Error, WP_Query;
+use WordPressDotOrg\FiveForTheFuture\{ Contributor, Email };
+use WP_Post, WP_Error, WP_Query;
 
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
@@ -206,16 +206,18 @@ function handle_activation_action( $post_id ) {
 
 	if ( 'deactivate' === $action ) {
 		deactivate( $post_id, false, 'Site admin deactivated via wp-admin list table.' );
-		wp_safe_redirect( add_query_arg( 'deactivated', 1, $sendback ) );
-		exit();
+		$url = add_query_arg( 'deactivated', 1, $sendback );
+
 	} else {
 		wp_update_post( array(
 			'ID'          => $post_id,
 			'post_status' => 'publish',
 		) );
-		wp_safe_redirect( add_query_arg( 'reactivated', 1, $sendback ) );
-		exit();
+		$url = add_query_arg( 'reactivated', 1, $sendback );
 	}
+
+	wp_safe_redirect( $url );
+	exit();
 }
 
 /**
@@ -244,11 +246,7 @@ function action_success_message() {
  * @return array The filtered list of post display states.
  */
 function add_status_to_display( $post_states, $post ) {
-	if ( isset( $_REQUEST['post_status'] ) ) {
-		$showing_status = $_REQUEST['post_status'];
-	} else {
-		$showing_status = '';
-	}
+	$showing_status = $_REQUEST['post_status'] ?? $showing_status = '';
 
 	$status = DEACTIVE_STATUS;
 	if ( $showing_status !== $status && $status === $post->post_status ) {
@@ -310,15 +308,16 @@ function add_list_table_columns( $columns ) {
 function populate_list_table_columns( $column, $post_id ) {
 	switch ( $column ) {
 		case 'contributor_counts':
-			$contribs    = Contributor\get_pledge_contributors( $post_id, 'all' );
-			$confirmed   = sprintf(
-				_n( '%s confirmed', '%s confirmed', count( $contribs['publish'] ), 'wporg-5ftf' ),
-				number_format_i18n( count( $contribs['publish'] ) )
+			$contributors = Contributor\get_pledge_contributors( $post_id, 'all' );
+			$confirmed    = sprintf(
+				_n( '%s confirmed', '%s confirmed', count( $contributors['publish'] ), 'wporg-5ftf' ),
+				number_format_i18n( count( $contributors['publish'] ) )
 			);
-			$unconfirmed = sprintf(
-				_n( '%s unconfirmed', '%s unconfirmed', count( $contribs['pending'] ), 'wporg-5ftf' ),
-				number_format_i18n( count( $contribs['pending'] ) )
+			$unconfirmed  = sprintf(
+				_n( '%s unconfirmed', '%s unconfirmed', count( $contributors['pending'] ), 'wporg-5ftf' ),
+				number_format_i18n( count( $contributors['pending'] ) )
 			);
+
 			printf( '%s<br />%s', esc_html( $confirmed ), esc_html( $unconfirmed ) );
 			break;
 		case 'domain':
@@ -424,7 +423,7 @@ function filter_query( $query ) {
 	if ( $query->is_archive && CPT_ID === $query->get( 'post_type' ) ) {
 		// Archives should only show pledges with contributors.
 		$query->set( 'meta_query', $meta_queries );
-		$order = isset( $_GET['order'] ) ? $_GET['order'] : '';
+		$order = $_GET['order'] ?? '';
 
 		switch ( $order ) {
 			case 'alphabetical':

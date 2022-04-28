@@ -178,10 +178,11 @@ function add_pledge_contributors( $pledge_id, $contributors ) {
  */
 function remove_contributor( $contributor_post_id ) {
 	$contributor = get_post( $contributor_post_id );
+	$old_status  = $contributor->post_status;
 	$pledge_id   = $contributor->post_parent;
 	$result      = wp_trash_post( $contributor_post_id );
 
-	if ( $result && 'publish' === $contributor->post_status ) {
+	if ( $result && 'publish' === $old_status ) {
 		Email\send_contributor_removed_email( $pledge_id, $contributor );
 	}
 
@@ -422,21 +423,21 @@ function process_my_pledges_form() {
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$new_status = 'publish';
-		$message    = "You have joined the pledge from {$pledge->post_title}.";
+		$message    = "You have joined the pledge from $pledge->post_title.";
 
 	} elseif ( filter_input( INPUT_POST, 'decline_invitation' ) ) {
 		$nonce_action = 'join_decline_organization_' . $contributor_post_id;
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$new_status = 'trash';
-		$message    = "You have declined the pledge invitation from {$pledge->post_title}.";
+		$message    = "You have declined the pledge invitation from $pledge->post_title.";
 
 	} elseif ( filter_input( INPUT_POST, 'leave_organization' ) ) {
 		$nonce_action = 'leave_organization_' . $contributor_post_id;
 		wp_verify_nonce( $unverified_nonce, $nonce_action ) || wp_nonce_ays( $nonce_action );
 
 		$new_status = 'trash';
-		$message    = "You have left the {$pledge->post_title} pledge.";
+		$message    = "You have left the $pledge->post_title pledge.";
 	}
 
 	if ( 'publish' === $new_status && 'publish' !== $contributor_post->post_status ) {
