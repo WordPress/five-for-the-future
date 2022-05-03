@@ -173,6 +173,9 @@ function get_contributor_user_data( $user_id ) {
 
 /**
  * Reset the 5ftF data on a user's profile.
+ *
+ * This deletes directly from the database and object cache -- rather than using something like
+ * `BP_XProfile_Field::delete()` -- because w.org/5 runs on a different network than profiles.w.org.
  */
 function reset_contribution_data( $user_id ) : void {
 	global $wpdb;
@@ -187,4 +190,14 @@ function reset_contribution_data( $user_id ) : void {
 		FIELD_IDS['hours_per_week'],
 		FIELD_IDS['team_names'],
 	) );
+
+	wp_cache_add_global_groups( 'bp_xprofile_data' );
+	wp_cache_delete_multiple(
+		array(
+			$user_id . ':' . FIELD_IDS['sponsored'],
+			$user_id . ':' . FIELD_IDS['hours_per_week'],
+			$user_id . ':' . FIELD_IDS['team_names'],
+		),
+		'bp_xprofile_data'
+	);
 }
