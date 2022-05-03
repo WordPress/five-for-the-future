@@ -20,7 +20,8 @@
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
 		"wp-coding-standards/wpcs": "2.3.*",
 		"phpunit/phpunit": "^7",
-		"spatie/phpunit-watcher": "^1.23"
+		"spatie/phpunit-watcher": "^1.23",
+		"yoast/phpunit-polyfills": "^1.0"
 	},
 	"scripts": {
 		"lint": [
