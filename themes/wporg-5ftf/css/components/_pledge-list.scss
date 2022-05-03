@@ -21,7 +21,7 @@ body.search.search-results {
 		.page-header-callout {
 			grid-column: 2;
 			grid-row: 1;
-			
+
 			.button {
 				padding: 0.5em 1.5em;
 				height: auto;
@@ -38,20 +38,17 @@ body.search.search-results {
 			margin-top: ms(2);
 			border-top: 1px solid $color-gray-light-500;
 			padding-top: ms(2);
+			font-size: ms(-2);
+
+			label {
+				display: inline-block;
+				margin-right: 6px;
+				font-size: 1em;
+				font-weight: 700;
+			}
 		}
 	}
 
-	.page-header-controls {
-		font-size: ms(-2);
-
-		label {
-			display: inline-block;
-			margin-right: 6px;
-			font-size: 1em;
-			font-weight: 700;
-		}
-	}
-	
 	/* Structure */
 	article {
 		margin-bottom: ms(12);
