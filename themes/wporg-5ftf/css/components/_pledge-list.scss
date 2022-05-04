@@ -35,6 +35,7 @@ body.search.search-results {
 			display: flex;
 			flex-wrap: wrap;
 			justify-content: space-between;
+			gap: 20px;
 			margin-top: ms(2);
 			border-top: 1px solid $color-gray-light-500;
 			padding-top: ms(2);
