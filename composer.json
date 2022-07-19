@@ -8,7 +8,7 @@
 	},
 	"config": {
 		"platform": {
-			"php": "7.2"
+			"php": "7.4"
 		},
 		"vendor-dir": "mu-plugins/vendor",
 		"_comment": "Work around `test:watch` timeout, see https://github.com/spatie/phpunit-watcher/issues/63#issuecomment-545633709",
@@ -19,7 +19,7 @@
 	"require-dev" : {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
 		"wp-coding-standards/wpcs": "2.3.*",
-		"phpunit/phpunit": "^7",
+		"phpunit/phpunit": "^9",
 		"spatie/phpunit-watcher": "^1.23",
 		"yoast/phpunit-polyfills": "^1.0"
 	},

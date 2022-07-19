@@ -52,7 +52,7 @@ class Test_Auth extends WP_UnitTestCase {
 	/**
 	 * Setup fixtures that are unique for each test.
 	 */
-	public function setUp() {
+	protected function setUp() : void {
 		parent::setUp();
 
 		/*
