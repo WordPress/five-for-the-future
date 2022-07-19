@@ -430,7 +430,7 @@ function render_my_pledges() {
  */
 function process_my_pledges_form() {
 	$contributor_post_id = filter_input( INPUT_POST, 'contributor_post_id', FILTER_VALIDATE_INT );
-	$unverified_nonce    = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+	$unverified_nonce    = filter_input( INPUT_POST, '_wpnonce', FILTER_UNSAFE_RAW );
 	if ( empty( $contributor_post_id ) || empty( $unverified_nonce ) ) {
 		return ''; // Return early, the form wasn't submitted.
 	}

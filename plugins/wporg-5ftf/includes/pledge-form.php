@@ -194,7 +194,7 @@ function render_form_manage() {
  */
 function process_form_manage( $pledge_id, $auth_token ) {
 	$errors          = array();
-	$nonce           = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+	$nonce           = filter_input( INPUT_POST, '_wpnonce', FILTER_UNSAFE_RAW );
 	$nonce_action    = 'manage_pledge_' . $pledge_id;
 	$has_valid_nonce = wp_verify_nonce( $nonce, $nonce_action );
 
@@ -250,13 +250,13 @@ function process_form_manage( $pledge_id, $auth_token ) {
 }
 
 /**
- * Process a submission from the Manage Pledge form.
+ * Process a submission from the Remove Pledge form.
  *
  * @return WP_Error|true An error if the pledge could not be saved. Otherwise true.
  */
 function process_form_remove( $pledge_id, $auth_token ) {
 	$errors          = array();
-	$nonce           = filter_input( INPUT_POST, '_wpnonce', FILTER_SANITIZE_STRING );
+	$nonce           = filter_input( INPUT_POST, '_wpnonce', FILTER_UNSAFE_RAW );
 	$nonce_action    = 'remove_pledge_' . $pledge_id;
 	$has_valid_nonce = wp_verify_nonce( $nonce, $nonce_action );
 	$can_view_form   = Auth\can_manage_pledge( $pledge_id, $auth_token );
@@ -300,7 +300,7 @@ function process_confirmed_email( $value, $tag ) {
 	}
 
 	$pledge_id  = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
-	$auth_token = filter_input( INPUT_GET, 'auth_token', FILTER_SANITIZE_STRING );
+	$auth_token = filter_input( INPUT_GET, 'auth_token', FILTER_UNSAFE_RAW );
 
 	$meta_key          = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
 	$already_confirmed = get_post( $pledge_id )->$meta_key;
@@ -382,7 +382,7 @@ function get_form_submission() {
 		wp_list_pluck( PledgeMeta\get_pledge_meta_config( 'user_input' ), 'php_filter' ),
 		// Inputs with no corresponding meta value.
 		array(
-			'pledge-contributors' => FILTER_SANITIZE_STRING,
+			'pledge-contributors' => FILTER_UNSAFE_RAW,
 			'pledge-agreement'    => FILTER_VALIDATE_BOOLEAN,
 		)
 	);

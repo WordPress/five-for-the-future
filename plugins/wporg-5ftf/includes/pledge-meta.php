@@ -49,7 +49,7 @@ function get_pledge_meta_config( $subset = 'all' ) {
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'context'           => array( 'create', 'update' ),
-			'php_filter'        => FILTER_SANITIZE_STRING,
+			'php_filter'        => FILTER_UNSAFE_RAW,
 		),
 		'org-url'          => array(
 			'single'            => true,
