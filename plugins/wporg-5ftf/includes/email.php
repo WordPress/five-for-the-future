@@ -6,6 +6,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\Email;
 
 use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor };
+use function WordPressdotorg\MU_Plugins\Helpers\{ natural_language_join };
 use const WordPressDotOrg\FiveForTheFuture\PREFIX;
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 use WP_Post, WP_Error;
@@ -22,7 +23,7 @@ defined( 'WPINC' ) || die();
  *
  * @return bool
  */
-function send_email( $to, $subject, $message, $pledge_id ) {
+function send_email( $to, $subject, $message, $pledge_id = false ) {
 	$headers = array(
 		'From: WordPress - Five for the Future <donotreply@wordpress.org>',
 		'Reply-To: getinvolved@wordpress.org',
@@ -204,4 +205,55 @@ function send_pledge_deactivation_email( $pledge ) {
 		$message,
 		$pledge->ID
 	);
+}
+
+/**
+ * Ask an inactive contributor to update their pledge for accuracy.
+ */
+function send_contributor_inactive_email( array $contributor ) : bool {
+	/*
+	 * Their first name is ideal, but their username is the best fallback because `nickname`, `display_name`,
+	 * etc are too formal.
+	 */
+	$name    = $contributor['first_name'] ? $contributor['first_name'] : '@' . $contributor['user_nicename'];
+	$subject = 'Please update your Five for the Future pledge';
+
+	$short_team_names = array_map( function( $team ) {
+		$team = str_replace( 'Team', '', $team );
+
+		return trim( $team );
+	}, $contributor['teams_names'] );
+
+	$message = sprintf( "
+		Hi %s, a while ago you pledged to contribute %d %s a week to the %s %s:
+
+		https://profiles.wordpress.org/%s
+
+		We haven't seen you in a while, and we need your help! We're working on some new and important projects. If you'd like to get involved, or have any questions, you can:
+
+		* Talk to your team in their Slack channel at https://wordpress.slack.com. If you need to create a Slack account, you can do that at https://chat.wordpress.org. You can find your team representatives at https://make.wordpress.org/updates/team-reps/.
+
+		* Read your team's handbook: Visit https://make.wordpress.org, select your team, and open the Handbook link in the menu.
+
+		* Respond to this email.
+
+		If you're no longer able to contribute to the WordPress project, that's ok, we understand! Please update your pledge to reflect your current contributions, so that team representatives know who is available to help.
+
+		https://profiles.wordpress.org/me/profile/edit/group/5/
+
+		If you have been contributing, but it isn't showing up in the Activity section of your profile, please reply and let us know so we can work on crediting that in the future.
+
+		Thanks for your pledge, we look forward to working with you on the future of WordPress.
+
+		Have a great day!",
+		$name,
+		$contributor['hours_per_week'],
+		1 === $contributor['hours_per_week'] ? 'hour' : 'hours',
+		natural_language_join( $short_team_names ),
+		1 === count( $contributor['teams_names'] ) ? 'team' : 'teams',
+		$contributor['user_nicename']
+	);
+	$message = str_replace( "\t", '', trim( $message ) );
+
+	return send_email( $contributor['user_email'], $subject, $message );
 }
