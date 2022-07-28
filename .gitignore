@@ -2,6 +2,7 @@
 *.js.map
 
 mu-plugins/vendor
+mu-plugins/0-sandbox.php
 node_modules
 
 plugins/*
