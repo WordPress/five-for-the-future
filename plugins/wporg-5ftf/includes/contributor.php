@@ -10,11 +10,14 @@ defined( 'WPINC' ) || die();
 const SLUG    = 'contributor';
 const SLUG_PL = 'contributors';
 const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
+const INACTIVITY_THRESHOLD_MONTHS = 3;
 
 add_action( 'init',                                      __NAMESPACE__ . '\register_custom_post_type', 0 );
+add_action( 'init',                                      __NAMESPACE__ . '\schedule_cron_jobs' );
 add_filter( 'manage_edit-' . CPT_ID . '_columns',        __NAMESPACE__ . '\add_list_table_columns' );
 add_action( 'manage_' . CPT_ID . '_posts_custom_column', __NAMESPACE__ . '\populate_list_table_columns', 10, 2 );
 add_filter( 'wp_nav_menu_objects',                       __NAMESPACE__ . '\hide_my_pledges_when_logged_out', 10 );
+add_action( 'notify_inactive_contributors',              __NAMESPACE__ . '\notify_inactive_contributors' );
 
 add_shortcode( '5ftf_my_pledges', __NAMESPACE__ . '\render_my_pledges' );
 
@@ -73,6 +76,20 @@ function register_custom_post_type() {
 	);
 
 	register_post_type( CPT_ID, $args );
+}
+
+/**
+ * Schedule cron jobs.
+ *
+ * This needs to run on the `init` action, because Cavalcade isn't fully loaded before that, and events
+ * wouldn't be scheduled.
+ *
+ * @see https://dotorg.trac.wordpress.org/changeset/15351/
+ */
+function schedule_cron_jobs() {
+	if ( ! wp_next_scheduled( 'notify_inactive_contributors' ) ) {
+		wp_schedule_event( time(), 'hourly', 'notify_inactive_contributors' );
+	}
 }
 
 /**
@@ -565,4 +582,204 @@ function parse_contributors( $contributors, $pledge_id = null ) {
 	$sanitized_contributors = array_unique( $sanitized_contributors );
 
 	return $sanitized_contributors;
+}
+
+/**
+ * Send an email to inactive contributors.
+ */
+function notify_inactive_contributors() : void {
+	$contributors = get_inactive_contributor_batch();
+	$contributors = prune_unnotifiable_xprofiles( $contributors );
+	$contributors = add_user_data_to_xprofile( $contributors );
+	$contributors = prune_unnotifiable_users( $contributors );
+
+	// Limit to 25 emails per cron run, to avoid triggering spam filters.
+	if ( count( $contributors ) > 25 ) {
+		// Select different contributors each time, just in case something causes some to get stuck at the front
+		// of their batch each time. For example, if the email always fails and they never get a
+		// `5ftf_last_inactivity_email` value.
+		shuffle( $contributors );
+		$contributors = array_slice( $contributors, 0, 25 );
+	}
+
+	foreach ( $contributors as $contributor ) {
+		notify_inactive_contributor( $contributor );
+	}
+}
+
+/**
+ * Get the next group of inactive contributors.
+ */
+function get_inactive_contributor_batch() : array {
+	global $wpdb;
+
+	$batch_size = 500; // This can be large because most users will be pruned later on.
+	$offset     = absint( get_option( '5ftf_inactive_contributors_offset', 0 ) );
+
+	$user_xprofiles = $wpdb->get_results( $wpdb->prepare( '
+		SELECT user_id, GROUP_CONCAT( field_id ) AS field_ids, GROUP_CONCAT( value ) AS field_values
+		FROM `bpmain_bp_xprofile_data`
+		WHERE field_id IN ( %d, %d )
+		GROUP BY user_id
+		ORDER BY user_id ASC
+		LIMIT %d
+		OFFSET %d',
+		XProfile\FIELD_IDS['hours_per_week'],
+		XProfile\FIELD_IDS['team_names'],
+		$batch_size,
+		$offset
+	) );
+
+	if ( $user_xprofiles ) {
+		// We haven't reached the end of the totals rows yet.
+		update_option( '5ftf_inactive_contributors_offset', $offset + $batch_size, false );
+
+	} else {
+		// We're at the end of total rows with 0 remainder, so reset.
+		delete_option( '5ftf_inactive_contributors_offset' );
+		return array();
+	}
+
+	$field_names = array_flip( XProfile\FIELD_IDS );
+
+	foreach ( $user_xprofiles as $user ) {
+		$user->user_id = absint( $user->user_id );
+		$fields        = explode( ',', $user->field_ids );
+		$values        = explode( ',', $user->field_values );
+
+		foreach ( $fields as $index => $id ) {
+			$user->{$field_names[ $id ]} = maybe_unserialize( $values[ $index ] );
+		}
+
+		$user->hours_per_week = absint( $user->hours_per_week ?? 0 );
+		$user->team_names     = (array) $user->team_names ?? array();
+
+		unset( $user->field_ids, $user->field_values ); // Remove the concatenated data now that it's exploded.
+	}
+
+	return $user_xprofiles;
+}
+
+/**
+ * Prune xprofile rows for users who shouldn't be notified of their inactivity.
+ */
+function prune_unnotifiable_xprofiles( array $xprofiles ) : array {
+	$notifiable_teams = array( 'Polyglots Team', 'Training Team' );
+
+	foreach ( $xprofiles as $index => $xprofile ) {
+		if ( $xprofile->hours_per_week <= 0 || empty( $xprofile->team_names ) ) {
+			unset( $xprofiles[ $index ] );
+			continue;
+		}
+
+		// Remove if not on a participating team.
+		// This is temporary, and should be removed when all teams are participating.
+		// See https://github.com/WordPress/five-for-the-future/issues/190.
+		$on_notifiable_team = false;
+
+		foreach ( $xprofile->team_names as $team ) {
+			if ( in_array( $team, $notifiable_teams, true ) ) {
+				$on_notifiable_team = true;
+				break;
+			}
+		}
+
+		if ( ! $on_notifiable_team ) {
+			unset( $xprofiles[ $index ] );
+			continue;
+		}
+	}
+
+	return $xprofiles;
+}
+
+/**
+ * Merge user data with xprofile data.
+ */
+function add_user_data_to_xprofile( array $xprofiles ) : array {
+	global $wpdb;
+
+	if ( empty( $xprofiles ) ) {
+		return array();
+	}
+
+	$full_users      = array();
+	$xprofiles       = array_column( $xprofiles, null, 'user_id' ); // Re-index for direct access.
+	$user_ids        = array_keys( $xprofiles );
+	$id_placeholders = implode( ', ', array_fill( 0, count( $user_ids ), '%d' ) );
+
+	// Get user data.
+	// Ignore new users because they haven't had a chance to contribute yet.
+	// phpcs:disable -- `$id_placeholders` is safely created above.
+	$established_users = $wpdb->get_results( $wpdb->prepare( "
+		SELECT
+		    u.ID, u.user_email, u.user_login, u.user_nicename,
+			GROUP_CONCAT( um.meta_key ) AS meta_keys,
+			GROUP_CONCAT( um.meta_value ) AS meta_values
+		FROM `$wpdb->users` u
+			JOIN `$wpdb->usermeta` um ON u.ID = um.user_id
+		WHERE
+			um.user_id IN ( $id_placeholders ) AND
+			um.meta_key IN ( 'last_logged_in', '5ftf_last_inactivity_email', 'first_name' ) AND
+			u.user_registered < CURDATE() - INTERVAL %d MONTH
+		GROUP BY um.user_id
+		ORDER BY u.ID",
+		array_merge( $user_ids, array( INACTIVITY_THRESHOLD_MONTHS ) )
+	) );
+	// phpcs:enable
+
+	foreach ( $established_users as $user ) {
+		$full_user = array(
+			'user_id'        => absint( $user->ID ),
+			'user_email'     => $user->user_email,
+			'hours_per_week' => $xprofiles[ $user->ID ]->hours_per_week,
+			'user_nicename'  => $user->user_nicename,
+		);
+
+		$keys   = explode( ',', $user->meta_keys );
+		$values = explode( ',', $user->meta_values );
+
+		foreach ( $keys as $index => $key ) {
+			$full_user[ $key ] = maybe_unserialize( $values[ $index ] );
+		}
+
+		$full_user['last_logged_in']             = intval( strtotime( $full_user['last_logged_in'] ?? '' ) ); // Convert `false` to `0`.
+		$full_user['5ftf_last_inactivity_email'] = intval( $full_user['5ftf_last_inactivity_email'] ?? 0 );
+		$full_user['teams_names']                = (array) maybe_unserialize( $xprofiles[ $user->ID ]->team_names );
+
+		$full_users[] = $full_user;
+	}
+
+	return $full_users;
+}
+
+/**
+ * Prune users who shouldn't be notified of their inactivity.
+ */
+function prune_unnotifiable_users( array $contributors ) : array {
+	$inactivity_threshold = strtotime( INACTIVITY_THRESHOLD_MONTHS . ' months ago' );
+
+	foreach ( $contributors as $index => $contributor ) {
+		if ( $contributor['last_logged_in'] > $inactivity_threshold ) {
+			unset( $contributors[ $index ] );
+		}
+
+		if ( $contributor['5ftf_last_inactivity_email'] > $inactivity_threshold ) {
+			unset( $contributors[ $index ] );
+		}
+	}
+
+	return $contributors;
+}
+
+/**
+ * Notify an inactive contributor.
+ */
+function notify_inactive_contributor( array $contributor ) : void {
+	if ( ! Email\send_contributor_inactive_email( $contributor ) ) {
+		return;
+	}
+
+	update_user_meta( $contributor['user_id'], '5ftf_last_inactivity_email', time() );
+	bump_stats_extra( 'five-for-the-future', 'Sent Inactive Contributor Email' );
 }
