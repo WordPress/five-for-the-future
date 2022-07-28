@@ -97,7 +97,7 @@ function get_xprofile_contribution_data( array $user_ids ) {
 }
 
 /**
- * Reindex the values by user ID, normalize it, and format it.
+ * Reindex `bpmain_bp_xprofile_data` rows by user ID, normalize it, and format it.
  *
  * This makes the data much easier to work with in many cases.
  *
