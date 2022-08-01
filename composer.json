@@ -12,7 +12,10 @@
 		},
 		"vendor-dir": "mu-plugins/vendor",
 		"_comment": "Work around `test:watch` timeout, see https://github.com/spatie/phpunit-watcher/issues/63#issuecomment-545633709",
-		"process-timeout": 0
+		"process-timeout": 0,
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	},
 	"require": {},
 	"_comment" : "PHPUnit 7.x is the latest version that's compatible with Core, see https://core.trac.wordpress.org/ticket/46149",
