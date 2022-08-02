@@ -10,9 +10,7 @@ use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\{ Contributor, Pledge, XProfile };
 use WP_Query;
 
-use function WordPressDotOrg\FiveForTheFuture\XProfile\{
-	get_xprofile_contribution_data, prepare_xprofile_contribution_data
-};
+use function WordPressDotOrg\FiveForTheFuture\XProfile;
 
 use const WordPressDotOrg\FiveForTheFuture\PREFIX;
 
@@ -74,12 +72,14 @@ function record_snapshot() {
 		'post_status' => 'publish',
 	) );
 
-	add_post_meta( $post_id, PREFIX . '_total_pledged_hours',             $stats['confirmed_hours'] );
-	add_post_meta( $post_id, PREFIX . '_total_pledged_contributors',      $stats['confirmed_contributors'] );
-	add_post_meta( $post_id, PREFIX . '_total_sponsored_hours',           $stats['confirmed_sponsored_hours'] );
-	add_post_meta( $post_id, PREFIX . '_total_sponsored_contributors',    $stats['confirmed_sponsored_contributors'] );
-	add_post_meta( $post_id, PREFIX . '_total_pledged_companies',         $stats['confirmed_pledges'] );
-	add_post_meta( $post_id, PREFIX . '_total_pledged_team_contributors', $stats['confirmed_team_contributors'] );
+	// # of hours contributed by people who are sponsored by a registered company.
+	add_post_meta( $post_id, PREFIX . '_total_pledged_hours',             $stats['confirmed_company_hours'] );
+	// # of contributors sponsored by a registered company.
+	add_post_meta( $post_id, PREFIX . '_total_pledged_contributors',      $stats['confirmed_company_contributors'] );
+	// # of companies that are registered in the program.
+	add_post_meta( $post_id, PREFIX . '_total_pledged_companies',         $stats['confirmed_companies'] );
+	// # of company-sponsored contributors that each team has.
+	add_post_meta( $post_id, PREFIX . '_total_pledged_team_contributors', $stats['confirmed_team_company_contributors'] );
 }
 
 /**
@@ -89,24 +89,24 @@ function record_snapshot() {
  */
 function get_snapshot_data() {
 	$snapshot_data = array(
-		'confirmed_hours'             => 0,
-		'confirmed_team_contributors' => array(),
+		'confirmed_company_hours'             => 0,
+		'confirmed_team_company_contributors' => array(),
 	);
 
-	$confirmed_pledges = new WP_Query( array(
+	$confirmed_companies = new WP_Query( array(
 		'post_type'   => Pledge\CPT_ID,
 		'post_status' => 'publish',
 		'numberposts' => 1, // We only need `found_posts`, not the posts themselves.
 	) );
 
-	$snapshot_data['confirmed_pledges'] = $confirmed_pledges->found_posts;
+	$snapshot_data['confirmed_companies'] = $confirmed_companies->found_posts;
 
 	/*
 	 * A potential future optimization would be make WP_Query only return the `post_title`. The `fields` parameter
 	 * doesn't currently support `post_title`, but it may be possible with filters like `posts_fields`
 	 * or `posts_fields_request`. That was premature at the time this code was written, though.
 	 */
-	$confirmed_contributors = get_posts( array(
+	$confirmed_company_contributors = get_posts( array(
 		'post_type'   => Contributor\CPT_ID,
 		'post_status' => 'publish',
 		'numberposts' => 2000,
@@ -120,26 +120,14 @@ function get_snapshot_data() {
 	 * but `WP_Query` doesn't support `DISTINCT` directly, and it's premature at this point. It may be possible
 	 * with the filters mentioned above.
 	 */
-	$confirmed_user_ids                                = array_unique( Contributor\get_contributor_user_ids( $confirmed_contributors ) );
-	$snapshot_data['confirmed_contributors']           = count( $confirmed_user_ids );
-	$snapshot_data['confirmed_sponsored_contributors'] = 0;
+	$confirmed_user_ids                              = array_unique( Contributor\get_contributor_user_ids( $confirmed_company_contributors ) );
+	$snapshot_data['confirmed_company_contributors'] = count( $confirmed_user_ids );
+	$company_contributors_profile_data               = XProfile\get_xprofile_contribution_data( $confirmed_user_ids );
 
-	$contributors_profile_data = get_xprofile_contribution_data( $confirmed_user_ids );
-	$prepared_profile_data     = prepare_xprofile_contribution_data( $contributors_profile_data );
-
-	// Note: This was set before `$prepared_profile_data` was available. Refactoring to use that would simplify this.
-	foreach ( $contributors_profile_data as $profile_data ) {
+	foreach ( $company_contributors_profile_data as $profile_data ) {
 		switch ( (int) $profile_data['field_id'] ) {
 			case XProfile\FIELD_IDS['hours_per_week']:
-				$user_id = (int) $profile_data['user_id'];
-
-				$snapshot_data['confirmed_hours'] += absint( $profile_data['value'] );
-
-				if ( $prepared_profile_data[ $user_id ]['sponsored'] ) {
-					$snapshot_data['confirmed_sponsored_hours'] += absint( $profile_data['value'] );
-					$snapshot_data['confirmed_sponsored_contributors']++;
-				}
-
+				$snapshot_data['confirmed_company_hours'] += absint( $profile_data['value'] );
 				break;
 
 			case XProfile\FIELD_IDS['team_names']:
@@ -150,13 +138,13 @@ function get_snapshot_data() {
 				 * The database stores team _names_ rather than _IDs_, though, so if a team is ever renamed, this
 				 * data will be distorted.
 				 */
-				$associated_teams = maybe_unserialize( $profile_data['value'] );
+				$associated_teams = (array) maybe_unserialize( $profile_data['value'] );
 
 				foreach ( $associated_teams as $team ) {
-					if ( isset( $snapshot_data['confirmed_team_contributors'][ $team ] ) ) {
-						$snapshot_data['confirmed_team_contributors'][ $team ]++;
+					if ( isset( $snapshot_data['confirmed_team_company_contributors'][ $team ] ) ) {
+						$snapshot_data['confirmed_team_company_contributors'][ $team ]++;
 					} else {
-						$snapshot_data['confirmed_team_contributors'][ $team ] = 1;
+						$snapshot_data['confirmed_team_company_contributors'][ $team ] = 1;
 					}
 				}
 
@@ -182,10 +170,12 @@ function render_shortcode() {
 	$stat_keys = array(
 		PREFIX . '_total_pledged_hours',
 		PREFIX . '_total_pledged_contributors',
-		PREFIX . '_total_sponsored_hours',
-		PREFIX . '_total_sponsored_contributors',
 		PREFIX . '_total_pledged_companies',
 		PREFIX . '_total_pledged_team_contributors',
+
+		// Deprecated because confusing and not meaningful, see https://github.com/WordPress/five-for-the-future/issues/198.
+		PREFIX . '_total_sponsored_hours',
+		PREFIX . '_total_sponsored_contributors',
 	);
 
 	$stat_values = array();
