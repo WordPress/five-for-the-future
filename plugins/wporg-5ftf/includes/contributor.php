@@ -367,6 +367,8 @@ function get_contributor_user_ids( $contributor_posts ) {
 		$wpdb->prepare( $query, $usernames )
 	);
 
+	$user_ids = array_map( 'absint', $user_ids );
+
 	return $user_ids;
 }
 

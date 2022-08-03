@@ -58,47 +58,64 @@ function schedule_cron_jobs() {
 
 /**
  * Record a snapshot of the current stats, so we can track trends over time.
+ *
+ * "Self-sponsored" contributors are those that volunteer their time rather than being paid by a company.
  */
 function record_snapshot() {
 	$stats = get_snapshot_data();
 
-	bump_stats_extra( 'five-for-the-future', 'Company-sponsored hours', $stats['confirmed_company_hours'] );
-	bump_stats_extra( 'five-for-the-future', 'Company-sponsored contributors', $stats['confirmed_company_contributors'] );
-	bump_stats_extra( 'five-for-the-future', 'Companies', $stats['confirmed_companies'] );
+	bump_stats_extra( 'five-for-the-future', 'Self-sponsored hours', $stats['self_sponsored_hours'] );
+	bump_stats_extra( 'five-for-the-future', 'Self-sponsored contributors', $stats['self_sponsored_contributors'] );
+	bump_stats_extra( 'five-for-the-future', 'Companies', $stats['companies'] );
+	bump_stats_extra( 'five-for-the-future', 'Company-sponsored hours', $stats['company_sponsored_hours'] );
+	bump_stats_extra( 'five-for-the-future', 'Company-sponsored contributors', $stats['company_sponsored_contributors'] );
 
-	foreach ( $stats['confirmed_team_company_contributors'] as $team => $contributors ) {
-		// The labels are listed alphabetically in MC, so starting them all with "Team" groups them together and
-		// makes the interface easier to use.
-		$grouped_name = sprintf( 'Team %s company-sponsored contributors', str_replace( ' Team', '', $team ) );
-		bump_stats_extra( 'five-for-the-future', $grouped_name, $contributors );
+	foreach ( array( 'team_company_sponsored_contributors', 'team_self_sponsored_contributors' ) as $key ) {
+		foreach ( $stats[ $key ] as $team => $contributors ) {
+			// The labels are listed alphabetically in MC, so starting them all with "Team" groups them together and
+			// makes the interface easier to use.
+			$grouped_name = sprintf(
+				'Team %s %s-sponsored contributors',
+				str_replace( ' Team', '', $team ),
+				str_contains( $key, 'self' ) ? 'self' : 'company'
+			);
+
+			bump_stats_extra( 'five-for-the-future', $grouped_name, $contributors );
+		}
 	}
 }
 
 /**
  * Calculate the stats for the current snapshot.
  *
+ * This will be processing a large amount of data, so `unset()` is used throughout the function on variables that
+ * are no longer needed. That should help to avoid out-of-memory errors.
+ *
  * @return array
  */
 function get_snapshot_data() {
 	$snapshot_data = array(
-		'confirmed_company_hours'             => 0,
-		'confirmed_team_company_contributors' => array(),
+		'company_sponsored_hours'             => 0,
+		'self_sponsored_hours'                => 0,
+		'team_company_sponsored_contributors' => array(),
+		'team_self_sponsored_contributors'    => array(),
 	);
 
-	$confirmed_companies = new WP_Query( array(
+	$companies = new WP_Query( array(
 		'post_type'   => Pledge\CPT_ID,
 		'post_status' => 'publish',
 		'numberposts' => 1, // We only need `found_posts`, not the posts themselves.
 	) );
 
-	$snapshot_data['confirmed_companies'] = $confirmed_companies->found_posts;
+	$snapshot_data['companies'] = $companies->found_posts;
+	unset( $companies );
 
 	/*
 	 * A potential future optimization would be make WP_Query only return the `post_title`. The `fields` parameter
 	 * doesn't currently support `post_title`, but it may be possible with filters like `posts_fields`
 	 * or `posts_fields_request`. That was premature at the time this code was written, though.
 	 */
-	$confirmed_company_contributors = get_posts( array(
+	$company_sponsored_contributors = get_posts( array(
 		'post_type'   => Contributor\CPT_ID,
 		'post_status' => 'publish',
 		'numberposts' => -1,
@@ -112,43 +129,44 @@ function get_snapshot_data() {
 	 * but `WP_Query` doesn't support `DISTINCT` directly, and it's premature at this point. It may be possible
 	 * with the filters mentioned above.
 	 */
-	$confirmed_user_ids                              = array_unique( Contributor\get_contributor_user_ids( $confirmed_company_contributors ) );
-	$snapshot_data['confirmed_company_contributors'] = count( $confirmed_user_ids );
-	$company_contributors_profile_data               = XProfile\get_xprofile_contribution_data( $confirmed_user_ids );
+	$company_contributor_user_ids = array_unique( Contributor\get_contributor_user_ids( $company_sponsored_contributors ) );
+	unset( $company_sponsored_contributors );
 
-	foreach ( $company_contributors_profile_data as $profile_data ) {
-		switch ( (int) $profile_data['field_id'] ) {
-			case XProfile\FIELD_IDS['hours_per_week']:
-				$snapshot_data['confirmed_company_hours'] += absint( $profile_data['value'] );
-				break;
+	$all_contributor_profiles                        = XProfile\get_all_xprofile_contributor_hours_teams();
+	$snapshot_data['company_sponsored_contributors'] = count( $company_contributor_user_ids );
+	$snapshot_data['self_sponsored_contributors']    = count( $all_contributor_profiles ) - count( $company_contributor_user_ids );
 
-			case XProfile\FIELD_IDS['team_names']:
-				/*
-				 * BuddyPress validates the team name(s) the user provides before saving them in the database, so
-				 * it should be safe to unserialize, and to assume that they're valid.
-				 *
-				 * The database stores team _names_ rather than _IDs_, though, so if a team is ever renamed, this
-				 * data will be distorted.
-				 */
-				$associated_teams = (array) maybe_unserialize( $profile_data['value'] );
+	foreach ( $all_contributor_profiles as $profile ) {
+		$attribution_prefix = in_array( $profile->user_id, $company_contributor_user_ids, true )
+			? 'company_sponsored'
+			: 'self_sponsored';
 
-				foreach ( $associated_teams as $team ) {
-					if ( isset( $snapshot_data['confirmed_team_company_contributors'][ $team ] ) ) {
-						$snapshot_data['confirmed_team_company_contributors'][ $team ]++;
-					} else {
-						$snapshot_data['confirmed_team_company_contributors'][ $team ] = 1;
-					}
-				}
+		$team_contributor_key = sprintf( 'team_%s_contributors', $attribution_prefix );
 
-				break;
+		$snapshot_data[ $attribution_prefix . '_hours'] += $profile->hours_per_week;
+
+		foreach ( $profile->team_names as $team ) {
+			if ( isset( $snapshot_data[ $team_contributor_key ][ $team ] ) ) {
+				$snapshot_data[ $team_contributor_key ][ $team ] ++;
+			} else {
+				$snapshot_data[ $team_contributor_key ][ $team ] = 1;
+			}
 		}
 	}
+	unset( $all_contributor_profiles );
+
+	// Alphabetize so that they appear in a consistent order in the MC interface.
+	ksort( $snapshot_data['team_company_sponsored_contributors'] );
+	ksort( $snapshot_data['team_self_sponsored_contributors'] );
 
 	return $snapshot_data;
 }
 
 /**
  * Render the shortcode to display stats.
+ *
+ * @deprecated Stats were originally kept in these posts, but are currently stored in MC. This is kept so that we
+ * have a historical record.
  *
  * @return string
  */

@@ -2,7 +2,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\XProfile;
 
 use WordPressDotOrg\FiveForTheFuture\Contributor;
-use wpdb;
+use WPDB;
 
 /*
  * The IDs of the xprofile fields we need. Better to use the numerical IDs than the field labels,
@@ -17,12 +17,65 @@ const FIELD_IDS = array(
 defined( 'WPINC' ) || die();
 
 /**
+ * Get the xprofile `hours_per_week` and `team_names` for all contributors, regardless of sponsorship status.
+ *
+ * The "Sponsored" field is not retrieved because it's usually not needed, and including it would significantly
+ * hurt performance.
+ */
+function get_all_xprofile_contributor_hours_teams() : array {
+	global $wpdb;
+
+	// This might need a `LIMIT` in the future as more users save values, but it's performant as of August 2022.
+	// `LIMIT`ing it would require batch processing, which would add a significant amount of complexity.
+	// A better alternative might be to add a cron job to delete rows from `bpmain_bp_xprofile_data` where
+	// `hours_per_week` is < 1, or `teams_names` is a (serialized) empty array. BuddyPress saves those as
+	// values rather than deleting them, and that significantly increases the number of rows returned.
+	$users = $wpdb->get_results( $wpdb->prepare( '
+		SELECT user_id, GROUP_CONCAT( field_id ) AS field_ids, GROUP_CONCAT( value ) AS field_values
+		FROM `bpmain_bp_xprofile_data`
+		WHERE field_id IN ( %d, %d )
+		GROUP BY user_id',
+		FIELD_IDS['hours_per_week'],
+		FIELD_IDS['team_names']
+	) );
+
+	$field_names = array_flip( FIELD_IDS );
+
+	foreach ( $users as $user_index => & $user ) {
+		$fields = explode( ',', $user->field_ids );
+		$values = explode( ',', $user->field_values );
+
+		foreach ( $fields as $field_index => $id ) {
+			/*
+			 * BuddyPress validates the team name(s) the user provides before saving them in the database, so
+			 * it should be safe to unserialize, and to assume that they're valid.
+			 *
+			 * The database stores team _names_ rather than _IDs_, though, so if a team is ever renamed, this
+			 * data will be distorted.
+			 */
+			$user->{$field_names[ $id ]} = maybe_unserialize( $values[ $field_index ] );
+		}
+		unset( $user->field_ids, $user->field_values ); // Remove the concatenated data now that it's exploded.
+
+		$user->user_id        = absint( $user->user_id );
+		$user->hours_per_week = absint( $user->hours_per_week ?? 0 );
+		$user->team_names     = (array) $user->team_names ?? array();
+
+		if ( 0 >= $user->hours_per_week || empty( $user->team_names ) ) {
+			unset( $users[ $user_index ] );
+		}
+	}
+
+	return $users;
+}
+
+/**
  * Pull relevant data from profiles.wordpress.org.
  *
  * Note that this does not unserialize anything, it just pulls the raw values from the database table. If you
  * want unserialized data, use `prepare_xprofile_contribution_data()`.
  *
- * @global wpdb $wpdb
+ * @global WPDB $wpdb
  *
  * @param array $user_ids
  *
