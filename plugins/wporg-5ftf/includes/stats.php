@@ -10,13 +10,11 @@ use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\{ Contributor, Pledge, XProfile };
 use WP_Query;
 
-use function WordPressDotOrg\FiveForTheFuture\XProfile;
-
 use const WordPressDotOrg\FiveForTheFuture\PREFIX;
 
 defined( 'WPINC' ) || die();
 
-const CPT_ID = PREFIX . '_stats_snapshot';
+const CPT_ID = PREFIX . '_stats_snapshot'; // Deprecated, new stats are in MC.
 
 add_action( 'init',                      __NAMESPACE__ . '\register_post_types' );
 add_action( 'init',                      __NAMESPACE__ . '\schedule_cron_jobs' );
@@ -27,6 +25,9 @@ add_shortcode( PREFIX . '_stats', __NAMESPACE__ . '\render_shortcode' );
 
 /**
  * Register the snapshots post type. Each post represents a snapshot of the stats at a point in time.
+ *
+ * @deprecated Stats were originally kept in these posts, but are currently stored in MC. This is kept so that we
+ * have a historical record.
  */
 function register_post_types() {
 	$args = array(
@@ -52,11 +53,7 @@ function schedule_cron_jobs() {
 		return;
 	}
 
-	// Schedule a repeating "single" event to avoid having to create a custom schedule.
-	wp_schedule_single_event(
-		time() + ( 2 * WEEK_IN_SECONDS ),
-		PREFIX . '_record_snapshot'
-	);
+	wp_schedule_event( time(), 'daily', PREFIX . '_record_snapshot' );
 }
 
 /**
@@ -65,21 +62,16 @@ function schedule_cron_jobs() {
 function record_snapshot() {
 	$stats = get_snapshot_data();
 
-	$post_id = wp_insert_post( array(
-		'post_type'   => CPT_ID,
-		'post_author' => 0,
-		'post_title'  => sprintf( '5ftF Stats Snapshot %s', date( 'Y-m-d' ) ),
-		'post_status' => 'publish',
-	) );
+	bump_stats_extra( 'five-for-the-future', 'Company-sponsored hours', $stats['confirmed_company_hours'] );
+	bump_stats_extra( 'five-for-the-future', 'Company-sponsored contributors', $stats['confirmed_company_contributors'] );
+	bump_stats_extra( 'five-for-the-future', 'Companies', $stats['confirmed_companies'] );
 
-	// # of hours contributed by people who are sponsored by a registered company.
-	add_post_meta( $post_id, PREFIX . '_total_pledged_hours',             $stats['confirmed_company_hours'] );
-	// # of contributors sponsored by a registered company.
-	add_post_meta( $post_id, PREFIX . '_total_pledged_contributors',      $stats['confirmed_company_contributors'] );
-	// # of companies that are registered in the program.
-	add_post_meta( $post_id, PREFIX . '_total_pledged_companies',         $stats['confirmed_companies'] );
-	// # of company-sponsored contributors that each team has.
-	add_post_meta( $post_id, PREFIX . '_total_pledged_team_contributors', $stats['confirmed_team_company_contributors'] );
+	foreach ( $stats['confirmed_team_company_contributors'] as $team => $contributors ) {
+		// The labels are listed alphabetically in MC, so starting them all with "Team" groups them together and
+		// makes the interface easier to use.
+		$grouped_name = sprintf( 'Team %s company-sponsored contributors', str_replace( ' Team', '', $team ) );
+		bump_stats_extra( 'five-for-the-future', $grouped_name, $contributors );
+	}
 }
 
 /**
@@ -109,7 +101,7 @@ function get_snapshot_data() {
 	$confirmed_company_contributors = get_posts( array(
 		'post_type'   => Contributor\CPT_ID,
 		'post_status' => 'publish',
-		'numberposts' => 2000,
+		'numberposts' => -1,
 	) );
 
 	/*
@@ -179,9 +171,6 @@ function render_shortcode() {
 	);
 
 	$stat_values = array();
-
-	// todo produce whatever data structure the visualization framework wants, and any a11y text fallback necessary.
-		// don't trust that visualization library will escape things properly, run numbers through absint(), team names through sanitize_text_field(), etc.
 
 	foreach ( $snapshots as $snapshot ) {
 		$timestamp = strtotime( $snapshot->post_date );

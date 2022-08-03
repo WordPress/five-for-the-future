@@ -11,6 +11,10 @@ defined( 'WPINC' ) || die();
 
 ?>
 
+<p style="color: red; font-weight: bold; border: 2px solid red; padding: 6px 5px 3px 5px;">
+	This is deprecated, and stats are currently stored in MC. This only remains as a historical record.
+</p>
+
 <p>
 	This is just rough text-based output to check that it's working in a way that will be friendly for the vizualization that will be added in #38 (and a11y fallbacks, if any are needed).
 </p>
