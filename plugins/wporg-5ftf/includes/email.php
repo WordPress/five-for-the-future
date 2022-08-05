@@ -25,7 +25,7 @@ defined( 'WPINC' ) || die();
  */
 function send_email( $to, $subject, $message, $pledge_id = false ) {
 	$headers = array(
-		'From: WordPress - Five for the Future <donotreply@wordpress.org>',
+		'From: WordPress - Five for the Future <bounce@wordpress.org>',
 		'Reply-To: getinvolved@wordpress.org',
 	);
 
