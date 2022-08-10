@@ -215,7 +215,7 @@ function send_contributor_inactive_email( array $contributor ) : bool {
 	 * Their first name is ideal, but their username is the best fallback because `nickname`, `display_name`,
 	 * etc are too formal.
 	 */
-	$name    = $contributor['first_name'] ? $contributor['first_name'] : '@' . $contributor['user_nicename'];
+	$name    = empty( $contributor['first_name'] ) ? '@' . $contributor['user_nicename'] : $contributor['first_name'];
 	$subject = 'Please update your Five for the Future pledge';
 
 	$short_team_names = array_map( function( $team ) {
