@@ -652,7 +652,7 @@ function get_inactive_contributor_batch() : array {
 		}
 
 		$user->hours_per_week = absint( $user->hours_per_week ?? 0 );
-		$user->team_names     = (array) $user->team_names ?? array();
+		$user->team_names     = (array) ( $user->team_names ?? array() );
 
 		unset( $user->field_ids, $user->field_values ); // Remove the concatenated data now that it's exploded.
 	}
