@@ -39,6 +39,10 @@ add_action( 'wp_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
 add_action( 'pledge_footer',       __NAMESPACE__ . '\render_manage_link_request' );
 add_action( 'wp_footer',           __NAMESPACE__ . '\render_js_templates' );
 
+// Misc
+add_action( 'init',                       __NAMESPACE__ . '\schedule_cron_jobs' );
+add_action( '5ftf_send_update_reminders', __NAMESPACE__ . '\send_update_reminders' );
+
 /**
  * Register all the things.
  *
@@ -547,5 +551,76 @@ function render_manage_link_request() {
 function render_js_templates() {
 	if ( CPT_ID === get_post_type() ) {
 		require_once FiveForTheFuture\get_views_path() . 'modal-request-manage-link.php';
+	}
+}
+
+
+/**
+ * Schedule cron jobs.
+ *
+ * This needs to run on the `init` action, because Cavalcade isn't fully loaded before that, and events
+ * wouldn't be scheduled.
+ *
+ * @see https://dotorg.trac.wordpress.org/changeset/15351/
+ */
+function schedule_cron_jobs() {
+	if ( ! wp_next_scheduled( '5ftf_send_update_reminders' ) ) {
+		wp_schedule_event( time(), 'daily', '5ftf_send_update_reminders' );
+	}
+}
+
+/**
+ * Periodically ask companies to review their pledge for accuracy.
+ */
+function send_update_reminders() : void {
+	$resend_interval   = 6 * MONTH_IN_SECONDS;
+	$resend_threshold  = time() - ( $resend_interval );
+	$deactivation_date = time() + ( 2 * MONTH_IN_SECONDS );
+
+	$pledges = get_posts( array(
+		'post_type'      => CPT_ID,
+		'post_status'    => 'publish',
+		'posts_per_page' => 15, // Limit # of emails to maintain IP reputation.
+
+		// New pledges haven't had time to become inaccurate yet.
+		'date_query' => array(
+			'column' => 'post_date',
+			'before' => "$resend_interval seconds ago",
+		),
+
+		'meta_query' => array(
+			'relation' => 'AND',
+
+			array(
+				'relation' => 'OR',
+				array(
+					'key'     => '5ftf_last_update_reminder',
+					'compare' => 'NOT EXISTS',
+				),
+				array(
+					'key'     => '5ftf_last_update_reminder',
+					'value'   => $resend_threshold,
+					'compare' => '<',
+				),
+			),
+
+			array(
+				'key'     => '5ftf_inactive_deactivate_date',
+				'compare' => 'NOT EXISTS',
+			),
+		)
+	) );
+
+	foreach ( $pledges as $pledge ) {
+		$contributor_count = absint( $pledge->{'5ftf_pledge-confirmed-contributors'} );
+
+		if ( $contributor_count ) {
+			Email\send_pledge_update_email( $pledge );
+		} else {
+			Email\send_pledge_inactive_email( $pledge );
+			update_post_meta( $pledge->ID, '5ftf_inactive_deactivate_date', $deactivation_date );
+		}
+
+		update_post_meta( $pledge->ID, '5ftf_last_update_reminder', time() );
 	}
 }

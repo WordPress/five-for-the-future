@@ -257,3 +257,43 @@ function send_contributor_inactive_email( array $contributor ) : bool {
 
 	return send_email( $contributor['user_email'], $subject, $message );
 }
+
+/**
+ * Ask a company to update their pledge for accuracy.
+ */
+function send_pledge_update_email( WP_Post $pledge ) : bool {
+	$to      = $pledge->{'5ftf_org-pledge-email'};
+	$subject = 'Please review your Five for the Future pledge';
+	$url     = get_permalink( $pledge );
+
+	$message = "Hi $pledge->post_title, this is a bi-annual reminder to please review your Five for the Future pledge if you haven't lately. Please make sure your list of contributors and their hours/teams are accurate, especially if any folks at your company have left or changed roles recently.
+
+	Having an accurate roster helps Make team representatives find contributors to work on projects.
+
+	You can view your contributors by visiting $url. To edit your pledge, click on the Edit Pledge link and enter $to.
+
+	Thanks!";
+	$message = str_replace( "\t", '', $message );
+
+	return send_email( $to, $subject, $message, $pledge->ID );
+}
+
+/**
+ * Ask a company to update their pledge for accuracy.
+ */
+function send_pledge_inactive_email( WP_Post $pledge ) : bool {
+	$to      = $pledge->{'5ftf_org-pledge-email'};
+	$subject = 'Please review your Five for the Future pledge';
+	$url     = get_permalink( $pledge );
+
+	$message = "Hi $pledge->post_title, we noticed that your Five for the Future pledge doesn't have any confirmed contributors right now. Would you like any help getting plugged into the WordPress project?
+
+	If you're no longer able to sponsor a contributor, that's ok! We understand, and appreciate the effort you've made. You can deactivate your pledge by visiting $url, clicking on the Edit Pledge link, and entering $to. You can reactivate it at any time in the future by contacting us.
+
+	If your pledge doesn't have any contributors in 2 months, then we'll automatically deactivate it. That's necessary in order to help Make team representatives find active contributors who can help with projects.
+
+	Thanks!";
+	$message = str_replace( "\t", '', $message );
+
+	return send_email( $to, $subject, $message, $pledge->ID );
+}
