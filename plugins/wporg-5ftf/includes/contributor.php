@@ -760,7 +760,7 @@ function prune_unnotifiable_users( array $contributors ) : array {
 	$inactivity_threshold = strtotime( INACTIVITY_THRESHOLD_MONTHS . ' months ago' );
 
 	foreach ( $contributors as $index => $contributor ) {
-		if ( $contributor['last_logged_in'] > $inactivity_threshold ) {
+		if ( is_active( $contributor['last_logged_in'] ) ) {
 			unset( $contributors[ $index ] );
 		}
 
@@ -770,6 +770,18 @@ function prune_unnotifiable_users( array $contributors ) : array {
 	}
 
 	return $contributors;
+}
+
+/**
+ * Determine if a contributor is active or not.
+ *
+ * Currently this only tracks the last login, but in the future it will be expanded to be more granular.
+ * @link https://github.com/WordPress/five-for-the-future/issues/210
+ */
+function is_active( int $last_login ) : bool {
+	$inactivity_threshold = strtotime( INACTIVITY_THRESHOLD_MONTHS . ' months ago' );
+
+	return $last_login > $inactivity_threshold;
 }
 
 /**

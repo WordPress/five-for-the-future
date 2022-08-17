@@ -5,9 +5,11 @@ use WordPressDotOrg\FiveForTheFuture\{ Contributor, Pledge, XProfile };
 defined( 'WPINC' ) || die();
 
 /**
- * These are integration tests rather than unit tests. They target the the highest functions in the call stack
+ * Some of these are integration tests rather than unit tests. They target the the highest functions in the call stack
  * in order to test everything beneath them, to the extent that that's practical. `INPUT_POST` can't be mocked,
  * so functions that reference it can't be used.
+ *
+ * Mocking that can become unwieldy, though, so sometimes unit tests are more practical.
  *
  * @group contributor
  */
@@ -264,5 +266,38 @@ class Test_Contributor extends WP_UnitTestCase {
 		$this->assertCount( 1, $mailer->mock_sent );
 		$this->assertContains( $jane->user_email, $mailer->mock_sent[0]['to'][0] );
 		$this->assertSame( "Removed from $tenup->post_title Five for the Future pledge", $mailer->mock_sent[0]['subject'] );
+	}
+
+	/**
+	 * @covers ::prune_unnotifiable_users
+	 */
+	public function test_prune_unnotifiable_users() {
+		$contributors = array(
+			'active + due for email' => array(
+				'last_logged_in'             => strtotime( '1 week ago' ),
+				'5ftf_last_inactivity_email' => 0,
+			),
+
+			'active + not due for email' => array(
+				'last_logged_in'             => strtotime( '1 week ago' ),
+				'5ftf_last_inactivity_email' => strtotime( '1 month ago' ),
+			),
+
+			'inactive + due for email' => array(
+				'last_logged_in'             => strtotime( '4 months ago' ),
+				'5ftf_last_inactivity_email' => strtotime( '4 months ago' ),
+			),
+
+			'inactive + not due for email' => array(
+				'last_logged_in'             => strtotime( '4 months ago' ),
+				'5ftf_last_inactivity_email' => strtotime( '2 months ago' ),
+			),
+		);
+
+		$expected = array( 'inactive + due for email' );
+
+		$actual = Contributor\prune_unnotifiable_users( $contributors );
+
+		$this->assertSame( $expected, array_keys( $actual ) );
 	}
 }
