@@ -59,7 +59,7 @@ function get_all_xprofile_contributor_hours_teams() : array {
 
 		$user->user_id        = absint( $user->user_id );
 		$user->hours_per_week = absint( $user->hours_per_week ?? 0 );
-		$user->team_names     = (array) $user->team_names ?? array();
+		$user->team_names     = (array) ( $user->team_names ?? array() );
 
 		if ( 0 >= $user->hours_per_week || empty( $user->team_names ) ) {
 			unset( $users[ $user_index ] );
