@@ -745,7 +745,7 @@ function add_user_data_to_xprofile( array $xprofiles ) : array {
 
 		$full_user['last_logged_in']             = intval( strtotime( $full_user['last_logged_in'] ?? '' ) ); // Convert `false` to `0`.
 		$full_user['5ftf_last_inactivity_email'] = intval( $full_user['5ftf_last_inactivity_email'] ?? 0 );
-		$full_user['teams_names']                = (array) maybe_unserialize( $xprofiles[ $user->ID ]->team_names );
+		$full_user['team_names']                 = (array) maybe_unserialize( $xprofiles[ $user->ID ]->team_names );
 
 		$full_users[] = $full_user;
 	}
