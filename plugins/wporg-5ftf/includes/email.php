@@ -222,7 +222,7 @@ function send_contributor_inactive_email( array $contributor ) : bool {
 		$team = str_replace( 'Team', '', $team );
 
 		return trim( $team );
-	}, $contributor['teams_names'] );
+	}, $contributor['team_names'] );
 
 	$message = sprintf( "
 		Hi %s, a while ago you pledged to contribute %d %s a week to the %s %s:
@@ -250,7 +250,7 @@ function send_contributor_inactive_email( array $contributor ) : bool {
 		$contributor['hours_per_week'],
 		1 === $contributor['hours_per_week'] ? 'hour' : 'hours',
 		natural_language_join( $short_team_names ),
-		1 === count( $contributor['teams_names'] ) ? 'team' : 'teams',
+		1 === count( $contributor['team_names'] ) ? 'team' : 'teams',
 		$contributor['user_nicename']
 	);
 	$message = str_replace( "\t", '', trim( $message ) );
