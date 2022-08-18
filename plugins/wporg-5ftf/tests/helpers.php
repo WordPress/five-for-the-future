@@ -32,11 +32,33 @@ function database_setup_before_class( WP_UnitTest_Factory $factory ) : array {
 	$fixtures['users']['jane'] = $factory->user->create_and_get( array(
 		'user_login' => 'jane',
 		'user_email' => 'jane@example.org',
+		'meta_input' => array(
+			'last_logged_in' => date( 'Y-m-d H:i:s', strtotime( '95 days ago' ) )
+		)
 	) );
 
 	$fixtures['users']['ashish'] = $factory->user->create_and_get( array(
 		'user_login' => 'ashish',
 		'user_email' => 'ashish@example.org',
+		'meta_input' => array(
+			'last_logged_in' => date( 'Y-m-d H:i:s', strtotime( '2 hours ago' ) )
+		)
+	) );
+
+	$fixtures['users']['andrea'] = $factory->user->create_and_get( array(
+		'user_login' => 'andrea',
+		'user_email' => 'andrea@example.org',
+		'meta_input' => array(
+			'last_logged_in' => date( 'Y-m-d H:i:s', strtotime( '1 week ago' ) )
+		)
+	) );
+
+	$fixtures['users']['caleb'] = $factory->user->create_and_get( array(
+		'user_login' => 'caleb',
+		'user_email' => 'caleb@example.org',
+		'meta_input' => array(
+			'last_logged_in' => date( 'Y-m-d H:i:s', strtotime( '4 months ago' ) )
+		)
 	) );
 
 	// Pages
@@ -72,7 +94,7 @@ function database_setup_before_class( WP_UnitTest_Factory $factory ) : array {
  *
  * Call in `set_up()`.
  */
-function database_set_up( int $jane_id, int $ashish_id ) : void {
+function database_set_up( array $user_ids ) : void {
 	global $wpdb;
 
 	$wpdb->query( 'TRUNCATE TABLE `bpmain_bp_xprofile_data` ' );
@@ -84,11 +106,19 @@ function database_set_up( int $jane_id, int $ashish_id ) : void {
 			(NULL, 29, %d, '40', '2019-12-02 10:00:00' ),
 			(NULL, 30, %d, 'a:1:{i:0;s:9:\"Core Team\";}', '2019-12-03 11:00:00' ),
 			(NULL, 29, %d, '35', '2019-12-02 10:00:00' ),
-			(NULL, 30, %d, 'a:1:{i:0;s:18:\"Documentation Team\";}', '2019-12-03 11:00:00' )",
-		$jane_id,
-		$jane_id,
-		$ashish_id,
-		$ashish_id
+			(NULL, 30, %d, 'a:1:{i:0;s:18:\"Documentation Team\";}', '2019-12-03 11:00:00' ),
+			(NULL, 29, %d, '7', '2019-12-02 10:00:00' ),
+			(NULL, 30, %d, 'a:1:{i:0;s:14:\"Polyglots Team\";}', '2019-12-03 11:00:00' ),
+			(NULL, 29, %d, '4', '2019-12-02 10:00:00' ),
+			(NULL, 30, %d, 'a:1:{i:0;s:9:\"Meta Team\";}', '2019-12-03 11:00:00' )",
+		$user_ids[0],
+		$user_ids[0],
+		$user_ids[1],
+		$user_ids[1],
+		$user_ids[2],
+		$user_ids[2],
+		$user_ids[3],
+		$user_ids[3]
 	) );
 }
 
