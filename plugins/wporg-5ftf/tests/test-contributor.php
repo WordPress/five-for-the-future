@@ -1,6 +1,7 @@
 <?php
 
 use WordPressDotOrg\FiveForTheFuture\{ Contributor, Pledge, XProfile };
+use WordPressDotOrg\FiveForTheFuture\Tests\Helpers as TestHelpers;
 
 defined( 'WPINC' ) || die();
 
@@ -14,89 +15,28 @@ defined( 'WPINC' ) || die();
  * @group contributor
  */
 class Test_Contributor extends WP_UnitTestCase {
-	protected static $user_jane_id;
-	protected static $user_ashish_id;
-	protected static $page_for_organizations;
-	protected static $pledge_bluehost_id;
-	protected static $pledge_10up_id;
+	protected static $users;
+	protected static $pages;
+	protected static $pledges;
 
 	/**
 	 * Run once when class loads.
 	 */
 	public static function set_up_before_class() {
-		global $wpdb;
-
 		parent::set_up_before_class();
 
-		$wpdb->query( "
-			CREATE TABLE `bpmain_bp_xprofile_data` (
-				`id` bigint unsigned NOT NULL AUTO_INCREMENT,
-				`field_id` bigint unsigned NOT NULL DEFAULT '0',
-				`user_id` bigint unsigned NOT NULL DEFAULT '0',
-				`value` longtext NOT NULL,
-				`last_updated` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
-				PRIMARY KEY (`id`),
-				KEY `field_id` (`field_id`),
-				KEY `user_id` (`user_id`)
-			)
-			ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3
-		" );
-
-		self::$user_jane_id = self::factory()->user->create( array(
-			'user_login' => 'jane',
-			'user_email' => 'jane@example.org',
-		) );
-
-		self::$user_ashish_id = self::factory()->user->create( array(
-			'user_login' => 'ashish',
-			'user_email' => 'ashish@example.org',
-		) );
-
-		self::$page_for_organizations = get_post( self::factory()->post->create( array(
-			'post_type'   => 'page',
-			'post_title'  => 'For Organizations',
-			'post_status' => 'publish',
-		) ) );
-
-		$GLOBALS['post'] = self::$page_for_organizations; // `create_new_pledge()` assumes this exists.
-
-		self::$pledge_10up_id     = Pledge\create_new_pledge( '10up' );
-		self::$pledge_bluehost_id = Pledge\create_new_pledge( 'BlueHost' );
-
-		wp_update_post( array(
-			'ID'          => self::$pledge_bluehost_id,
-			'post_status' => 'publish',
-		) );
-		wp_update_post( array(
-			'ID'          => self::$pledge_10up_id,
-			'post_status' => 'publish',
-		) );
+		$fixtures      = TestHelpers\database_setup_before_class( self::factory() );
+		self::$users   = $fixtures['users'];
+		self::$pages   = $fixtures['pages'];
+		self::$pledges = $fixtures['pledges'];
 	}
 
 	/**
 	 * Run before every test.
 	 */
 	public function set_up() {
-		global $wpdb;
-
 		parent::set_up();
-
-		$wpdb->query( 'TRUNCATE TABLE `bpmain_bp_xprofile_data` ' );
-
-		$wpdb->query( $wpdb->prepare( "
-			INSERT INTO `bpmain_bp_xprofile_data`
-			(`id`, `field_id`, `user_id`, `value`, `last_updated`)
-			VALUES
-				(NULL, 29, %d, '40', '2019-12-02 10:00:00' ),
-				(NULL, 30, %d, 'a:1:{i:0;s:9:\"Core Team\";}', '2019-12-03 11:00:00' ),
-				(NULL, 29, %d, '35', '2019-12-02 10:00:00' ),
-				(NULL, 30, %d, 'a:1:{i:0;s:18:\"Documentation Team\";}', '2019-12-03 11:00:00' )",
-			self::$user_jane_id,
-			self::$user_jane_id,
-			self::$user_ashish_id,
-			self::$user_ashish_id
-		) );
-
+		TestHelpers\database_set_up( self::$users['jane']->ID, self::$users['ashish']->ID );
 		reset_phpmailer_instance();
 	}
 
@@ -104,11 +44,8 @@ class Test_Contributor extends WP_UnitTestCase {
 	 * Run once after all tests are finished.
 	 */
 	public static function tear_down_after_class() {
-		global $wpdb;
-
 		parent::tear_down_after_class();
-
-		$wpdb->query( 'DROP TABLE `bpmain_bp_xprofile_data` ' );
+		TestHelpers\database_tear_down_after_class();
 	}
 
 	/**
@@ -118,10 +55,10 @@ class Test_Contributor extends WP_UnitTestCase {
 	public function test_data_reset_once_no_active_sponsors() : void {
 		// Setup scenario where Jane is sponsored by two companies.
 		$mailer                = tests_retrieve_phpmailer_instance();
-		$jane                  = get_user_by( 'id', self::$user_jane_id );
+		$jane                  = self::$users['jane'];
 		$jane_contribution     = XProfile\get_contributor_user_data( $jane->ID );
-		$tenup                 = get_post( self::$pledge_10up_id );
-		$bluehost              = get_post( self::$pledge_bluehost_id );
+		$tenup                 = self::$pledges['10up'];
+		$bluehost              = self::$pledges['bluehost'];
 		$tenup_contributors    = Contributor\add_pledge_contributors( $tenup->ID, array( $jane->user_login ) );
 		$bluehost_contributors = Contributor\add_pledge_contributors( $bluehost->ID, array( $jane->user_login ) );
 		$tenup_jane_id         = $tenup_contributors[ $jane->user_login ];
@@ -182,9 +119,9 @@ class Test_Contributor extends WP_UnitTestCase {
 	public function test_data_not_reset_when_unconfirmed_sponsor() : void {
 		// Setup scenario where Jane was invited to join a company but didn't respond.
 		$mailer             = tests_retrieve_phpmailer_instance();
-		$jane               = get_user_by( 'id', self::$user_jane_id );
+		$jane               = self::$users['jane'];
 		$jane_contribution  = XProfile\get_contributor_user_data( $jane->ID );
-		$tenup              = get_post( self::$pledge_10up_id );
+		$tenup              = self::$pledges['10up'];
 		$tenup_contributors = Contributor\add_pledge_contributors( $tenup->ID, array( $jane->user_login ) );
 		$tenup_jane_id      = $tenup_contributors[ $jane->user_login ];
 
@@ -221,11 +158,11 @@ class Test_Contributor extends WP_UnitTestCase {
 	public function test_data_reset_when_single_contributor_removed_from_pledge() : void {
 		// Setup scenario where Jane and Ashish are sponsored by a company.
 		$mailer              = tests_retrieve_phpmailer_instance();
-		$jane                = get_user_by( 'id', self::$user_jane_id );
+		$jane                = self::$users['jane'];
 		$jane_contribution   = XProfile\get_contributor_user_data( $jane->ID );
-		$ashish              = get_user_by( 'id', self::$user_ashish_id );
+		$ashish              = self::$users['ashish'];
 		$ashish_contribution = XProfile\get_contributor_user_data( $ashish->ID );
-		$tenup               = get_post( self::$pledge_10up_id );
+		$tenup               = self::$pledges['10up'];
 		$tenup_contributors  = Contributor\add_pledge_contributors( $tenup->ID, array( $jane->user_login, $ashish->user_login ) );
 		$tenup_jane_id       = $tenup_contributors[ $jane->user_login ];
 		$tenup_ashish_id     = $tenup_contributors[ $ashish->user_login ];
