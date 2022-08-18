@@ -708,23 +708,20 @@ function add_user_data_to_xprofile( array $xprofiles ) : array {
 	$user_ids        = array_keys( $xprofiles );
 	$id_placeholders = implode( ', ', array_fill( 0, count( $user_ids ), '%d' ) );
 
-	// Get user data.
-	// Ignore new users because they haven't had a chance to contribute yet.
 	// phpcs:disable -- `$id_placeholders` is safely created above.
 	$established_users = $wpdb->get_results( $wpdb->prepare( "
 		SELECT
-		    u.ID, u.user_email, u.user_login, u.user_nicename,
+		    u.ID, u.user_email, u.user_registered, u.user_nicename,
 			GROUP_CONCAT( um.meta_key ) AS meta_keys,
 			GROUP_CONCAT( um.meta_value ) AS meta_values
 		FROM `$wpdb->users` u
 			JOIN `$wpdb->usermeta` um ON u.ID = um.user_id
 		WHERE
 			um.user_id IN ( $id_placeholders ) AND
-			um.meta_key IN ( 'last_logged_in', '5ftf_last_inactivity_email', 'first_name' ) AND
-			u.user_registered < CURDATE() - INTERVAL %d MONTH
+			um.meta_key IN ( 'last_logged_in', '5ftf_last_inactivity_email', 'first_name' )
 		GROUP BY um.user_id
 		ORDER BY u.ID",
-		array_merge( $user_ids, array( INACTIVITY_THRESHOLD_MONTHS ) )
+		$user_ids
 	) );
 	// phpcs:enable
 
@@ -732,6 +729,7 @@ function add_user_data_to_xprofile( array $xprofiles ) : array {
 		$full_user = array(
 			'user_id'        => absint( $user->ID ),
 			'user_email'     => $user->user_email,
+			'user_registered' => intval( strtotime( $user->user_registered ) ),
 			'hours_per_week' => $xprofiles[ $user->ID ]->hours_per_week,
 			'user_nicename'  => $user->user_nicename,
 		);
@@ -760,12 +758,20 @@ function prune_unnotifiable_users( array $contributors ) : array {
 	$inactivity_threshold = strtotime( INACTIVITY_THRESHOLD_MONTHS . ' months ago' );
 
 	foreach ( $contributors as $index => $contributor ) {
+		// Skip new users because they haven't had a chance to contribute yet.
+		if ( $contributor['user_registered'] > $inactivity_threshold ) {
+			unset( $contributors[ $index ] );
+			continue;
+		}
+
 		if ( is_active( $contributor['last_logged_in'] ) ) {
 			unset( $contributors[ $index ] );
+			continue;
 		}
 
 		if ( $contributor['5ftf_last_inactivity_email'] > $inactivity_threshold ) {
 			unset( $contributors[ $index ] );
+			continue;
 		}
 	}
 
