@@ -66,9 +66,11 @@ function record_snapshot() {
 
 	bump_stats_extra( 'five-for-the-future', 'Self-sponsored hours', $stats['self_sponsored_hours'] );
 	bump_stats_extra( 'five-for-the-future', 'Self-sponsored contributors', $stats['self_sponsored_contributors'] );
+	bump_stats_extra( 'five-for-the-future', 'Self-sponsored contributor activity %', $stats['self_sponsored_contributor_activity'] );
 	bump_stats_extra( 'five-for-the-future', 'Companies', $stats['companies'] );
 	bump_stats_extra( 'five-for-the-future', 'Company-sponsored hours', $stats['company_sponsored_hours'] );
 	bump_stats_extra( 'five-for-the-future', 'Company-sponsored contributors', $stats['company_sponsored_contributors'] );
+	bump_stats_extra( 'five-for-the-future', 'Company-sponsored contributor activity %', $stats['company_sponsored_contributor_activity'] );
 
 	foreach ( array( 'team_company_sponsored_contributors', 'team_self_sponsored_contributors' ) as $key ) {
 		foreach ( $stats[ $key ] as $team => $contributors ) {
@@ -94,6 +96,9 @@ function record_snapshot() {
  * @return array
  */
 function get_snapshot_data() {
+	$active_self_sponsored_contributors    = 0;
+	$active_company_sponsored_contributors = 0;
+
 	$snapshot_data = array(
 		'company_sponsored_hours'             => 0,
 		'self_sponsored_hours'                => 0,
@@ -135,17 +140,26 @@ function get_snapshot_data() {
 	$all_contributor_profiles                        = XProfile\get_all_xprofile_contributor_hours_teams();
 	$snapshot_data['company_sponsored_contributors'] = count( $company_contributor_user_ids );
 	$snapshot_data['self_sponsored_contributors']    = count( $all_contributor_profiles ) - count( $company_contributor_user_ids );
+	$full_users                                      = Contributor\add_user_data_to_xprofile( $all_contributor_profiles );
+	unset( $all_contributor_profiles );
 
-	foreach ( $all_contributor_profiles as $profile ) {
-		$attribution_prefix = in_array( $profile->user_id, $company_contributor_user_ids, true )
-			? 'company_sponsored'
-			: 'self_sponsored';
+	foreach ( $full_users as $user ) {
+		$is_company_sponsored = in_array( $user['user_id'], $company_contributor_user_ids, true );
+		$attribution_prefix   = $is_company_sponsored ? 'company_sponsored' : 'self_sponsored';
+
+		if ( Contributor\is_active( $user['last_logged_in'] ) ) {
+			if ( $is_company_sponsored ) {
+				$active_company_sponsored_contributors++;
+			} else {
+				$active_self_sponsored_contributors++;
+			}
+		}
 
 		$team_contributor_key = sprintf( 'team_%s_contributors', $attribution_prefix );
 
-		$snapshot_data[ $attribution_prefix . '_hours'] += $profile->hours_per_week;
+		$snapshot_data[ $attribution_prefix . '_hours'] += $user['hours_per_week'];
 
-		foreach ( $profile->team_names as $team ) {
+		foreach ( $user['team_names'] as $team ) {
 			if ( isset( $snapshot_data[ $team_contributor_key ][ $team ] ) ) {
 				$snapshot_data[ $team_contributor_key ][ $team ] ++;
 			} else {
@@ -158,6 +172,9 @@ function get_snapshot_data() {
 	// Alphabetize so that they appear in a consistent order in the MC interface.
 	ksort( $snapshot_data['team_company_sponsored_contributors'] );
 	ksort( $snapshot_data['team_self_sponsored_contributors'] );
+
+	$snapshot_data['self_sponsored_contributor_activity']    = round( $active_self_sponsored_contributors / $snapshot_data['self_sponsored_contributors'] * 100, 2 );
+	$snapshot_data['company_sponsored_contributor_activity'] = round( $active_company_sponsored_contributors / $snapshot_data['company_sponsored_contributors'] * 100, 2 );
 
 	return $snapshot_data;
 }

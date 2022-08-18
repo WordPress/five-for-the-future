@@ -36,7 +36,7 @@ class Test_Contributor extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		TestHelpers\database_set_up( self::$users['jane']->ID, self::$users['ashish']->ID );
+		TestHelpers\database_set_up( array_values( wp_list_pluck( self::$users, 'ID' ) ) );
 		reset_phpmailer_instance();
 	}
 
