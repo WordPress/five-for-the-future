@@ -45,6 +45,14 @@ function database_setup_before_class( WP_UnitTest_Factory $factory ) : array {
 		)
 	) );
 
+	// Some users don't have any of the expected fields, so make sure they're included in tests.
+	$fixtures['users']['kimi'] = $factory->user->create_and_get( array(
+		'user_login' => 'kimi',
+		'user_email' => 'kimi@example.org',
+		'meta_input' => array()
+	) );
+	delete_user_meta( $fixtures['users']['kimi']->ID, 'first_name' );
+
 	$fixtures['users']['andrea'] = $factory->user->create_and_get( array(
 		'user_login' => 'andrea',
 		'user_email' => 'andrea@example.org',
@@ -107,6 +115,8 @@ function database_set_up( array $user_ids ) : void {
 			(NULL, 30, %d, 'a:1:{i:0;s:9:\"Core Team\";}', '2019-12-03 11:00:00' ),
 			(NULL, 29, %d, '35', '2019-12-02 10:00:00' ),
 			(NULL, 30, %d, 'a:1:{i:0;s:18:\"Documentation Team\";}', '2019-12-03 11:00:00' ),
+			(NULL, 29, %d, '5', '2019-12-02 10:00:00' ),
+			(NULL, 30, %d, 'a:2:{i:0;s:9:\"Meta Team\";i:1;s:13:\"Training Team\";}', '2019-12-03 11:00:00' ),
 			(NULL, 29, %d, '7', '2019-12-02 10:00:00' ),
 			(NULL, 30, %d, 'a:1:{i:0;s:14:\"Polyglots Team\";}', '2019-12-03 11:00:00' ),
 			(NULL, 29, %d, '4', '2019-12-02 10:00:00' ),
@@ -118,7 +128,9 @@ function database_set_up( array $user_ids ) : void {
 		$user_ids[2],
 		$user_ids[2],
 		$user_ids[3],
-		$user_ids[3]
+		$user_ids[3],
+		$user_ids[4],
+		$user_ids[4]
 	) );
 }
 

@@ -65,7 +65,7 @@ class Test_Stats extends WP_UnitTestCase {
 
 		$expected = array(
 			'company_sponsored_hours' => 75,
-			'self_sponsored_hours'    => 11,
+			'self_sponsored_hours'    => 16,
 
 			'team_company_sponsored_contributors' => array(
 				'Core Team'          => 1,
@@ -73,17 +73,20 @@ class Test_Stats extends WP_UnitTestCase {
 			),
 
 			'team_self_sponsored_contributors' => array(
-				'Meta Team'      => 1,
+				'Meta Team'      => 2,
 				'Polyglots Team' => 1,
+				'Training Team'  => 1,
 			),
 
 			'companies'                              => 2,
 			'company_sponsored_contributors'         => 2,
-			'self_sponsored_contributors'            => 2,
-			'self_sponsored_contributor_activity'    => 50.0,
+			'self_sponsored_contributors'            => 3,
+			'self_sponsored_contributor_activity'    => 33.33,
 			'company_sponsored_contributor_activity' => 50.0,
 		);
 
-		$this->assertSame( $expected, get_snapshot_data() );
+		$actual = get_snapshot_data();
+
+		$this->assertSame( $expected, $actual );
 	}
 }

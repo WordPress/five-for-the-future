@@ -711,17 +711,23 @@ function add_user_data_to_xprofile( array $xprofiles ) : array {
 	// phpcs:disable -- `$id_placeholders` is safely created above.
 	$established_users = $wpdb->get_results( $wpdb->prepare( "
 		SELECT
-		    u.ID, u.user_email, u.user_registered, u.user_nicename,
-			GROUP_CONCAT( um.meta_key ) AS meta_keys,
-			GROUP_CONCAT( um.meta_value ) AS meta_values
+			u.ID, u.user_email, u.user_registered, u.user_nicename,
+			um.meta_keys, um.meta_values
 		FROM `$wpdb->users` u
-			JOIN `$wpdb->usermeta` um ON u.ID = um.user_id
-		WHERE
-			um.user_id IN ( $id_placeholders ) AND
-			um.meta_key IN ( 'last_logged_in', '5ftf_last_inactivity_email', 'first_name' )
-		GROUP BY um.user_id
+			LEFT JOIN (
+				SELECT
+					user_id,
+					GROUP_CONCAT( meta_key ) AS meta_keys,
+					GROUP_CONCAT( meta_value ) AS meta_values
+				FROM `$wpdb->usermeta`
+				WHERE
+					user_id IN ( $id_placeholders ) AND
+					meta_key IN ( 'last_logged_in', '5ftf_last_inactivity_email', 'first_name' )
+				GROUP BY user_id
+			) um ON u.ID = um.user_id
+		WHERE u.ID IN ( $id_placeholders )
 		ORDER BY u.ID",
-		$user_ids
+		array_merge( $user_ids, $user_ids )
 	) );
 	// phpcs:enable
 
@@ -734,11 +740,13 @@ function add_user_data_to_xprofile( array $xprofiles ) : array {
 			'user_nicename'  => $user->user_nicename,
 		);
 
-		$keys   = explode( ',', $user->meta_keys );
-		$values = explode( ',', $user->meta_values );
+		if ( ! empty( $user->meta_keys ) ) {
+			$keys   = explode( ',', $user->meta_keys );
+			$values = explode( ',', $user->meta_values );
 
-		foreach ( $keys as $index => $key ) {
-			$full_user[ $key ] = maybe_unserialize( $values[ $index ] );
+			foreach ( $keys as $index => $key ) {
+				$full_user[ $key ] = maybe_unserialize( $values[ $index ] );
+			}
 		}
 
 		$full_user['last_logged_in']             = intval( strtotime( $full_user['last_logged_in'] ?? '' ) ); // Convert `false` to `0`.
