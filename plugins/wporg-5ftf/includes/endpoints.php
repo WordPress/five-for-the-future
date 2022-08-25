@@ -93,7 +93,7 @@ function send_manage_email_handler() {
 
 	$pledge_id   = filter_input( INPUT_POST, 'pledge_id', FILTER_VALIDATE_INT );
 	$email       = strtolower( filter_input( INPUT_POST, 'email', FILTER_VALIDATE_EMAIL ) );
-	$valid_email = strtolower( get_post( $pledge_id )->{ META_PREFIX . 'org-pledge-email' } );
+	$valid_email = strtolower( get_post( $pledge_id )->{ META_PREFIX . 'org-pledge-email' } ?? '' );
 
 	if ( $valid_email && $valid_email === $email ) {
 		$message_sent = Email\send_manage_pledge_link( $pledge_id );
