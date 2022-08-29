@@ -28,28 +28,28 @@ function database_setup_before_class( WP_UnitTest_Factory $factory ) : array {
 		ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3
 	" );
 
-	// Users
+	// Users.
 	$fixtures['users']['jane'] = $factory->user->create_and_get( array(
 		'user_login' => 'jane',
 		'user_email' => 'jane@example.org',
 		'meta_input' => array(
-			'last_logged_in' => date( 'Y-m-d H:i:s', strtotime( '95 days ago' ) )
-		)
+			'last_logged_in' => gmdate( 'Y-m-d H:i:s', strtotime( '95 days ago' ) ),
+		),
 	) );
 
 	$fixtures['users']['ashish'] = $factory->user->create_and_get( array(
 		'user_login' => 'ashish',
 		'user_email' => 'ashish@example.org',
 		'meta_input' => array(
-			'last_logged_in' => date( 'Y-m-d H:i:s', strtotime( '2 hours ago' ) )
-		)
+			'last_logged_in' => gmdate( 'Y-m-d H:i:s', strtotime( '2 hours ago' ) ),
+		),
 	) );
 
 	// Some users don't have any of the expected fields, so make sure they're included in tests.
 	$fixtures['users']['kimi'] = $factory->user->create_and_get( array(
 		'user_login' => 'kimi',
 		'user_email' => 'kimi@example.org',
-		'meta_input' => array()
+		'meta_input' => array(),
 	) );
 	delete_user_meta( $fixtures['users']['kimi']->ID, 'first_name' );
 
@@ -57,28 +57,29 @@ function database_setup_before_class( WP_UnitTest_Factory $factory ) : array {
 		'user_login' => 'andrea',
 		'user_email' => 'andrea@example.org',
 		'meta_input' => array(
-			'last_logged_in' => date( 'Y-m-d H:i:s', strtotime( '1 week ago' ) )
-		)
+			'last_logged_in' => gmdate( 'Y-m-d H:i:s', strtotime( '1 week ago' ) ),
+		),
 	) );
 
 	$fixtures['users']['caleb'] = $factory->user->create_and_get( array(
 		'user_login' => 'caleb',
 		'user_email' => 'caleb@example.org',
 		'meta_input' => array(
-			'last_logged_in' => date( 'Y-m-d H:i:s', strtotime( '4 months ago' ) )
-		)
+			'last_logged_in' => gmdate( 'Y-m-d H:i:s', strtotime( '4 months ago' ) ),
+		),
 	) );
 
-	// Pages
+	// Pages.
 	$for_organizations = $factory->post->create_and_get( array(
 		'post_type'   => 'page',
 		'post_title'  => 'For Organizations',
 		'post_status' => 'publish',
 	) );
 	$fixtures['pages']['for_organizations'] = $for_organizations;
+	// phpcs:ignore -- Overriding the global is required to mock a real environment.
 	$GLOBALS['post'] = $for_organizations; // `create_new_pledge()` assumes this exists.
 
-	// Pledges
+	// Pledges.
 	$tenup_id    = Pledge\create_new_pledge( '10up' );
 	$bluehost_id = Pledge\create_new_pledge( 'BlueHost' );
 
