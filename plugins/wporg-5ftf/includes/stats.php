@@ -157,7 +157,7 @@ function get_snapshot_data() {
 
 		$team_contributor_key = sprintf( 'team_%s_contributors', $attribution_prefix );
 
-		$snapshot_data[ $attribution_prefix . '_hours'] += $user['hours_per_week'];
+		$snapshot_data[ $attribution_prefix . '_hours' ] += $user['hours_per_week'];
 
 		foreach ( $user['team_names'] as $team ) {
 			if ( isset( $snapshot_data[ $team_contributor_key ][ $team ] ) ) {

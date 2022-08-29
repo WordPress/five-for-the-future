@@ -790,6 +790,7 @@ function prune_unnotifiable_users( array $contributors ) : array {
  * Determine if a contributor is active or not.
  *
  * Currently this only tracks the last login, but in the future it will be expanded to be more granular.
+ *
  * @link https://github.com/WordPress/five-for-the-future/issues/210
  */
 function is_active( int $last_login ) : bool {
