@@ -35,6 +35,7 @@
 		],
 		"test" : "phpunit",
 		"_comment"   : "Input won't work when running this via `composer test:watch`. If you want to use PHPUnit Watcher's interactive options then you'll need to call it directly in your terminal. See https://github.com/composer/composer/issues/5856",
-		"test:watch" : "phpunit-watcher watch"
+		"test:watch" : "phpunit-watcher watch",
+		"test:coverage": "php -d xdebug.mode=coverage ./mu-plugins/vendor/bin/phpunit --coverage-html coverage"
 	}
 }

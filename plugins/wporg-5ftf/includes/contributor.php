@@ -24,6 +24,8 @@ add_shortcode( '5ftf_my_pledges', __NAMESPACE__ . '\render_my_pledges' );
 /**
  * Register the post type(s).
  *
+ * @codeCoverageIgnore
+ *
  * @return void
  */
 function register_custom_post_type() {
@@ -85,6 +87,8 @@ function register_custom_post_type() {
  * wouldn't be scheduled.
  *
  * @see https://dotorg.trac.wordpress.org/changeset/15351/
+ *
+ * @codeCoverageIgnore
  */
 function schedule_cron_jobs() {
 	if ( ! wp_next_scheduled( 'notify_inactive_contributors' ) ) {
@@ -94,6 +98,8 @@ function schedule_cron_jobs() {
 
 /**
  * Add columns to the Contributors list table.
+ *
+ * @codeCoverageIgnore
  *
  * @param array $columns
  *
@@ -112,6 +118,8 @@ function add_list_table_columns( $columns ) {
 
 /**
  * Render content in the custom columns added to the Contributors list table.
+ *
+ * @codeCoverageIgnore
  *
  * @param string $column
  * @param int    $post_id
@@ -392,6 +400,8 @@ function get_contributor_user_ids( $contributor_posts ) {
 /**
  * Only show the My Pledges menu to users who are logged in.
  *
+ * @codeCoverageIgnore
+ *
  * @param array $menu_items
  *
  * @return array
@@ -412,6 +422,8 @@ function hide_my_pledges_when_logged_out( $menu_items ) {
 
 /**
  * Render the My Pledges shortcode.
+ *
+ * @codeCoverageIgnore
  *
  * @return string
  */
@@ -586,6 +598,8 @@ function parse_contributors( $contributors, $pledge_id = null ) {
 
 /**
  * Send an email to inactive contributors.
+ *
+ * @codeCoverageIgnore
  */
 function notify_inactive_contributors() : void {
 	$contributors = get_inactive_contributor_batch();

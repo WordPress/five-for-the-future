@@ -80,7 +80,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::is_valid_authentication_token
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 */
 	public function test_valid_token_accepted() {
 		$verified = is_valid_authentication_token( self::$pledge->ID, self::$action, self::$token['value'] );
@@ -88,7 +88,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::is_valid_authentication_token
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 * @dataProvider data_invalid_token_provider
 	 */
 	public function test_invalid_tokens_are_rejected( $token_to_validate ) {
@@ -107,7 +107,7 @@ class Test_Auth extends WP_UnitTestCase {
 	 * Note that data providers can't access fixtures.
 	 * See https://phpunit.readthedocs.io/en/7.4/writing-tests-for-phpunit.html#data-providers.
 	 *
-	 * @covers ::is_valid_authentication_token
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 */
 	public function data_invalid_token_provider() {
 		return array(
@@ -119,7 +119,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::is_valid_authentication_token
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 */
 	public function test_expired_tokens_are_rejected() {
 		$expired_token               = self::$token;
@@ -137,7 +137,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::is_valid_authentication_token
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 */
 	public function test_used_tokens_are_rejected() {
 		// The token should be deleted once it's used/verified for the first time.
@@ -149,7 +149,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::is_valid_authentication_token
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 */
 	public function test_valid_tokens_are_rejected_for_other_actions() {
 		// Generate new token on pledge.
@@ -167,7 +167,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::is_valid_authentication_token
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 */
 	public function test_valid_tokens_are_rejected_for_other_pledges() {
 		$new_pledge_id = self::factory()->post->create( array(
@@ -190,7 +190,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::is_valid_authentication_token
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 */
 	public function test_reusable_token_is_reusable() {
 		$action = 'manage_pledge';
@@ -207,7 +207,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::is_valid_authentication_token
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 */
 	public function test_expired_reusable_tokens_are_rejected() {
 		$action = 'manage_pledge';
@@ -222,7 +222,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::can_manage_pledge
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\can_manage_pledge
 	 */
 	public function test_user_with_token_can_manage_pledge() {
 		$action = 'manage_pledge';
@@ -233,7 +233,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::can_manage_pledge
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\can_manage_pledge
 	 */
 	public function test_user_without_token_cant_manage_pledge() {
 		$result = can_manage_pledge( self::$pledge->ID, '' );
@@ -241,7 +241,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::can_manage_pledge
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\can_manage_pledge
 	 */
 	public function test_logged_in_admin_can_manage_pledge() {
 		$user = self::factory()->user->create(
@@ -256,7 +256,7 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::can_manage_pledge
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\can_manage_pledge
 	 */
 	public function test_logged_in_subscriber_cant_manage_pledge() {
 		$user = self::factory()->user->create(

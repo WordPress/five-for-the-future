@@ -49,8 +49,11 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::remove_pledge_contributors
-	 * @covers ::remove_contributors
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_pledge_contributors
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_contributor
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\add_pledge_contributors
+	 * @covers WordPressDotOrg\FiveForTheFuture\XProfile\get_contributor_user_data
+	 * @covers WordPressDotOrg\FiveForTheFuture\Pledge\deactivate
 	 */
 	public function test_data_reset_once_no_active_sponsors() : void {
 		// Setup scenario where Jane is sponsored by two companies.
@@ -113,8 +116,11 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::remove_pledge_contributors
-	 * @covers ::remove_contributors
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_pledge_contributors
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_contributor
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\add_pledge_contributors
+	 * @covers WordPressDotOrg\FiveForTheFuture\XProfile\get_contributor_user_data
+	 * @covers WordPressDotOrg\FiveForTheFuture\Pledge\deactivate
 	 */
 	public function test_data_not_reset_when_unconfirmed_sponsor() : void {
 		// Setup scenario where Jane was invited to join a company but didn't respond.
@@ -153,7 +159,9 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::remove_contributors
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_contributor
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\add_pledge_contributors
+	 * @covers WordPressDotOrg\FiveForTheFuture\XProfile\get_contributor_user_data
 	 */
 	public function test_data_reset_when_single_contributor_removed_from_pledge() : void {
 		// Setup scenario where Jane and Ashish are sponsored by a company.
@@ -206,7 +214,7 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::prune_unnotifiable_users
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\prune_unnotifiable_users
 	 */
 	public function test_prune_unnotifiable_users() {
 		$contributors = array(

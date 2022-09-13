@@ -6,9 +6,11 @@
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
 	>
+
 	<php>
 		<const name="WP_TESTS_MULTISITE" value="1" />
 	</php>
+
 	<testsuites>
 		<testsuite name="Five for the Future Plugin">
 			<directory prefix="test-" suffix=".php">
@@ -16,4 +18,10 @@
 			</directory>
 		</testsuite>
 	</testsuites>
+
+	<filter>
+		<whitelist>
+			<directory suffix=".php">./plugins/wporg-5ftf/includes</directory>
+		</whitelist>
+	</filter>
 </phpunit>

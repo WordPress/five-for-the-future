@@ -43,7 +43,7 @@ class Test_Stats extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @covers ::get_snapshot_data
+	 * @covers WordPressDotOrg\FiveForTheFuture\Stats\get_snapshot_data
 	 */
 	public function test_get_snapshot() : void {
 		// Setup 2 company-sponsored contributors.
