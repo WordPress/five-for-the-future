@@ -16,7 +16,7 @@ class Test_Auth extends WP_UnitTestCase {
 	/**
 	 * Setup fixtures that are shared across all tests.
 	 */
-	public static function wpSetUpBeforeClass() {
+	public static function set_up_before_class() {
 		$pledge_id = self::factory()->post->create( array(
 			'post_type'   => PLEDGE_POST_TYPE,
 			'post_title'  => 'Valid Pledge',
@@ -52,8 +52,8 @@ class Test_Auth extends WP_UnitTestCase {
 	/**
 	 * Setup fixtures that are unique for each test.
 	 */
-	protected function setUp() : void {
-		parent::setUp();
+	public function set_up() : void {
+		parent::set_up();
 
 		/*
 		 * `get_authentication_url()` should create a valid token in the database.
