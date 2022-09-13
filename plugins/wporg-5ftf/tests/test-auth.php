@@ -114,7 +114,12 @@ class Test_Auth extends WP_UnitTestCase {
 			'non-existent-token' => array( false ), // Simulates `get_post_meta()` return value.
 			'wrong-data-type'    => array( 'this string is not an array' ),
 			'wrong-array-items'  => array( 'this' => "doesn't have `value` and `expiration` items" ),
-			'invalid-value'      => array( 'Valid tokens will never contain special characters like !@#$%^&*()' ),
+
+			'invalid-value' => array(
+				// Must have TOKEN_LENGTH characters, otherwise could be rejected for the wrong reason.
+				'value'      => 'Has special characters !@#$%^&*)',
+				'expiration' => time() + MINUTE_IN_SECONDS,
+			),
 		);
 	}
 
