@@ -18,7 +18,6 @@
 		}
 	},
 	"require": {},
-	"_comment" : "PHPUnit 7.x is the latest version that's compatible with Core, see https://core.trac.wordpress.org/ticket/46149",
 	"require-dev" : {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
 		"wp-coding-standards/wpcs": "2.3.*",

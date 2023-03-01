@@ -7,6 +7,8 @@
 namespace {
 	defined( 'WPINC' ) || die();
 
+	define( 'WPORG_SUPPORT_FORUMS_BLOGID', 419 );
+
 	/**
 	 * Stub.
 	 */

@@ -13,6 +13,7 @@ plugins/*
 themes/wporg-5ftf/css/style.css
 themes/wporg-5ftf/css/style-editor.css
 themes/pub
+themes/twenty*
 
 /uploads
 /db.php

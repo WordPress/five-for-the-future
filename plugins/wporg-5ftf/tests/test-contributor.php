@@ -217,42 +217,60 @@ class Test_Contributor extends WP_UnitTestCase {
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\prune_unnotifiable_users
 	 */
 	public function test_prune_unnotifiable_users() {
+		global $wpdb;
+
+		update_user_meta(
+			self::$users['kimi']->ID,
+			$wpdb->base_prefix . WPORG_SUPPORT_FORUMS_BLOGID . '_capabilities',
+			array( 'bbp_blocked' => true )
+		);
+
 		$contributors = array(
 			'active + due for email' => array(
+				'user_id'                    => self::$users['jane']->ID,
 				'last_logged_in'             => strtotime( '1 week ago' ),
 				'user_registered'            => strtotime( '1 year ago' ),
 				'5ftf_last_inactivity_email' => 0,
 			),
 
 			'active + not due for email' => array(
+				'user_id'                    => self::$users['ashish']->ID,
 				'last_logged_in'             => strtotime( '1 week ago' ),
 				'user_registered'            => strtotime( '1 year ago' ),
 				'5ftf_last_inactivity_email' => strtotime( '1 month ago' ),
 			),
 
 			'inactive + due for email' => array(
+				'user_id'                    => self::$users['andrea']->ID,
 				'last_logged_in'             => strtotime( '4 months ago' ),
 				'user_registered'            => strtotime( '1 year ago' ),
 				'5ftf_last_inactivity_email' => strtotime( '4 months ago' ),
 			),
 
 			'inactive + not due for email' => array(
+				'user_id'                    => self::$users['caleb']->ID,
 				'last_logged_in'             => strtotime( '4 months ago' ),
 				'user_registered'            => strtotime( '1 year ago' ),
 				'5ftf_last_inactivity_email' => strtotime( '2 months ago' ),
 			),
 
 			'new user' => array(
+				'user_id'                    => self::$users['jane']->ID,
 				'last_logged_in'             => 0,
 				'user_registered'            => strtotime( '1 week ago' ),
 				'5ftf_last_inactivity_email' => 0,
 			),
+
+			'inactive + blocked' => array(
+				'user_id'                    => self::$users['kimi']->ID,
+				'last_logged_in'             => strtotime( '4 months ago' ),
+				'user_registered'            => strtotime( '1 year ago' ),
+				'5ftf_last_inactivity_email' => strtotime( '4 months ago' ),
+			),
 		);
 
 		$expected = array( 'inactive + due for email' );
-
-		$actual = Contributor\prune_unnotifiable_users( $contributors );
-
+		$actual   = Contributor\prune_unnotifiable_users( $contributors );
 		$this->assertSame( $expected, array_keys( $actual ) );
 	}
 }

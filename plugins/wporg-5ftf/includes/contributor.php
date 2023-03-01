@@ -795,6 +795,15 @@ function prune_unnotifiable_users( array $contributors ) : array {
 			unset( $contributors[ $index ] );
 			continue;
 		}
+
+		// bbPress is not active on this site, so fetch it directly from the database.
+		global $wpdb;
+		$forums_role = get_user_meta( $contributor['user_id'], $wpdb->base_prefix . WPORG_SUPPORT_FORUMS_BLOGID . '_capabilities', true );
+
+		if ( isset( $forums_role['bbp_blocked'] ) && true === $forums_role['bbp_blocked'] ) {
+			unset( $contributors[ $index ] );
+			continue;
+		}
 	}
 
 	return $contributors;
