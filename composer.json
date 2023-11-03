@@ -37,7 +37,7 @@
 		"composer/installers": "~1.0",
 		"wporg/wporg-mu-plugins": "dev-build",
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
-		"wp-coding-standards/wpcs": "2.3.*",
+		"wp-coding-standards/wpcs": "3.0.*",
 		"phpunit/phpunit": "^9",
 		"spatie/phpunit-watcher": "^1.23",
 		"yoast/phpunit-polyfills": "^1.1"
