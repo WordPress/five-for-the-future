@@ -4,6 +4,7 @@
 coverage
 
 mu-plugins/vendor
+mu-plugins/wporg-mu-plugins
 mu-plugins/0-sandbox.php
 node_modules
 

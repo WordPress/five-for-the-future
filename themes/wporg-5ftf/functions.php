@@ -2,12 +2,6 @@
 
 namespace WordPressDotOrg\FiveForTheFuture\Theme;
 
-// Temporary for local environments. Remove this when the new header launches.
-// See https://github.com/WordPress/wporg-mu-plugins/issues/38
-if ( ! defined( 'FEATURE_2021_GLOBAL_HEADER_FOOTER' ) ) {
-	define( 'FEATURE_2021_GLOBAL_HEADER_FOOTER', false );
-}
-
 /**
  * Sets up theme defaults and registers support for various WordPress features.
  *

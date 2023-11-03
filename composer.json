@@ -14,11 +14,28 @@
 		"_comment": "Work around `test:watch` timeout, see https://github.com/spatie/phpunit-watcher/issues/63#issuecomment-545633709",
 		"process-timeout": 0,
 		"allow-plugins": {
+			"composer/installers": true,
 			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"preferred-install": {
+			"wporg/*": "source"
 		}
 	},
+	"extra": {
+		"installer-paths": {
+			"mu-plugins/{$name}": [ "wporg/wporg-mu-plugins" ]
+		}
+	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "git@github.com:WordPress/wporg-mu-plugins.git"
+		}
+	],
 	"require": {},
 	"require-dev" : {
+		"composer/installers": "~1.0",
+		"wporg/wporg-mu-plugins": "dev-build",
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
 		"wp-coding-standards/wpcs": "2.3.*",
 		"phpunit/phpunit": "^9",

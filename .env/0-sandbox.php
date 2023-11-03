@@ -3,24 +3,14 @@
  * These are stubs for closed source code, or things that only apply to local environments.
  */
 
+defined( 'WPINC' ) || die();
 
-namespace {
-	defined( 'WPINC' ) || die();
+define( 'WPORG_SUPPORT_FORUMS_BLOGID', 419 );
 
-	define( 'WPORG_SUPPORT_FORUMS_BLOGID', 419 );
+require_once WPMU_PLUGIN_DIR . '/wporg-mu-plugins/mu-plugins/loader.php';
 
-	/**
-	 * Stub.
-	 */
-	function bump_stats_extra( $name, $value, $views = 1 ) {
-	}
-}
-
-namespace WordPressdotorg\MU_Plugins\Helpers {
-	/**
-	 * Stub.
-	 */
-	function natural_language_join( array $list, $conjunction = 'and' ): string {
-		return implode( ', ', $list );
-	}
+/**
+ * Stub.
+ */
+function bump_stats_extra( $name, $value, $views = 1 ) {
 }

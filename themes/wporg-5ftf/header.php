@@ -4,11 +4,8 @@ namespace WordPressDotOrg\FiveForTheFuture\Theme;
 
 \WordPressdotorg\skip_to( '#main' );
 
-if ( FEATURE_2021_GLOBAL_HEADER_FOOTER ) {
-	echo do_blocks( '<!-- wp:wporg/global-header /-->' );
-} else {
-	require WPORGPATH . 'header.php';
-}
+// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
+echo do_blocks( '<!-- wp:wporg/global-header /-->' );
 
 ?>
 

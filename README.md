@@ -18,7 +18,8 @@ In order to contribute with code changes, you'll want to set up a local environm
 1. Ensure this newly cloned `wp-content` folder is where it should be in the WP structure.
 1. Copy over the base theme with: `svn export https://meta.svn.wordpress.org/sites/trunk/wordpress.org/public_html/wp-content/themes/pub/wporg themes/pub/wporg` (this should be run from the `wp-content` folder).
 1. Install the sandbox mu-plugin with `cd wp-content && mkdir mu-plugins && ln -s .env/0-sandbox.php mu-plugins/0-sandbox.php`
-1. If you are making changes to the plugins, you can run `composer install` at `/wp-content/plugins/wporg-5ftf` and then `composer run test` to run the WP unit tests.
+1. Run `composer install` inside the content directory.
+
 
 ### Configuring the site
 
