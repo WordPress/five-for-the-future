@@ -725,7 +725,7 @@ function add_user_data_to_xprofile( array $xprofiles ) : array {
 	// phpcs:disable -- `$id_placeholders` is safely created above.
 	$established_users = $wpdb->get_results( $wpdb->prepare( "
 		SELECT
-			u.ID, u.user_email, u.user_registered, u.user_nicename,
+			u.ID, u.user_login, u.user_email, u.user_registered, u.user_nicename,
 			um.meta_keys, um.meta_values
 		FROM `$wpdb->users` u
 			LEFT JOIN (
@@ -748,6 +748,7 @@ function add_user_data_to_xprofile( array $xprofiles ) : array {
 	foreach ( $established_users as $user ) {
 		$full_user = array(
 			'user_id'        => absint( $user->ID ),
+			'user_login'     => $user->user_login,
 			'user_email'     => $user->user_email,
 			'user_registered' => intval( strtotime( $user->user_registered ) ),
 			'hours_per_week' => $xprofiles[ $user->ID ]->hours_per_week,
@@ -832,4 +833,76 @@ function notify_inactive_contributor( array $contributor ) : void {
 
 	update_user_meta( $contributor['user_id'], '5ftf_last_inactivity_email', time() );
 	bump_stats_extra( 'five-for-the-future', 'Sent Inactive Contributor Email' );
+}
+
+
+/**
+ * Get an array of all the inactive contributors.
+ */
+function get_inactive_contributors(): array {
+	$inactive_contributor_ids  = get_option( FiveForTheFuture\PREFIX . '_inactive_contributor_ids', array() );
+	$inactive_contributor_data = XProfile\get_xprofile_contribution_data( $inactive_contributor_ids );
+	$inactive_users            = XProfile\prepare_xprofile_contribution_data( $inactive_contributor_data );
+
+	// `add_user_data_to_xprofile()` expects an array of objects.
+	array_walk( $inactive_users, function ( &$value ) {
+		$value = (object) $value;
+	} );
+
+	$inactive_users = add_user_data_to_xprofile( $inactive_users );
+	$inactive_users = prune_unnotifiable_users( $inactive_users );
+	$inactive_users = add_companies_to_contributors( $inactive_users );
+
+	return $inactive_users;
+}
+
+
+/**
+ * Add company names to a given set of contributors.
+ */
+function add_companies_to_contributors( array $contributors ): array {
+	$usernames = wp_list_pluck( $contributors, 'user_login' );
+	$companies = get_companies_for_contributors( $usernames );
+
+	foreach ( $contributors as & $contributor ) {
+		if ( empty( $companies[ $contributor['user_login'] ] ) ) {
+			$contributor['companies'] = array();
+		} else {
+			$contributor['companies'] = $companies[ $contributor['user_login'] ];
+		}
+	}
+
+	return $contributors;
+}
+
+/**
+ * Get the companies that sponsor the given usernames.
+ */
+function get_companies_for_contributors( array $usernames ): array {
+	global $wpdb;
+
+	$username_companies    = array();
+	$username_placeholders = implode( ', ', array_fill( 0, count( $usernames ), '%s' ) );
+
+	$query = "
+		SELECT
+			company.post_title AS company_name,
+			contributor.post_title as username
+		FROM $wpdb->posts contributor
+			JOIN $wpdb->posts company ON contributor.post_parent = company.ID
+		WHERE
+			contributor.post_type = '5ftf_contributor' AND
+			contributor.post_title IN ( $username_placeholders ) AND
+			contributor.post_status = 'publish'
+		LIMIT 3000
+	";
+
+	// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- It is prepared, PHPCS just doesn't like $username_placeholders. That's necessary until https://core.trac.wordpress.org/ticket/54042 is merged, though.
+	$companies = $wpdb->get_results( $wpdb->prepare( $query, $usernames ) );
+
+	foreach ( $companies as $company ) {
+		$username_companies[ $company->username ][] = $company->company_name;
+	}
+
+	return $username_companies;
 }

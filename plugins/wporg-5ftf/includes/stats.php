@@ -8,6 +8,7 @@ namespace WordPressDotOrg\FiveForTheFuture\Stats;
 
 use WordPressDotOrg\FiveForTheFuture;
 use WordPressDotOrg\FiveForTheFuture\{ Contributor, Pledge, XProfile };
+use WordPressdotorg\MU_Plugins\Utilities\Export_CSV;
 use WP_Query;
 
 use const WordPressDotOrg\FiveForTheFuture\PREFIX;
@@ -16,8 +17,11 @@ defined( 'WPINC' ) || die();
 
 const CPT_ID = PREFIX . '_stats_snapshot'; // Deprecated, new stats are in MC.
 
-add_action( 'init',                      __NAMESPACE__ . '\register_post_types' );
-add_action( 'init',                      __NAMESPACE__ . '\schedule_cron_jobs' );
+add_action( 'init',       __NAMESPACE__ . '\register_post_types' );
+add_action( 'init',       __NAMESPACE__ . '\schedule_cron_jobs' );
+add_action( 'admin_menu', __NAMESPACE__ . '\add_admin_pages' );
+add_action( 'admin_init', __NAMESPACE__ . '\send_inactive_contributor_csv' );
+
 add_action( PREFIX . '_record_snapshot', __NAMESPACE__ . '\record_snapshot' );
 
 add_shortcode( PREFIX . '_stats', __NAMESPACE__ . '\render_shortcode' );
@@ -57,6 +61,20 @@ function schedule_cron_jobs() {
 }
 
 /**
+ * Register wp-admin pages.
+ */
+function add_admin_pages() {
+	add_submenu_page(
+		'edit.php?post_type=5ftf_pledge',
+		'Stats',
+		'Stats',
+		'manage_options',
+		'5ftf_stats',
+		__NAMESPACE__ . '\render_stats_page'
+	);
+}
+
+/**
  * Record a snapshot of the current stats, so we can track trends over time.
  *
  * "Self-sponsored" contributors are those that volunteer their time rather than being paid by a company.
@@ -85,6 +103,9 @@ function record_snapshot() {
 			bump_stats_extra( 'five-for-the-future', $grouped_name, $contributors );
 		}
 	}
+
+	// This doesn't fit in MC. It's better to show it in an admin page on this site.
+	update_option( PREFIX . '_inactive_contributor_ids', $stats['inactive_contributor_ids'] );
 }
 
 /**
@@ -104,6 +125,7 @@ function get_snapshot_data() {
 		'self_sponsored_hours'                => 0,
 		'team_company_sponsored_contributors' => array(),
 		'team_self_sponsored_contributors'    => array(),
+		'inactive_contributor_ids'            => array(),
 	);
 
 	$companies = new WP_Query( array(
@@ -153,6 +175,8 @@ function get_snapshot_data() {
 			} else {
 				$active_self_sponsored_contributors++;
 			}
+		} else {
+			$snapshot_data['inactive_contributor_ids'][] = $user['user_id'];
 		}
 
 		$team_contributor_key = sprintf( 'team_%s_contributors', $attribution_prefix );
@@ -219,4 +243,86 @@ function render_shortcode() {
 	ob_start();
 	require FiveForTheFuture\get_views_path() . 'list-stats.php';
 	return ob_get_clean();
+}
+
+/**
+ * Render the Stats page in wp-admin.
+ */
+function render_stats_page(): void {
+	?>
+
+	<style>
+		div.wrap#fftf_stats ul {
+			margin-left: 20px;
+			list-style-type: disc;
+		}
+	</style>
+
+	<div id="fftf_stats" class="wrap">
+		<h1 class="wp-heading-inline">
+			Five for the Future Stats
+		</h1>
+
+		<ul>
+
+			<li>
+				<a href="https://mc.wordpress.org/wporg-stats.php?name=five-for-the-future">Primary stats are in MC</a> (# of contributors, % active, team stats, etc)
+			</li>
+
+			<li>
+				<a href="https://wordpress.org/five-for-the-future/?page_id=684">Historical/deprecated data is on the Impact page</a>.
+			</li>
+
+			<li>
+				<form method="post">
+					<?php wp_nonce_field( '5ftf_download_inactive_contributors' ); ?>
+
+					Contact info for inactive contributors
+
+					<button name="5ftf_download_inactive_contributors" type="submit">
+						Download CSV
+					</button>
+				</form>
+			</li>
+		</ul>
+
+	</div>
+
+	<?php
+}
+
+/**
+ * Push the inactive contributor CSV to the user's browser
+ */
+function send_inactive_contributor_csv(): void {
+	if (
+		! isset( $_POST['5ftf_download_inactive_contributors'] ) ||
+		! current_user_can( 'manage_options' ) ||
+		! wp_verify_nonce( $_POST['_wpnonce'], '5ftf_download_inactive_contributors' )
+	) {
+		return;
+	}
+
+	$formatted_data        = array();
+	$inactive_contributors = Contributor\get_inactive_contributors();
+
+	foreach ( $inactive_contributors as & $contributor ) {
+		$formatted_data[] = array(
+			$contributor['user_login'],
+			'https://profiles.wordpress.org/' . $contributor['user_login'] . '/',
+			$contributor['user_email'],
+			implode( ', ', $contributor['companies'] ),
+			$contributor['hours_per_week'],
+			implode( ', ', $contributor['team_names'] ),
+			gmdate( 'Y-m-d', $contributor['last_logged_in'] ),
+		);
+	}
+
+	$exporter = new Export_CSV( array(
+		'filename' => 'inactive-contributors',
+		'headers'  => array( 'Username', 'Profile', 'Email', 'Companies', 'Hours Per Week', 'Teams', 'Last Login' ),
+		'data'     => $formatted_data,
+	) );
+
+	$exporter->emit_file();
 }
