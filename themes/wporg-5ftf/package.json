@@ -27,6 +27,6 @@
     "grunt-sass-globbing": "1.5.1",
     "node-sass": "5.0.0",
     "pixrem": "5.0.0",
-    "postcss": "^8.4.13"
+    "postcss": "^8.4.31"
   }
 }
