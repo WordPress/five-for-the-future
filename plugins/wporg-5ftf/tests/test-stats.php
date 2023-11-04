@@ -78,6 +78,12 @@ class Test_Stats extends WP_UnitTestCase {
 				'Training Team'  => 1,
 			),
 
+			'inactive_contributor_ids'               => array(
+				0 => 9,
+				1 => 11,
+				2 => 13,
+			),
+
 			'companies'                              => 2,
 			'company_sponsored_contributors'         => 2,
 			'self_sponsored_contributors'            => 3,

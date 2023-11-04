@@ -84,6 +84,10 @@ function get_all_xprofile_contributor_hours_teams() : array {
 function get_xprofile_contribution_data( array $user_ids ) {
 	global $wpdb;
 
+	if ( empty( $user_ids ) ) {
+		return array();
+	}
+
 	$sql = $wpdb->prepare( '
 		SELECT user_id, field_id, value
 		FROM bpmain_bp_xprofile_data
@@ -111,6 +115,7 @@ function prepare_xprofile_contribution_data( array $raw_data ) {
 
 	foreach ( $raw_data as $datum ) {
 		$user_id     = $datum['user_id'];
+		$prepared_data[ $user_id ]['user_id'] = $user_id;
 		$field_key   = $field_keys_by_id[ (int) $datum['field_id'] ];
 		$field_value = maybe_unserialize( $datum['value'] );
 
