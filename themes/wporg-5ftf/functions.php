@@ -125,7 +125,7 @@ function scripts() {
 	wp_enqueue_style(
 		'wporg-style',
 		get_theme_file_uri( '/css/style.css' ),
-		[ 'dashicons', 'open-sans' ],
+		array( 'dashicons', 'open-sans' ),
 		filemtime( __DIR__ . '/css/style.css' )
 	);
 
@@ -192,7 +192,7 @@ add_action( 'wp_body_open', __NAMESPACE__ . '\nojs_body_tag' );
  * @return string
  */
 function loader_src( $src, $handle ) {
-	$cdn_urls = [
+	$cdn_urls = array(
 		'dashicons',
 		'wp-embed',
 		'jquery-core',
@@ -205,7 +205,7 @@ function loader_src( $src, $handle ) {
 		'wporg-plugins-stats',
 		'wporg-plugins-client',
 		'wporg-plugins-faq',
-	];
+	);
 
 	if ( defined( 'WPORG_SANDBOXED' ) && WPORG_SANDBOXED ) {
 		return $src;
@@ -217,7 +217,7 @@ function loader_src( $src, $handle ) {
 	}
 
 	// Remove version argument.
-	if ( in_array( $handle, [ 'open-sans' ], true ) ) {
+	if ( in_array( $handle, array( 'open-sans' ), true ) ) {
 		$src = remove_query_arg( 'ver', $src );
 	}
 
