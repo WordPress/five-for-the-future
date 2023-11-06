@@ -22,7 +22,7 @@ defined( 'WPINC' ) || die();
  * The "Sponsored" field is not retrieved because it's usually not needed, and including it would significantly
  * hurt performance.
  */
-function get_all_xprofile_contributor_hours_teams() : array {
+function get_all_xprofile_contributor_hours_teams(): array {
 	global $wpdb;
 
 	// This might need a `LIMIT` in the future as more users save values, but it's performant as of August 2022.
@@ -114,10 +114,10 @@ function prepare_xprofile_contribution_data( array $raw_data ) {
 	$field_keys_by_id = array_flip( FIELD_IDS );
 
 	foreach ( $raw_data as $datum ) {
-		$user_id     = $datum['user_id'];
+		$user_id                              = $datum['user_id'];
 		$prepared_data[ $user_id ]['user_id'] = $user_id;
-		$field_key   = $field_keys_by_id[ (int) $datum['field_id'] ];
-		$field_value = maybe_unserialize( $datum['value'] );
+		$field_key                            = $field_keys_by_id[ (int) $datum['field_id'] ];
+		$field_value                          = maybe_unserialize( $datum['value'] );
 
 		if ( ! isset( $prepared_data[ $user_id ]['sponsored'] ) ) {
 			$prepared_data[ $user_id ]['sponsored'] = false;
@@ -163,7 +163,7 @@ function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 		'teams'        => array(),
 	);
 
-	$aggregate_data = array_reduce( $data, function( $carry, $item ) {
+	$aggregate_data = array_reduce( $data, function ( $carry, $item ) {
 		switch ( $item['field_id'] ) {
 			case FIELD_IDS['hours_per_week']:
 				$carry['hours'] += absint( $item['value'] );
@@ -179,7 +179,7 @@ function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 	}, $initial );
 
 	$aggregate_data['teams'] = array_map(
-		function( $team ) {
+		function ( $team ) {
 			// Fix for renamed team.
 			if ( 'Theme Review Team' === $team ) {
 				$team = 'Themes Team';
@@ -235,7 +235,7 @@ function get_contributor_user_data( $user_id ) {
  * This deletes directly from the database and object cache -- rather than using something like
  * `BP_XProfile_Field::delete()` -- because w.org/5 runs on a different network than profiles.w.org.
  */
-function reset_contribution_data( $user_id ) : void {
+function reset_contribution_data( $user_id ): void {
 	global $wpdb;
 
 	$wpdb->query( $wpdb->prepare( '

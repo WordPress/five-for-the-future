@@ -1,8 +1,8 @@
 <?php
 
-use function WordPressDotOrg\FiveForTheFuture\Stats\{ get_snapshot_data };
 use WordPressDotOrg\FiveForTheFuture\{ Contributor };
 use WordPressDotOrg\FiveForTheFuture\Tests\Helpers as TestHelpers;
+use function WordPressDotOrg\FiveForTheFuture\Stats\{ get_snapshot_data };
 
 defined( 'WPINC' ) || die();
 
@@ -45,14 +45,14 @@ class Test_Stats extends WP_UnitTestCase {
 	/**
 	 * @covers WordPressDotOrg\FiveForTheFuture\Stats\get_snapshot_data
 	 */
-	public function test_get_snapshot() : void {
+	public function test_get_snapshot(): void {
 		// Setup 2 company-sponsored contributors.
-		$jane                = self::$users['jane'];
-		$ashish              = self::$users['ashish'];
-		$tenup               = self::$pledges['10up'];
-		$tenup_contributors  = Contributor\add_pledge_contributors( $tenup->ID, array( $jane->user_login, $ashish->user_login ) );
-		$tenup_jane_id       = $tenup_contributors[ $jane->user_login ];
-		$tenup_ashish_id     = $tenup_contributors[ $ashish->user_login ];
+		$jane               = self::$users['jane'];
+		$ashish             = self::$users['ashish'];
+		$tenup              = self::$pledges['10up'];
+		$tenup_contributors = Contributor\add_pledge_contributors( $tenup->ID, array( $jane->user_login, $ashish->user_login ) );
+		$tenup_jane_id      = $tenup_contributors[ $jane->user_login ];
+		$tenup_ashish_id    = $tenup_contributors[ $ashish->user_login ];
 
 		wp_update_post( array(
 			'ID'          => $tenup_jane_id,
@@ -64,15 +64,15 @@ class Test_Stats extends WP_UnitTestCase {
 		) );
 
 		$expected = array(
-			'company_sponsored_hours' => 75,
-			'self_sponsored_hours'    => 16,
+			'company_sponsored_hours'                => 75,
+			'self_sponsored_hours'                   => 16,
 
-			'team_company_sponsored_contributors' => array(
+			'team_company_sponsored_contributors'    => array(
 				'Core Team'          => 1,
 				'Documentation Team' => 1,
 			),
 
-			'team_self_sponsored_contributors' => array(
+			'team_self_sponsored_contributors'       => array(
 				'Meta Team'      => 2,
 				'Polyglots Team' => 1,
 				'Training Team'  => 1,
