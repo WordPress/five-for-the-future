@@ -7,9 +7,9 @@ use WP_Error, WP_Post, WP_User;
 
 defined( 'WPINC' ) || die();
 
-const SLUG    = 'contributor';
-const SLUG_PL = 'contributors';
-const CPT_ID  = FiveForTheFuture\PREFIX . '_' . SLUG;
+const SLUG                        = 'contributor';
+const SLUG_PL                     = 'contributors';
+const CPT_ID                      = FiveForTheFuture\PREFIX . '_' . SLUG;
 const INACTIVITY_THRESHOLD_MONTHS = 3;
 
 add_action( 'init',                                      __NAMESPACE__ . '\register_custom_post_type', 0 );
@@ -197,7 +197,7 @@ function add_pledge_contributors( $pledge_id, $contributors ) {
  * Some contributors are sponsored by multiple companies. They'll have a `5ftf_contributor` post for each company,
  * but only the post associated with the given pledge should be removed.
  */
-function remove_pledge_contributors( int $pledge_id ) : void {
+function remove_pledge_contributors( int $pledge_id ): void {
 	$contributors = get_pledge_contributors( $pledge_id, 'all' );
 
 	foreach ( $contributors as $status_group ) {
@@ -291,7 +291,7 @@ function get_pledge_contributors( $pledge_id, $status = 'publish', $contributor_
 		if ( empty( $posts ) ) {
 			$posts = $initial;
 		} else {
-			$posts = array_reduce( $posts, function( $carry, WP_Post $item ) {
+			$posts = array_reduce( $posts, function ( $carry, WP_Post $item ) {
 				$carry[ $item->post_status ][] = $item;
 
 				return $carry;
@@ -318,7 +318,7 @@ function get_pledge_contributors_data( $pledge_id ) {
 
 	foreach ( $contributors as $contributor_status => $group ) {
 		$contrib_data[ $contributor_status ] = array_map(
-			function( $contributor_post ) use ( $contributor_status, $pledge_id ) {
+			function ( $contributor_post ) use ( $contributor_status, $pledge_id ) {
 				$name        = $contributor_post->post_title;
 				$contributor = get_user_by( 'login', $name );
 
@@ -352,7 +352,7 @@ function get_pledge_contributors_data( $pledge_id ) {
  * @return WP_User[]
  */
 function get_contributor_user_objects( array $contributor_posts ) {
-	return array_map( function( WP_Post $post ) {
+	return array_map( function ( WP_Post $post ) {
 		return get_user_by( 'login', $post->post_title );
 	}, $contributor_posts );
 }
@@ -601,7 +601,7 @@ function parse_contributors( $contributors, $pledge_id = null ) {
  *
  * @codeCoverageIgnore
  */
-function notify_inactive_contributors() : void {
+function notify_inactive_contributors(): void {
 	$contributors = get_inactive_contributor_batch();
 	$contributors = prune_unnotifiable_xprofiles( $contributors );
 	$contributors = add_user_data_to_xprofile( $contributors );
@@ -624,7 +624,7 @@ function notify_inactive_contributors() : void {
 /**
  * Get the next group of inactive contributors.
  */
-function get_inactive_contributor_batch() : array {
+function get_inactive_contributor_batch(): array {
 	global $wpdb;
 
 	$batch_size = 500; // This can be large because most users will be pruned later on.
@@ -677,7 +677,7 @@ function get_inactive_contributor_batch() : array {
 /**
  * Prune xprofile rows for users who shouldn't be notified of their inactivity.
  */
-function prune_unnotifiable_xprofiles( array $xprofiles ) : array {
+function prune_unnotifiable_xprofiles( array $xprofiles ): array {
 	$notifiable_teams = array( 'Polyglots Team', 'Training Team' );
 
 	foreach ( $xprofiles as $index => $xprofile ) {
@@ -710,7 +710,7 @@ function prune_unnotifiable_xprofiles( array $xprofiles ) : array {
 /**
  * Merge user data with xprofile data.
  */
-function add_user_data_to_xprofile( array $xprofiles ) : array {
+function add_user_data_to_xprofile( array $xprofiles ): array {
 	global $wpdb;
 
 	if ( empty( $xprofiles ) ) {
@@ -747,12 +747,12 @@ function add_user_data_to_xprofile( array $xprofiles ) : array {
 
 	foreach ( $established_users as $user ) {
 		$full_user = array(
-			'user_id'        => absint( $user->ID ),
-			'user_login'     => $user->user_login,
-			'user_email'     => $user->user_email,
+			'user_id'         => absint( $user->ID ),
+			'user_login'      => $user->user_login,
+			'user_email'      => $user->user_email,
 			'user_registered' => intval( strtotime( $user->user_registered ) ),
-			'hours_per_week' => $xprofiles[ $user->ID ]->hours_per_week,
-			'user_nicename'  => $user->user_nicename,
+			'hours_per_week'  => $xprofiles[ $user->ID ]->hours_per_week,
+			'user_nicename'   => $user->user_nicename,
 		);
 
 		if ( ! empty( $user->meta_keys ) ) {
@@ -777,7 +777,7 @@ function add_user_data_to_xprofile( array $xprofiles ) : array {
 /**
  * Prune users who shouldn't be notified of their inactivity.
  */
-function prune_unnotifiable_users( array $contributors ) : array {
+function prune_unnotifiable_users( array $contributors ): array {
 	$inactivity_threshold = strtotime( INACTIVITY_THRESHOLD_MONTHS . ' months ago' );
 
 	foreach ( $contributors as $index => $contributor ) {
@@ -817,7 +817,7 @@ function prune_unnotifiable_users( array $contributors ) : array {
  *
  * @link https://github.com/WordPress/five-for-the-future/issues/210
  */
-function is_active( int $last_login ) : bool {
+function is_active( int $last_login ): bool {
 	$inactivity_threshold = strtotime( INACTIVITY_THRESHOLD_MONTHS . ' months ago' );
 
 	return $last_login > $inactivity_threshold;
@@ -826,7 +826,7 @@ function is_active( int $last_login ) : bool {
 /**
  * Notify an inactive contributor.
  */
-function notify_inactive_contributor( array $contributor ) : void {
+function notify_inactive_contributor( array $contributor ): void {
 	if ( ! Email\send_contributor_inactive_email( $contributor ) ) {
 		return;
 	}
