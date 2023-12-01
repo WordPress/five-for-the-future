@@ -281,6 +281,10 @@ function get_badge_classes( $team ) {
 			$classes = array( 'badge-openverse', 'dashicons-search' );
 			break;
 
+		case 'plugin review team':
+			$classes = array( 'badge-plugins-reviewer', 'dashicons-admin-plugins' );
+			break;
+		
 		case 'photos team':
 			$classes = array( 'badge-photos', 'dashicons-camera' );
 			break;
