@@ -4,6 +4,10 @@
 
 .has-wporg-blue-background-color {
 	background-color: $color__wporg-blue;
+
+	&.has-wporg-white-color a {
+		color: $color__text-on-dark;
+	}
 }
 
 .has-wporg-purple-color {
