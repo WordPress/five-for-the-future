@@ -350,6 +350,8 @@ function is_active_pledge( $post_id ) {
  * @return int|WP_Error Post ID on success. Otherwise WP_Error.
  */
 function create_new_pledge( $name ) {
+	// Grab the ID of the post we are on before inserting a pledge.
+	$pledge_form_post_id = get_post()->ID;
 	$args = array(
 		'post_type'   => CPT_ID,
 		'post_title'  => $name,
@@ -360,7 +362,7 @@ function create_new_pledge( $name ) {
 	// The pledge's meta data is saved at this point via `save_pledge_meta()`, which is a `save_post` callback.
 
 	if ( ! is_wp_error( $pledge_id ) ) {
-		Email\send_pledge_confirmation_email( $pledge_id, get_post()->ID );
+		Email\send_pledge_confirmation_email( $pledge_id, $pledge_form_post_id );
 	}
 
 	return $pledge_id;
