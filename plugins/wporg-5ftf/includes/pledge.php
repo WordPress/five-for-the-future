@@ -39,7 +39,7 @@ add_action( 'wp_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
 add_action( 'pledge_footer',       __NAMESPACE__ . '\render_manage_link_request' );
 add_action( 'wp_footer',           __NAMESPACE__ . '\render_js_templates' );
 
-// Misc
+// Misc.
 add_action( 'init',                       __NAMESPACE__ . '\schedule_cron_jobs' );
 add_action( '5ftf_send_update_reminders', __NAMESPACE__ . '\send_update_reminders' );
 
@@ -250,7 +250,7 @@ function action_success_message() {
  * @return array The filtered list of post display states.
  */
 function add_status_to_display( $post_states, $post ) {
-	$showing_status = $_REQUEST['post_status'] ?? $showing_status = '';
+	$showing_status = $_REQUEST['post_status'] ?? '';
 
 	$status = DEACTIVE_STATUS;
 	if ( $showing_status !== $status && $status === $post->post_status ) {
@@ -350,6 +350,8 @@ function is_active_pledge( $post_id ) {
  * @return int|WP_Error Post ID on success. Otherwise WP_Error.
  */
 function create_new_pledge( $name ) {
+	// Grab the ID of the post we are on before inserting a pledge.
+	$pledge_form_post_id = get_post()->ID;
 	$args = array(
 		'post_type'   => CPT_ID,
 		'post_title'  => $name,
@@ -360,7 +362,7 @@ function create_new_pledge( $name ) {
 	// The pledge's meta data is saved at this point via `save_pledge_meta()`, which is a `save_post` callback.
 
 	if ( ! is_wp_error( $pledge_id ) ) {
-		Email\send_pledge_confirmation_email( $pledge_id, get_post()->ID );
+		Email\send_pledge_confirmation_email( $pledge_id, $pledge_form_post_id );
 	}
 
 	return $pledge_id;
@@ -452,7 +454,7 @@ function filter_query( $query ) {
 				break;
 
 			default:
-				$date = date( 'YmdH' );
+				$date = gmdate( 'YmdH' );
 				$query->set( 'orderby', "RAND($date)" );
 				break;
 		}
@@ -572,7 +574,7 @@ function schedule_cron_jobs() {
 /**
  * Periodically ask companies to review their pledge for accuracy.
  */
-function send_update_reminders() : void {
+function send_update_reminders(): void {
 	$resend_interval   = 6 * MONTH_IN_SECONDS;
 	$resend_threshold  = time() - ( $resend_interval );
 	$deactivation_date = time() + ( 2 * MONTH_IN_SECONDS );
@@ -608,7 +610,7 @@ function send_update_reminders() : void {
 				'key'     => '5ftf_inactive_deactivate_date',
 				'compare' => 'NOT EXISTS',
 			),
-		)
+		),
 	) );
 
 	foreach ( $pledges as $pledge ) {
