@@ -39,7 +39,7 @@ add_action( 'wp_enqueue_scripts',  __NAMESPACE__ . '\enqueue_assets' );
 add_action( 'pledge_footer',       __NAMESPACE__ . '\render_manage_link_request' );
 add_action( 'wp_footer',           __NAMESPACE__ . '\render_js_templates' );
 
-// Misc
+// Misc.
 add_action( 'init',                       __NAMESPACE__ . '\schedule_cron_jobs' );
 add_action( '5ftf_send_update_reminders', __NAMESPACE__ . '\send_update_reminders' );
 
@@ -250,7 +250,7 @@ function action_success_message() {
  * @return array The filtered list of post display states.
  */
 function add_status_to_display( $post_states, $post ) {
-	$showing_status = $_REQUEST['post_status'] ?? $showing_status = '';
+	$showing_status = $_REQUEST['post_status'] ?? '';
 
 	$status = DEACTIVE_STATUS;
 	if ( $showing_status !== $status && $status === $post->post_status ) {
@@ -454,7 +454,7 @@ function filter_query( $query ) {
 				break;
 
 			default:
-				$date = date( 'YmdH' );
+				$date = gmdate( 'YmdH' );
 				$query->set( 'orderby', "RAND($date)" );
 				break;
 		}
@@ -574,7 +574,7 @@ function schedule_cron_jobs() {
 /**
  * Periodically ask companies to review their pledge for accuracy.
  */
-function send_update_reminders() : void {
+function send_update_reminders(): void {
 	$resend_interval   = 6 * MONTH_IN_SECONDS;
 	$resend_threshold  = time() - ( $resend_interval );
 	$deactivation_date = time() + ( 2 * MONTH_IN_SECONDS );
@@ -610,7 +610,7 @@ function send_update_reminders() : void {
 				'key'     => '5ftf_inactive_deactivate_date',
 				'compare' => 'NOT EXISTS',
 			),
-		)
+		),
 	) );
 
 	foreach ( $pledges as $pledge ) {
