@@ -253,6 +253,10 @@ function get_badge_classes( $team ) {
 			$classes = array( 'badge-code-committer', 'dashicons-editor-code' );
 			break;
 
+		case 'core performance team':
+			$classes = array( 'badge-performance-contributor' );
+			break;
+
 		case 'design team':
 			$classes = array( 'badge-design', 'dashicons-art' );
 			break;
