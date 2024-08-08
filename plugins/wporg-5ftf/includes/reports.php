@@ -211,7 +211,7 @@ function render_contributor_report_page() {
 			<th>Teams</th>
 			<th>Full Name</th>
 			<th>Email</th>
-			<th>Last login</th>
+			<th>Last activity (log in or tracked activity)</th>
 			<th>Status</th>
 		</tr>
 	<?php
@@ -229,6 +229,7 @@ function render_contributor_report_page() {
 		$user_display_name    = $user->display_name ?? '';
 		$user_email           = $user->user_email ?? '';
 		$last_login           = get_user_meta( $user_id, 'last_logged_in', true );
+		$last_activity        = get_user_meta( $user_id, 'last_activity_tracker', true );
 		$teams                = str_replace( ' Team', '', implode( ',', $xprofile_teams ) );
 		echo '<tr>';
 		echo '<td>' . absint( $user_id ) . '</td>';
@@ -238,7 +239,14 @@ function render_contributor_report_page() {
 		echo '<td>' . esc_html( $teams ) . '</td>';
 		echo '<td>' . esc_html( $user_display_name ) . '</td>';
 		echo '<td>' . esc_html( $user_email ) . '</td>';
-		echo '<td>' . esc_html( $last_login ) . '</td>';
+
+		// Either output last activity or last login.
+		if ( $last_activity > $last_login ) {
+			echo '<td>' . esc_html( $last_activity ) . '</td>';
+		} else {
+			echo '<td>' . esc_html( $last_login ) . '</td>';
+		}
+
 		echo '<td>' . esc_html( $c->post_status ) . '</td>';
 		echo '</tr>';
 		$export_data[] = array( $user_id, $c->post_title, $pledge_company_title, $xprofile['hours_per_week'], $teams, $user_display_name, $user_email, $last_login, $c->post_status );
