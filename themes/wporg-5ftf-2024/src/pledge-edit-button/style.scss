@@ -9,7 +9,7 @@
 
 .pledge-dialog {
 	position: absolute;
-	z-index: 100;
+	z-index: 252;
 	width: 25rem;
 	margin-top: var(--wp--preset--spacing--10);
 	padding: var(--wp--preset--spacing--20);
@@ -47,7 +47,7 @@
 
 .pledge-dialog__background {
 	position: fixed;
-	z-index: 99;
+	z-index: 251;
 	top: 0;
 	left: 0;
 	bottom: 0;
