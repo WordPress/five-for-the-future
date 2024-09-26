@@ -17,12 +17,12 @@ $is_truncated = isset( $attributes['className'] ) && str_contains( $attributes['
 $count_more = 0;
 
 // Set avatar size at smallest usage in px.
-$avatar_size = 30;
+$avatar_size = 70;
 
 if ( $is_truncated ) {
 	$count_more   = count( $contributors ) - TRUNCATED_MAX;
 	$contributors = array_splice( $contributors, 0, TRUNCATED_MAX );
-	$avatar_size  = 70;
+	$avatar_size  = 30;
 }
 
 ?>
