@@ -7,7 +7,7 @@
 	"private": true,
 	"devDependencies": {
 		"@wordpress/env": "10.6.0",
-		"@wordpress/scripts": "28.6.0"
+		"@wordpress/scripts": "30.0.2"
 	},
 	"scripts": {
 		"setup:tools": "npm install && composer install",
