@@ -42,6 +42,10 @@ function add_site_navigation_menus( $menus ) {
 		'url'   => '/pledges/',
 	);
 	$menu[] = array(
+		'label' => __( 'Sponsorships', 'wporg-5ftf' ),
+		'url'   => '/sponsorships/',
+	);
+	$menu[] = array(
 		'label' => __( 'Contact', 'wporg-5ftf' ),
 		'url'   => '/contact/',
 	);
