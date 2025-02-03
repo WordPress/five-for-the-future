@@ -509,11 +509,13 @@ function get_association_classes( $team ) {
 			$classes = array( 'badge-photo-contributor', 'dashicons-camera' );
 			break;
 
+		case 'core-performance-team':
 		case 'performance-team':
 			// Logo defined as SVG in CSS.
 			$classes = array( 'badge-performance-team'  );
 			break;
 
+		case 'core-performance-contributor':
 		case 'performance-contributor':
 			// Logo defined as SVG in CSS.
 			$classes = array( 'badge-performance-contributor' );
