@@ -17,6 +17,11 @@ jobs:
       with:
         fetch-depth: 0
 
+    - name: Install Subversion
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y subversion
+
     - name: Get Composer cache directory
       id: composer-cache
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
@@ -72,6 +77,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Install Subversion
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y subversion
 
     - name: Get Composer cache directory
       id: composer-cache
