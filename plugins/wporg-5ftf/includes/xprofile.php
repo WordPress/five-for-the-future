@@ -516,7 +516,7 @@ function get_association_classes( $team ) {
 		case 'core-performance-team':
 		case 'performance-team':
 			// Logo defined as SVG in CSS.
-			$classes = array( 'badge-performance-team'  );
+			$classes = array( 'badge-performance-team' );
 			break;
 
 		case 'core-performance-contributor':
