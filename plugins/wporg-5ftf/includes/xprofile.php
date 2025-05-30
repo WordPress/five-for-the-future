@@ -321,6 +321,10 @@ function get_association_classes( $team ) {
 			$classes = array( 'badge-code', 'dashicons-editor-code' );
 			break;
 
+		case 'core-ai-team':
+			$classes = array( 'badge-code-committer', 'dashicons-cloud-upload' );
+			break;
+
 		case 'mobile-team':
 			$classes = array( 'badge-mobile', 'dashicons-smartphone' );
 			break;
@@ -512,7 +516,7 @@ function get_association_classes( $team ) {
 		case 'core-performance-team':
 		case 'performance-team':
 			// Logo defined as SVG in CSS.
-			$classes = array( 'badge-performance-team'  );
+			$classes = array( 'badge-performance-team' );
 			break;
 
 		case 'core-performance-contributor':
