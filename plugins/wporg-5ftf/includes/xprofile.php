@@ -321,6 +321,10 @@ function get_association_classes( $team ) {
 			$classes = array( 'badge-code', 'dashicons-editor-code' );
 			break;
 
+		case 'core-ai-team':
+			$classes = array( 'badge-code-committer', 'dashicons-cloud-upload' );
+			break;
+
 		case 'mobile-team':
 			$classes = array( 'badge-mobile', 'dashicons-smartphone' );
 			break;
