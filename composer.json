@@ -73,7 +73,7 @@
 		"phpcompatibility/phpcompatibility-wp": "*",
 		"phpunit/phpunit": "^9",
 		"spatie/phpunit-watcher": "^1.23",
-		"wp-coding-standards/wpcs": "3.0.*",
+		"wp-coding-standards/wpcs": "^3.4.1",
 		"wordpress-meta/pub": "1",
 		"wordpress-meta/handbook": "2",
 		"wpackagist-plugin/gutenberg": "*",
