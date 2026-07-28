@@ -23,6 +23,7 @@ const DEACTIVE_STATUS = FiveForTheFuture\PREFIX . '-deactivated';
 add_action( 'init',          __NAMESPACE__ . '\register', 0 );
 add_action( 'admin_menu',    __NAMESPACE__ . '\admin_menu' );
 add_action( 'pre_get_posts', __NAMESPACE__ . '\filter_query' );
+add_filter( 'jetpack_search_should_handle_query', __NAMESPACE__ . '\bypass_jetpack_search', 10, 2 );
 // List table columns.
 add_filter( 'manage_edit-' . CPT_ID . '_columns',        __NAMESPACE__ . '\add_list_table_columns' );
 add_action( 'manage_' . CPT_ID . '_posts_custom_column', __NAMESPACE__ . '\populate_list_table_columns', 10, 2 );
@@ -459,6 +460,27 @@ function filter_query( $query ) {
 				break;
 		}
 	}
+}
+
+/**
+ * Keep pledge searches away from Jetpack Search, so they run against the database.
+ *
+ * Jetpack Search strips every `exclude_from_search` post type before querying Elasticsearch.
+ * The pledge post type is registered that way, so Jetpack is left with nothing to search and
+ * calls `WP_Query::set_404()`, turning every pledge search into a 404. Pledges are not in the
+ * Elasticsearch index anyway.
+ *
+ * @param bool     $should_handle Whether Jetpack Search should handle the query.
+ * @param WP_Query $query         The query being filtered.
+ *
+ * @return bool
+ */
+function bypass_jetpack_search( $should_handle, $query ) {
+	if ( $query->is_main_query() && $query->is_search() ) {
+		return false;
+	}
+
+	return $should_handle;
 }
 
 /**
