@@ -5,7 +5,7 @@
 
 namespace WordPressDotOrg\FiveForTheFuture\Endpoints;
 
-use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, Pledge };
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 add_action( 'wp_ajax_manage-contributors',        __NAMESPACE__ . '\manage_contributors_handler' );
@@ -26,42 +26,30 @@ function manage_contributors_handler() {
 	$contributor_id = filter_input( INPUT_POST, 'contributor_id', FILTER_VALIDATE_INT );
 	$token          = filter_input( INPUT_POST, '_token' );
 	$authenticated  = Auth\can_manage_pledge( $pledge_id, $token );
+	$pledge         = get_post( $pledge_id );
 
-	if ( is_wp_error( $authenticated ) ) {
+	if ( is_wp_error( $authenticated ) || ! $pledge || Pledge\CPT_ID !== $pledge->post_type ) {
 		wp_die( wp_json_encode( array(
 			'success' => false,
-			'message' => __( "Sorry, you don't have permissions to do that.", 'wporg-5ftf' ),
+			'message' => __( 'Sorry, you don’t have permissions to do that.', 'wporg-5ftf' ),
 		) ) );
-	}
-
-	// The token only authorizes `$pledge_id`, so confirm the contributor actually belongs to that pledge.
-	if ( in_array( $action, array( 'resend-contributor-confirmation', 'remove-contributor' ), true ) ) {
-		$contributor = get_post( $contributor_id );
-
-		if ( ! $contributor
-			|| Contributor\CPT_ID !== $contributor->post_type
-			|| (int) $contributor->post_parent !== (int) $pledge_id
-		) {
-			wp_die( wp_json_encode( array(
-				'success' => false,
-				'message' => __( 'Sorry, you don’t have permissions to do that.', 'wporg-5ftf' ),
-			) ) );
-		}
 	}
 
 	switch ( $action ) {
 		case 'resend-contributor-confirmation':
-			$contribution = get_post( $contributor_id );
-			Email\send_contributor_confirmation_emails( $pledge_id, $contributor_id );
+			$contributor = require_pledge_contributor( $pledge_id, $contributor_id );
+			Email\send_contributor_confirmation_emails( $pledge_id, $contributor->ID );
 			wp_die( wp_json_encode( array(
 				'success' => true,
-				'message' => sprintf( __( 'Confirmation email sent to %s.', 'wporg-5ftf' ), $contribution->post_title ),
+				'message' => sprintf( __( 'Confirmation email sent to %s.', 'wporg-5ftf' ), esc_html( $contributor->post_title ) ),
 			) ) );
 			break;
 
 		case 'remove-contributor':
+			$contributor = require_pledge_contributor( $pledge_id, $contributor_id );
+
 			// Trash contributor.
-			Contributor\remove_contributor( $contributor_id );
+			Contributor\remove_contributor( $contributor->ID );
 			wp_die( wp_json_encode( array(
 				'success'      => true,
 				'contributors' => Contributor\get_pledge_contributors_data( $pledge_id ),
@@ -69,7 +57,6 @@ function manage_contributors_handler() {
 			break;
 
 		case 'add-contributor':
-			$pledge           = get_post( $pledge_id );
 			$new_contributors = Contributor\parse_contributors( $_POST['contributors'], $pledge->ID );
 			if ( is_wp_error( $new_contributors ) ) {
 				wp_die( wp_json_encode( array(
@@ -97,6 +84,35 @@ function manage_contributors_handler() {
 
 	// No matching action, we can just exit.
 	wp_die();
+}
+
+/**
+ * Get a contributor post after confirming it belongs to the given pledge, or die with a JSON error.
+ *
+ * The manage token only authorizes `$pledge_id`, so any contributor being
+ * acted on must be a child of that pledge.
+ *
+ * @param int $pledge_id      The pledge the request is authorized for.
+ * @param int $contributor_id The contributor to act on.
+ *
+ * @return \WP_Post
+ */
+function require_pledge_contributor( $pledge_id, $contributor_id ) {
+	$contributor = null;
+
+	if ( $contributor_id ) {
+		$contributors = Contributor\get_pledge_contributors( $pledge_id, 'all', $contributor_id );
+		$contributor  = current( array_merge( ...array_values( $contributors ) ) );
+	}
+
+	if ( ! $contributor ) {
+		wp_die( wp_json_encode( array(
+			'success' => false,
+			'message' => __( 'Sorry, you don’t have permissions to do that.', 'wporg-5ftf' ),
+		) ) );
+	}
+
+	return $contributor;
 }
 
 /**
