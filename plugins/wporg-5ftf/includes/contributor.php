@@ -271,7 +271,7 @@ function remove_contributor( $contributor_post_id ) {
  */
 function get_pledge_contributors( $pledge_id, $status = 'publish', $contributor_id = null ) {
 	$args = array(
-		'page_id'     => $contributor_id,
+		'p'           => $contributor_id,
 		'post_type'   => CPT_ID,
 		'post_parent' => $pledge_id,
 		'numberposts' => -1,
