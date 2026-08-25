@@ -5,7 +5,7 @@
 
 namespace WordPressDotOrg\FiveForTheFuture\Endpoints;
 
-use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email, Pledge };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
 
 add_action( 'wp_ajax_manage-contributors',        __NAMESPACE__ . '\manage_contributors_handler' );
@@ -28,7 +28,7 @@ function manage_contributors_handler() {
 	$authenticated  = Auth\can_manage_pledge( $pledge_id, $token );
 	$pledge         = get_post( $pledge_id );
 
-	if ( is_wp_error( $authenticated ) || ! $pledge || Pledge\CPT_ID !== $pledge->post_type ) {
+	if ( is_wp_error( $authenticated ) ) {
 		wp_die( wp_json_encode( array(
 			'success' => false,
 			'message' => __( 'Sorry, you don’t have permissions to do that.', 'wporg-5ftf' ),
