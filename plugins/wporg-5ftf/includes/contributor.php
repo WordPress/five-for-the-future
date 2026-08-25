@@ -271,7 +271,8 @@ function remove_contributor( $contributor_post_id ) {
  */
 function get_pledge_contributors( $pledge_id, $status = 'publish', $contributor_id = null ) {
 	$args = array(
-		'page_id'     => $contributor_id,
+		// 'p' rather than 'page_id': WP_Query overwrites the post_parent clause for 'page_id' queries.
+		'p'           => $contributor_id,
 		'post_type'   => CPT_ID,
 		'post_parent' => $pledge_id,
 		'numberposts' => -1,

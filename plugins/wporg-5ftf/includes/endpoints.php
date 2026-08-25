@@ -41,7 +41,7 @@ function manage_contributors_handler() {
 			Email\send_contributor_confirmation_emails( $pledge_id, $contributor->ID );
 			wp_die( wp_json_encode( array(
 				'success' => true,
-				'message' => sprintf( __( 'Confirmation email sent to %s.', 'wporg-5ftf' ), esc_html( $contributor->post_title ) ),
+				'message' => sprintf( __( 'Confirmation email sent to %s.', 'wporg-5ftf' ), $contributor->post_title ),
 			) ) );
 			break;
 
@@ -98,14 +98,12 @@ function manage_contributors_handler() {
  * @return \WP_Post
  */
 function require_pledge_contributor( $pledge_id, $contributor_id ) {
-	$contributor = null;
+	$contributor = $contributor_id ? get_post( $contributor_id ) : null;
 
-	if ( $contributor_id ) {
-		$contributors = Contributor\get_pledge_contributors( $pledge_id, 'all', $contributor_id );
-		$contributor  = current( array_merge( ...array_values( $contributors ) ) );
-	}
-
-	if ( ! $contributor ) {
+	if ( ! $contributor
+		|| Contributor\CPT_ID !== $contributor->post_type
+		|| (int) $contributor->post_parent !== (int) $pledge_id
+	) {
 		wp_die( wp_json_encode( array(
 			'success' => false,
 			'message' => __( 'Sorry, you don’t have permissions to do that.', 'wporg-5ftf' ),
