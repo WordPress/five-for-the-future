@@ -34,6 +34,21 @@ function manage_contributors_handler() {
 		) ) );
 	}
 
+	// The token only authorizes `$pledge_id`, so confirm the contributor actually belongs to that pledge.
+	if ( in_array( $action, array( 'resend-contributor-confirmation', 'remove-contributor' ), true ) ) {
+		$contributor = get_post( $contributor_id );
+
+		if ( ! $contributor
+			|| Contributor\CPT_ID !== $contributor->post_type
+			|| (int) $contributor->post_parent !== (int) $pledge_id
+		) {
+			wp_die( wp_json_encode( array(
+				'success' => false,
+				'message' => __( 'Sorry, you don’t have permissions to do that.', 'wporg-5ftf' ),
+			) ) );
+		}
+	}
+
 	switch ( $action ) {
 		case 'resend-contributor-confirmation':
 			$contribution = get_post( $contributor_id );
