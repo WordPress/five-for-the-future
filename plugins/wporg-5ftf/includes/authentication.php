@@ -68,6 +68,13 @@ function prevent_caching_auth_tokens() {
  * @return string
  */
 function get_authentication_url( $pledge_id, $action, $action_page_id, $use_once = true ) {
+	$pledge = $pledge_id ? get_post( $pledge_id ) : null;
+
+	// Enforce the pledge binding here, not just by caller convention: never mint a token for another post.
+	if ( ! $pledge || Pledge\CPT_ID !== $pledge->post_type ) {
+		return '';
+	}
+
 	$auth_token = array(
 		// This will create a CSPRN and is similar to how `get_password_reset_key()` and
 		// `generate_recovery_mode_token()` work.

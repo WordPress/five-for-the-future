@@ -88,6 +88,18 @@ class Test_Auth extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A token must never be minted or stored for a post that isn't a pledge.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\get_authentication_url
+	 */
+	public function test_authentication_url_rejects_non_pledge_posts(): void {
+		$url = get_authentication_url( self::$page->ID, self::$action, self::$page->ID );
+
+		$this->assertSame( '', $url );
+		$this->assertSame( '', get_post_meta( self::$page->ID, TOKEN_PREFIX . self::$action, true ) );
+	}
+
+	/**
 	 * @covers WordPressDotOrg\FiveForTheFuture\Auth\is_valid_authentication_token
 	 * @dataProvider data_invalid_token_provider
 	 */
