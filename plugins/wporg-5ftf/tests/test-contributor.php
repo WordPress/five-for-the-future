@@ -214,6 +214,26 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
+	 * An unresolved contributor name must be reported through its sanitized form, never the raw
+	 * request bytes, so a tag-shaped entry cannot smuggle markup into the error message that
+	 * lists it.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\parse_contributors
+	 */
+	public function test_parse_contributors_reports_sanitized_invalid_names(): void {
+		$payload = '<img src=x onerror=alert(document.domain)>';
+		$result  = Contributor\parse_contributors( $payload );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'invalid_contributor', $result->get_error_code() );
+
+		$message = $result->get_error_message();
+		$this->assertStringNotContainsString( '<img', $message );
+		$this->assertStringNotContainsString( '<', $message );
+		$this->assertStringNotContainsString( '>', $message );
+	}
+
+	/**
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\prune_unnotifiable_users
 	 */
 	public function test_prune_unnotifiable_users() {

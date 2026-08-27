@@ -560,7 +560,8 @@ function parse_contributors( $contributors, $pledge_id = null ) {
 
 			$sanitized_contributors[] = $user->user_login;
 		} else {
-			$invalid_contributors[] = $wporg_username;
+			// Report the sanitized lookup value, not raw request bytes, so it can't carry markup.
+			$invalid_contributors[] = $sanitized_username;
 		}
 	}
 
