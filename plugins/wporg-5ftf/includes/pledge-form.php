@@ -301,9 +301,15 @@ function process_confirmed_email( $value, $tag ) {
 
 	$pledge_id  = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
 	$auth_token = filter_input( INPUT_GET, 'auth_token', FILTER_UNSAFE_RAW );
+	$pledge     = $pledge_id ? get_post( $pledge_id ) : null;
+
+	// A confirmation token is only issued for a pledge; never confirm or publish any other post.
+	if ( ! $pledge || Pledge\CPT_ID !== $pledge->post_type ) {
+		return $value;
+	}
 
 	$meta_key          = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
-	$already_confirmed = get_post( $pledge_id )->$meta_key;
+	$already_confirmed = $pledge->$meta_key;
 	$email_confirmed   = false;
 	$is_new_pledge     = '5ftf_pledge_form_new' === $tag;
 
@@ -357,13 +363,21 @@ function process_resend_confirm_email( $value, $tag ) {
 	}
 
 	$pledge_id = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
-	Email\send_pledge_confirmation_email( $pledge_id, get_post()->ID );
+	$pledge    = $pledge_id ? get_post( $pledge_id ) : null;
+
+	// Only act on a real, unconfirmed pledge; the generic notice below leaks nothing for other IDs.
+	if ( $pledge && Pledge\CPT_ID === $pledge->post_type ) {
+		$confirmed    = get_post_meta( $pledge->ID, PledgeMeta\META_PREFIX . 'pledge-email-confirmed', true );
+		$throttle_key = 'ftf_resend_' . $pledge->ID;
+
+		if ( ! $confirmed && ! get_transient( $throttle_key ) ) {
+			set_transient( $throttle_key, 1, 15 * MINUTE_IN_SECONDS );
+			Email\send_pledge_confirmation_email( $pledge->ID, get_post()->ID );
+		}
+	}
 
 	$messages = array(
-		sprintf(
-			__( 'We’ve emailed you a new link to confirm your address for %s.', 'wporg-5ftf' ),
-			get_the_title( $pledge_id )
-		),
+		__( 'If that pledge is awaiting confirmation, we’ve emailed a new link to the address on file for it.', 'wporg-5ftf' ),
 	);
 
 	ob_start();

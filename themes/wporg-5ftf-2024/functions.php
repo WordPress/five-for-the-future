@@ -19,8 +19,8 @@ require_once __DIR__ . '/src/pledge-teams/index.php';
  * Actions and filters.
  */
 add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\enqueue_assets' );
-add_filter( 'the_content', __NAMESPACE__ . '\inject_pledge_content', 1 );
-add_filter( 'get_the_excerpt', __NAMESPACE__ . '\inject_pledge_content', 1 );
+add_filter( 'the_content', __NAMESPACE__ . '\inject_pledge_content', PHP_INT_MAX );
+add_filter( 'get_the_excerpt', __NAMESPACE__ . '\inject_pledge_content', PHP_INT_MAX );
 add_filter( 'search_template_hierarchy', __NAMESPACE__ . '\use_archive_template' );
 add_filter( 'body_class', __NAMESPACE__ . '\add_body_class' );
 add_filter( 'wp_calculate_image_srcset', __NAMESPACE__ . '\modify_image_srcset', 10, 3 );
@@ -63,7 +63,17 @@ function inject_pledge_content( $content ) {
 	}
 
 	$data = get_pledge_meta( get_the_ID() );
-	return $data['org-description'];
+
+	// Re-sanitize at output, and run last (PHP_INT_MAX) so the block and shortcode parsers can't
+	// re-expand this value into markup a wider allow-list would accept.
+	$description = wp_kses_data( $data['org-description'] );
+
+	// Restore the paragraph formatting core's wpautop no longer applies now that we run last.
+	if ( 'the_content' === current_filter() ) {
+		$description = wpautop( $description );
+	}
+
+	return $description;
 }
 
 /**
