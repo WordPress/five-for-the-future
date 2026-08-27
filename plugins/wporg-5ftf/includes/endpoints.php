@@ -29,20 +29,20 @@ function manage_contributors_handler() {
 	$pledge         = get_post( $pledge_id );
 
 	if ( is_wp_error( $authenticated ) ) {
-		wp_die( wp_json_encode( array(
+		wp_send_json( array(
 			'success' => false,
 			'message' => __( 'Sorry, you don’t have permissions to do that.', 'wporg-5ftf' ),
-		) ) );
+		) );
 	}
 
 	switch ( $action ) {
 		case 'resend-contributor-confirmation':
 			$contributor = require_pledge_contributor( $pledge_id, $contributor_id );
 			Email\send_contributor_confirmation_emails( $pledge_id, $contributor->ID );
-			wp_die( wp_json_encode( array(
+			wp_send_json( array(
 				'success' => true,
 				'message' => sprintf( __( 'Confirmation email sent to %s.', 'wporg-5ftf' ), $contributor->post_title ),
-			) ) );
+			) );
 			break;
 
 		case 'remove-contributor':
@@ -50,19 +50,19 @@ function manage_contributors_handler() {
 
 			// Trash contributor.
 			Contributor\remove_contributor( $contributor->ID );
-			wp_die( wp_json_encode( array(
+			wp_send_json( array(
 				'success'      => true,
 				'contributors' => Contributor\get_pledge_contributors_data( $pledge_id ),
-			) ) );
+			) );
 			break;
 
 		case 'add-contributor':
 			$new_contributors = Contributor\parse_contributors( $_POST['contributors'], $pledge->ID );
 			if ( is_wp_error( $new_contributors ) ) {
-				wp_die( wp_json_encode( array(
+				wp_send_json( array(
 					'success' => false,
 					'message' => $new_contributors->get_error_message(),
-				) ) );
+				) );
 			}
 
 			$contributor_ids = Contributor\add_pledge_contributors( $pledge_id, $new_contributors );
@@ -75,10 +75,10 @@ function manage_contributors_handler() {
 			// Fetch all contributors, now that the new ones have been added.
 			$contributors = Contributor\get_pledge_contributors_data( $pledge_id );
 
-			wp_die( wp_json_encode( array(
+			wp_send_json( array(
 				'success'      => true,
 				'contributors' => $contributors,
-			) ) );
+			) );
 			break;
 	}
 
@@ -104,10 +104,10 @@ function require_pledge_contributor( $pledge_id, $contributor_id ) {
 		|| Contributor\CPT_ID !== $contributor->post_type
 		|| (int) $contributor->post_parent !== (int) $pledge_id
 	) {
-		wp_die( wp_json_encode( array(
+		wp_send_json( array(
 			'success' => false,
 			'message' => __( 'Sorry, you don’t have permissions to do that.', 'wporg-5ftf' ),
-		) ) );
+		) );
 	}
 
 	return $contributor;
@@ -150,5 +150,5 @@ function send_manage_email_handler() {
 		);
 	}
 
-	wp_die( wp_json_encode( $result ) );
+	wp_send_json( $result );
 }
