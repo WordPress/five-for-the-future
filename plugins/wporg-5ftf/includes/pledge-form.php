@@ -311,21 +311,9 @@ function process_confirmed_email( $value, $tag ) {
 
 	$meta_key          = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
 	$already_confirmed = $pledge->$meta_key;
-	$email_confirmed   = false;
 	$is_new_pledge     = '5ftf_pledge_form_new' === $tag;
 
-	if ( $already_confirmed ) {
-		/*
-		 * If they refresh the page after confirming, they'd otherwise get an error because the token had been
-		 * used, and might be confused and think that the address wasn't confirmed.
-		 *
-		 * This leaks the fact that the address is confirmed, because it will return true even if the token is
-		 * invalid, but there aren't any security/privacy implications of that.
-		 */
-		$email_confirmed = true;
-	} else {
-		$email_confirmed = Auth\is_valid_authentication_token( $pledge_id, $action, $auth_token );
-	}
+	$email_confirmed = Auth\is_valid_authentication_token( $pledge_id, $action, $auth_token );
 
 	if ( $email_confirmed ) {
 		update_post_meta( $pledge_id, $meta_key, true );
@@ -336,6 +324,11 @@ function process_confirmed_email( $value, $tag ) {
 		if ( $is_new_pledge ) {
 			Email\send_contributor_confirmation_emails( $pledge_id );
 		}
+	}
+
+	// Show success for an already-confirmed pledge on refresh, but never gate the side effects above on it.
+	if ( $already_confirmed ) {
+		$email_confirmed = true;
 	}
 
 	ob_start();
