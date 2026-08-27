@@ -322,9 +322,9 @@ function process_confirmed_email( $value, $tag ) {
 		 * invalid, but there aren't any security/privacy implications of that.
 		 */
 		$email_confirmed = true;
+	} else {
+		$email_confirmed = Auth\is_valid_authentication_token( $pledge_id, $action, $auth_token );
 	}
-
-	$email_confirmed = Auth\is_valid_authentication_token( $pledge_id, $action, $auth_token );
 
 	if ( $email_confirmed ) {
 		update_post_meta( $pledge_id, $meta_key, true );
