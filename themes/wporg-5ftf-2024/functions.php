@@ -64,13 +64,12 @@ function inject_pledge_content( $content ) {
 
 	$data = get_pledge_meta( get_the_ID() );
 
-	// Re-sanitize at output, and run last (PHP_INT_MAX) so the block and shortcode parsers can't
-	// re-expand this value into markup a wider allow-list would accept.
+	// Run last (PHP_INT_MAX) and re-sanitize so the shortcode and block parsers can't re-expand this.
 	$description = wp_kses_data( $data['org-description'] );
 
-	// Restore the paragraph formatting core's wpautop no longer applies now that we run last.
+	// Reapply the formatting core's content filters gave this value before it ran last.
 	if ( 'the_content' === current_filter() ) {
-		$description = wpautop( $description );
+		$description = convert_smilies( wpautop( wptexturize( $description ) ) );
 	}
 
 	return $description;
