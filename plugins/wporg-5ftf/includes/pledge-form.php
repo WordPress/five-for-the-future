@@ -177,7 +177,7 @@ function render_form_manage() {
 		}
 	}
 
-	$data         = PledgeMeta\get_pledge_meta( $pledge_id );
+	$data         = PledgeMeta\get_pledge_meta( $pledge_id, '', get_form_submission() );
 	$contributors = Contributor\get_pledge_contributors_data( $pledge_id );
 
 	ob_start();
