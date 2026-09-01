@@ -69,21 +69,19 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Readers pass no submission, so request input can never reach the read path: the stored value is returned
-	 * even when a matching key is present in `$_POST`.
+	 * Readers pass no submission, so the accessor returns the stored meta untouched. Only a caller that opts in
+	 * by passing a submission gets the in-progress input overlaid.
 	 *
 	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeMeta\get_pledge_meta
 	 */
-	public function test_reader_ignores_request_input(): void {
+	public function test_reader_returns_stored_value(): void {
 		$pledge_id = $this->create_pledge( 'StoredCanary' );
 
-		$_POST['org-description'] = '<script>alert(1)</script>InjectedCanary';
+		$reader  = PledgeMeta\get_pledge_meta( $pledge_id );
+		$overlay = PledgeMeta\get_pledge_meta( $pledge_id, '', array( 'org-description' => 'SubmittedCanary' ) );
 
-		$meta = PledgeMeta\get_pledge_meta( $pledge_id );
-
-		unset( $_POST['org-description'] );
-
-		$this->assertSame( 'StoredCanary', $meta['org-description'], 'A reader must return the stored value, not request input.' );
+		$this->assertSame( 'StoredCanary', $reader['org-description'], 'A reader must return the stored value.' );
+		$this->assertSame( 'SubmittedCanary', $overlay['org-description'], 'An explicit submission must override the stored value.' );
 	}
 
 	/**
