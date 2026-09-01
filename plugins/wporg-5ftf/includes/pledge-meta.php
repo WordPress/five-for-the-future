@@ -114,9 +114,7 @@ function get_pledge_meta_config( $subset = 'all' ) {
  */
 function sanitize_description( $insecure ) {
 	$secure = wp_kses_data( $insecure );
-
-	// `wp_rel_nofollow()` is a pre-save filter, so it expects slashed input and returns it slashed.
-	$secure = wp_unslash( wp_rel_nofollow( wp_slash( $secure ) ) );
+	$secure = wp_unslash( wp_rel_nofollow( $secure ) );
 
 	return $secure;
 }

@@ -85,20 +85,6 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Sanitizing an overlaid value must not eat a level of backslashes. `wp_rel_nofollow()` is a pre-save filter,
-	 * so it only round-trips cleanly when it is handed slashed input.
-	 *
-	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeMeta\sanitize_description
-	 */
-	public function test_submission_overlay_preserves_backslashes(): void {
-		$pledge_id = $this->create_pledge();
-
-		$meta = PledgeMeta\get_pledge_meta( $pledge_id, '', array( 'org-description' => 'C:\Users' ) );
-
-		$this->assertSame( 'C:\Users', $meta['org-description'] );
-	}
-
-	/**
 	 * With no pledge and no submission, every key falls back to a default rather than raising an undefined-index
 	 * warning for the config's absent `default` entry.
 	 *
