@@ -480,32 +480,33 @@ function has_required_pledge_meta( array $submission, $context ) {
 /**
  * Get the metadata for a given pledge, or a default set if no pledge is provided.
  *
- * @param int    $pledge_id Pledge to fetch data from.
- * @param string $subset    Optional. The part of the config to return: 'user_input', 'generated', or 'all'.
+ * @param int    $pledge_id  Pledge to fetch data from.
+ * @param string $subset     Optional. The part of the config to return: 'user_input', 'generated', or 'all'.
+ * @param array  $submission Optional. Form submission whose values override the stored meta. Pass it only when
+ *                           re-rendering a submitted form; readers must not.
  *
  * @return array Pledge data
  */
-function get_pledge_meta( $pledge_id = 0, $subset = '' ) {
+function get_pledge_meta( $pledge_id = 0, $subset = '', $submission = array() ) {
 	// Get existing pledge, if it exists.
 	$pledge = get_post( $pledge_id );
 
 	$keys = get_pledge_meta_config( $subset );
 	$meta = array();
 
-	// Get POST'd submission, if it exists.
-	$submission = PledgeForm\get_form_submission();
+	// The "no POST body" sentinel means there is nothing to carry over from a submission.
 	if ( isset( $submission['empty_post'] ) && $submission['empty_post'] ) {
 		$submission = array();
 	}
 
 	foreach ( $keys as $key => $config ) {
 		if ( isset( $submission[ $key ] ) ) {
-			$meta[ $key ] = $submission[ $key ];
+			$meta[ $key ] = call_user_func( $config['sanitize_callback'], $submission[ $key ] );
 		} elseif ( $pledge instanceof WP_Post ) {
 			$meta_key     = META_PREFIX . $key;
 			$meta[ $key ] = get_post_meta( $pledge->ID, $meta_key, true );
 		} else {
-			$meta[ $key ] = $config['default'] ?: '';
+			$meta[ $key ] = $config['default'] ?? '';
 		}
 	}
 
