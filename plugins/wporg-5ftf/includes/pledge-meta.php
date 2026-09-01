@@ -482,10 +482,8 @@ function has_required_pledge_meta( array $submission, $context ) {
  *
  * @param int    $pledge_id  Pledge to fetch data from.
  * @param string $subset     Optional. The part of the config to return: 'user_input', 'generated', or 'all'.
- * @param array  $submission Optional. A form submission from `PledgeForm\get_form_submission()` whose values override
- *                           the stored meta, so a re-rendered form keeps the user's input. Pass this only when
- *                           re-rendering a submitted form; readers must never supply it, so unsanitized request
- *                           input can never reach the read path.
+ * @param array  $submission Optional. Form submission whose values override the stored meta. Pass it only when
+ *                           re-rendering a submitted form; readers must not.
  *
  * @return array Pledge data
  */
