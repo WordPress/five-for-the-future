@@ -85,6 +85,33 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Sanitizing an overlaid value must not eat a level of backslashes. `wp_rel_nofollow()` is a pre-save filter,
+	 * so it only round-trips cleanly when it is handed slashed input.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeMeta\sanitize_description
+	 */
+	public function test_submission_overlay_preserves_backslashes(): void {
+		$pledge_id = $this->create_pledge();
+
+		$meta = PledgeMeta\get_pledge_meta( $pledge_id, '', array( 'org-description' => 'C:\Users' ) );
+
+		$this->assertSame( 'C:\Users', $meta['org-description'] );
+	}
+
+	/**
+	 * With no pledge and no submission, every key falls back to a default rather than raising an undefined-index
+	 * warning for the config's absent `default` entry.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeMeta\get_pledge_meta
+	 */
+	public function test_no_pledge_returns_defaults(): void {
+		$meta = PledgeMeta\get_pledge_meta();
+
+		$this->assertSame( '', $meta['org-description'] );
+		$this->assertSame( '', $meta['pledge-email-confirmed'] );
+	}
+
+	/**
 	 * The "no POST body" sentinel discards the whole submission, so a form re-render with no real input falls
 	 * back to the stored meta.
 	 *

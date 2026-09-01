@@ -26,10 +26,14 @@ add_filter( 'pre_do_shortcode_tag', __NAMESPACE__ . '\process_resend_confirm_ema
  * @return false|string
  */
 function render_form_new() {
-	$action        = isset( $_GET['action'] ) ? filter_input( INPUT_GET, 'action' ) : filter_input( INPUT_POST, 'action' );
-	$is_manage     = false;
-	$pledge_id     = 0;
-	$data          = get_form_submission();
+	$action    = isset( $_GET['action'] ) ? filter_input( INPUT_GET, 'action' ) : filter_input( INPUT_POST, 'action' );
+	$is_manage = false;
+	$pledge_id = 0;
+
+	// Merging keeps the submission's non-meta fields, like contributors and agreement, that the views also read.
+	$submission = get_form_submission();
+	$data       = array_merge( $submission, PledgeMeta\get_pledge_meta( $pledge_id, '', $submission ) );
+
 	$errors        = array();
 	$pledge        = null;
 	$complete      = false;
