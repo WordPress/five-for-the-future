@@ -46,7 +46,7 @@ function get_pledge_meta_config( $subset = 'all' ) {
 		),
 		'org-name'         => array(
 			'single'            => true,
-			'sanitize_callback' => __NAMESPACE__ . '\sanitize_text_line',
+			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 			'context'           => array( 'create', 'update' ),
 			'php_filter'        => FILTER_UNSAFE_RAW,
@@ -106,39 +106,6 @@ function get_pledge_meta_config( $subset = 'all' ) {
 }
 
 /**
- * Remove every shortcode from a value.
- *
- * `strip_shortcodes()` is one pass, and one pass can leave a shortcode behind. It
- * unwraps an escaped `[[tag]]` into a live `[tag]`, and removing a shortcode can
- * splice the surrounding text into another, so `[gal[caption]lery ids="1"]` comes
- * back as a live `[gallery ids="1"]`. Repeating settles both: every pass is
- * shorter than the one before, and the loop ends when a pass finds nothing.
- *
- * @param string $value
- *
- * @return string
- */
-function strip_all_shortcodes( $value ) {
-	do {
-		$before = $value;
-		$value  = strip_shortcodes( $value );
-	} while ( $before !== $value );
-
-	return $value;
-}
-
-/**
- * Sanitize single-line fields.
- *
- * @param string $insecure
- *
- * @return string
- */
-function sanitize_text_line( $insecure ) {
-	return strip_all_shortcodes( sanitize_text_field( $insecure ) );
-}
-
-/**
  * Sanitize description fields.
  *
  * @param string $insecure
@@ -149,7 +116,7 @@ function sanitize_description( $insecure ) {
 	$secure = wp_kses_data( $insecure );
 	$secure = wp_unslash( wp_rel_nofollow( $secure ) );
 
-	return strip_all_shortcodes( $secure );
+	return $secure;
 }
 
 /**
@@ -313,6 +280,11 @@ function save_pledge( $pledge_id, $pledge ) {
 	$submitted_meta = PledgeForm\get_form_submission();
 
 	if ( is_wp_error( has_required_pledge_meta( $submitted_meta, $context ) ) ) {
+		return;
+	}
+
+	// wp-admin posts to `save_post` rather than through the pledge form, so it is checked here too.
+	if ( PledgeForm\submission_has_shortcode( $submitted_meta ) ) {
 		return;
 	}
 

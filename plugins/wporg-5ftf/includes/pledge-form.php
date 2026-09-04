@@ -409,6 +409,27 @@ function get_form_submission() {
 }
 
 /**
+ * Check whether a submission carries shortcode syntax in a free-text field.
+ *
+ * @param array $submission The user input.
+ *
+ * @return bool
+ */
+function submission_has_shortcode( $submission ) {
+	foreach ( array( 'org-name', 'org-description' ) as $field ) {
+		if ( empty( $submission[ $field ] ) || ! is_string( $submission[ $field ] ) ) {
+			continue;
+		}
+
+		if ( preg_match( '/' . get_shortcode_regex() . '/', $submission[ $field ] ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
  * Check the submission for valid data.
  *
  * @param array  $submission The user input.
@@ -422,17 +443,11 @@ function check_invalid_submission( $submission, $context ) {
 		return $has_required;
 	}
 
-	foreach ( array( 'org-name', 'org-description' ) as $field ) {
-		if ( empty( $submission[ $field ] ) ) {
-			continue;
-		}
-
-		if ( preg_match( '/' . get_shortcode_regex() . '/', $submission[ $field ] ) ) {
-			return new WP_Error(
-				'shortcode_in_submission',
-				__( 'The organization name and description cannot contain shortcodes. Please remove them and submit again.', 'wporg-5ftf' )
-			);
-		}
+	if ( submission_has_shortcode( $submission ) ) {
+		return new WP_Error(
+			'shortcode_in_submission',
+			__( 'The organization name and description cannot contain shortcodes. Please remove them and submit again.', 'wporg-5ftf' )
+		);
 	}
 
 	$email = sanitize_meta(

@@ -135,49 +135,8 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 		);
 	}
 
-	/**
-	 * A single-line field must not come out of sanitization carrying a shortcode.
-	 *
-	 * @dataProvider data_single_pass_survivors
-	 *
-	 * @param string $insecure Submitted value.
-	 *
-	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeMeta\sanitize_text_line
-	 */
-	public function test_text_line_leaves_no_shortcode( string $insecure ): void {
-		$secure = PledgeMeta\sanitize_text_line( $insecure );
 
-		$this->assertSame( array(), get_shortcode_tags_in_content( $secure ) );
-		$this->assertSame( $secure, do_shortcode( $secure ) );
-	}
 
-	/**
-	 * Neither must the description field, which keeps its allowed markup otherwise.
-	 *
-	 * @dataProvider data_single_pass_survivors
-	 *
-	 * @param string $insecure Submitted value.
-	 *
-	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeMeta\sanitize_description
-	 */
-	public function test_description_leaves_no_shortcode( string $insecure ): void {
-		$secure = PledgeMeta\sanitize_description( $insecure );
-
-		$this->assertSame( array(), get_shortcode_tags_in_content( $secure ) );
-		$this->assertSame( $secure, do_shortcode( $secure ) );
-	}
-
-	/**
-	 * Bracketed prose is not a shortcode, and survives sanitization unchanged.
-	 *
-	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeMeta\sanitize_text_line
-	 */
-	public function test_bracketed_prose_is_left_alone(): void {
-		$this->assertSame(
-			'A pledge from [developers] everywhere',
-			PledgeMeta\sanitize_text_line( 'A pledge from [developers] everywhere' )
-		);
-	}
 
 	/**
 	 * Builds a submission that is valid apart from the field under test.
