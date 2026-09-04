@@ -283,7 +283,7 @@ function save_pledge( $pledge_id, $pledge ) {
 		return;
 	}
 
-	// wp-admin posts to `save_post` rather than through the pledge form, so it is checked here too.
+	// The wp-admin screen reaches this without passing through `check_invalid_submission()`.
 	if ( PledgeForm\submission_has_shortcode( $submitted_meta ) ) {
 		return;
 	}
