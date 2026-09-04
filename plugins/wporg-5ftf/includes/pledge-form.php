@@ -423,7 +423,8 @@ function submission_has_shortcode( $submission ) {
 
 		$stored = sanitize_meta( PledgeMeta\META_PREFIX . $field, wp_unslash( $submission[ $field ] ), 'post', Pledge\CPT_ID );
 
-		if ( 1 === preg_match( '/' . get_shortcode_regex() . '/', $stored ) ) {
+		// Anything but a clean no-match is refused: preg_match() returns false when PCRE gives up.
+		if ( 0 !== preg_match( '/' . get_shortcode_regex() . '/', $stored ) ) {
 			return true;
 		}
 	}
