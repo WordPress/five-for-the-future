@@ -422,6 +422,19 @@ function check_invalid_submission( $submission, $context ) {
 		return $has_required;
 	}
 
+	foreach ( array( 'org-name', 'org-description' ) as $field ) {
+		if ( empty( $submission[ $field ] ) ) {
+			continue;
+		}
+
+		if ( preg_match( '/' . get_shortcode_regex() . '/', $submission[ $field ] ) ) {
+			return new WP_Error(
+				'shortcode_in_submission',
+				__( 'The organization name and description cannot contain shortcodes. Please remove them and submit again.', 'wporg-5ftf' )
+			);
+		}
+	}
+
 	$email = sanitize_meta(
 		PledgeMeta\META_PREFIX . 'org-pledge-email',
 		$submission['org-pledge-email'],
