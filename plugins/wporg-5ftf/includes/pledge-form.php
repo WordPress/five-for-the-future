@@ -421,7 +421,21 @@ function submission_has_shortcode( $submission ) {
 			continue;
 		}
 
-		if ( preg_match( '/' . get_shortcode_regex() . '/', $submission[ $field ] ) ) {
+		/*
+		 * Match the value that gets written, not the one that arrived: `update_metadata()`
+		 * unslashes and sanitizes first, and either step can close a gap in a tag name that
+		 * kept the raw value from matching. `[cap<x>tion width="1"]` is not a shortcode
+		 * until `sanitize_text_field()` takes the `<x>` out of it.
+		 */
+		$stored = sanitize_meta(
+			PledgeMeta\META_PREFIX . $field,
+			wp_unslash( $submission[ $field ] ),
+			'post',
+			Pledge\CPT_ID
+		);
+
+		// `preg_match()` returns false, not 0, when PCRE gives up on a long subject.
+		if ( 1 === preg_match( '/' . get_shortcode_regex() . '/', $stored ) ) {
 			return true;
 		}
 	}

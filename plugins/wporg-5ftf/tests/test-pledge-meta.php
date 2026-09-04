@@ -119,11 +119,13 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Payloads that a single `strip_shortcodes()` pass leaves as a live shortcode.
+	 * Values that are not shortcodes until something edits them.
 	 *
-	 * `[[tag]]` is core's escape syntax, which `strip_shortcode_tag()` unwraps rather
-	 * than removes. The spliced ones carry no shortcode until the inner `[caption]`
-	 * comes out, at which point the remainder joins into `[gallery ids="1"]`.
+	 * `[[tag]]` is core's escape syntax, which `strip_shortcode_tag()` unwraps into a
+	 * live tag. The spliced ones carry nothing until the inner `[caption]` is removed
+	 * and the remainder joins into `[gallery ids="1"]`. The last two need no shortcode
+	 * removal at all: storing a value unslashes and sanitizes it, and either step can
+	 * close the gap in `cap<x>tion` / `cap\tion` that kept it from matching.
 	 *
 	 * @return array
 	 */
@@ -132,11 +134,10 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 			'escaped twin'  => array( 'Org [[caption width="1" caption="x"]y[/caption]] Name' ),
 			'splice'        => array( 'Org [gal[caption]lery ids="1"] Name' ),
 			'double splice' => array( 'Org [ga[caption]l[caption]lery ids="1"] Name' ),
+			'tag splice'    => array( 'Org [cap<x>tion width="1"]y[/caption] Name' ),
+			'slash splice'  => array( 'Org [cap\\tion width="1"] Name' ),
 		);
 	}
-
-
-
 
 	/**
 	 * Builds a submission that is valid apart from the field under test.
