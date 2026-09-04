@@ -178,6 +178,21 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A value PCRE cannot decide is refused rather than waved through.
+	 *
+	 * `preg_match()` returns false, not 0, once the subject exhausts the JIT stack,
+	 * and the description has no length limit.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\submission_has_shortcode
+	 */
+	public function test_undecidable_submission_is_refused(): void {
+		$payload = '[caption ' . str_repeat( '/x', 10000 ) . ']';
+
+		$this->assertFalse( preg_match( '/' . get_shortcode_regex() . '/', $payload ), 'The payload must actually break PCRE.' );
+		$this->assertTrue( PledgeForm\submission_has_shortcode( array( 'org-name' => $payload ) ) );
+	}
+
+	/**
 	 * A submission carrying only bracketed prose is not refused for it.
 	 *
 	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\check_invalid_submission
