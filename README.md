@@ -41,6 +41,12 @@ In order to contribute with code changes, you'll want to set up a local environm
 	npm run wp-env start
 	```
 
+1. Configure WordPress.
+
+	```bash
+	npm run setup:wp
+	```
+
 If you're using a different local environment, or don't want to use wp-env, you can skip that step and just replace `wp-content` with this repo, so that the themes and plugins are in the correct places.
 
 
@@ -51,16 +57,19 @@ If you're using a different local environment, or don't want to use wp-env, you 
 
 ### Setting up default data
 
-1. Set your permalinks to "Post name" at `Settings > Permalinks`.
-1. Run the WP XML Importer at `Tools > Import` and select `wp-content/.env/import.wxr`.
-1. Set the Primary Menu at `Appearance > Menu`.
-1. Set "About" as the static home page at `Settings > Reading`.
-1. Add new Pledges on the "Add New Pledge" page. Note that you'll need to use valid WP usernames on your install.
-	1. Set the new entry to Published in the `Five For the Future > Pledges admin` area.
-	1. Find the "Sending email" log entry in the pledge admin and copy/paste the link in a new tab to confirm the email.
-	1. Go to the `Five For the Future > Contributors` page and publish the post(s) via quick edit.
-	1. Your new pledge should appear on the `/pledges/` pages now.
-
+1. Save your permalinks: `Settings > Permalinks`.
+1. Configure your first pledge.
+	1. Visit `Five for the future > Pledges`.
+	1. Add `Administrator Email Address` -> Any address.
+	1. Add `Organization Name` -> Any name.
+	1. Add `Website Address` -> Any web address.
+	1. Add `Organization Blurb` -> Any content.
+	1. Add `Contributor Usernames` -> Use any of the users listed in `wp-admin/users.php` excluding admin.
+	  1. Technically you can use any wp.org user but we use dummy data added in `./env/bpmain_bp_xprofile_data.sql` which maps to these user IDs.
+	1. Set a `featured image`.
+	1. Click `Update` to publish draft pledge. 
+	1. Visit `Five for the future > Contributors`.
+		1. Click on any `Pending` contributors and `Publish` them.
 
 ## Scripts
 
