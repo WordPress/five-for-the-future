@@ -5,7 +5,7 @@
 
 declare( strict_types = 1 );
 
-use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeMeta };
+use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeForm, PledgeMeta };
 
 defined( 'WPINC' ) || die();
 
@@ -116,5 +116,82 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( 'StoredCanary', $meta['org-description'], 'The empty_post sentinel must discard the submission.' );
+	}
+
+	/**
+	 * Values that are not shortcodes until something edits them.
+	 *
+	 * `[[tag]]` is core's escape syntax, which `strip_shortcode_tag()` unwraps into a
+	 * live tag. The spliced ones carry nothing until the inner `[caption]` is removed
+	 * and the remainder joins into `[gallery ids="1"]`. The last two need no shortcode
+	 * removal at all: storing a value unslashes and sanitizes it, and either step can
+	 * close the gap in `cap<x>tion` / `cap\tion` that kept it from matching.
+	 *
+	 * @return array
+	 */
+	public function data_single_pass_survivors(): array {
+		return array(
+			'escaped twin'  => array( 'Org [[caption width="1" caption="x"]y[/caption]] Name' ),
+			'splice'        => array( 'Org [gal[caption]lery ids="1"] Name' ),
+			'double splice' => array( 'Org [ga[caption]l[caption]lery ids="1"] Name' ),
+			'tag splice'    => array( 'Org [cap<x>tion width="1"]y[/caption] Name' ),
+			'slash splice'  => array( 'Org [cap\\tion width="1"] Name' ),
+		);
+	}
+
+	/**
+	 * Builds a submission that is valid apart from the field under test.
+	 *
+	 * @param string $field Submission key to set.
+	 * @param string $value Value for that key.
+	 *
+	 * @return array
+	 */
+	protected function submission( string $field, string $value ): array {
+		return array_merge(
+			array(
+				'org-name'         => 'Fixture Org',
+				'org-description'  => 'A fixture pledge.',
+				'org-url'          => 'https://example.org',
+				'org-pledge-email' => 'fixture@example.org',
+			),
+			array( $field => $value )
+		);
+	}
+
+	/**
+	 * A submitted shortcode is refused rather than edited out of the value.
+	 *
+	 * @dataProvider data_single_pass_survivors
+	 *
+	 * @param string $insecure Submitted value.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\check_invalid_submission
+	 */
+	public function test_submitted_shortcode_is_refused( string $insecure ): void {
+		foreach ( array( 'org-name', 'org-description' ) as $field ) {
+			$error = PledgeForm\check_invalid_submission( $this->submission( $field, $insecure ), 'create' );
+
+			$this->assertWPError( $error, "A shortcode in {$field} must be refused." );
+			$this->assertSame( 'shortcode_in_submission', $error->get_error_code() );
+		}
+	}
+
+	/**
+	 * A submission carrying only bracketed prose is not refused for it.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\check_invalid_submission
+	 */
+	public function test_bracketed_prose_is_not_refused(): void {
+		$error = PledgeForm\check_invalid_submission(
+			$this->submission( 'org-name', 'A pledge from [developers] everywhere' ),
+			'create'
+		);
+
+		if ( is_wp_error( $error ) ) {
+			$this->assertNotSame( 'shortcode_in_submission', $error->get_error_code() );
+		} else {
+			$this->assertFalse( $error );
+		}
 	}
 }
