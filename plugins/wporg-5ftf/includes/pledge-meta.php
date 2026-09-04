@@ -46,7 +46,7 @@ function get_pledge_meta_config( $subset = 'all' ) {
 		),
 		'org-name'         => array(
 			'single'            => true,
-			'sanitize_callback' => 'sanitize_text_field',
+			'sanitize_callback' => __NAMESPACE__ . '\sanitize_text_line',
 			'show_in_rest'      => true,
 			'context'           => array( 'create', 'update' ),
 			'php_filter'        => FILTER_UNSAFE_RAW,
@@ -106,6 +106,17 @@ function get_pledge_meta_config( $subset = 'all' ) {
 }
 
 /**
+ * Sanitize single-line fields.
+ *
+ * @param string $insecure
+ *
+ * @return string
+ */
+function sanitize_text_line( $insecure ) {
+	return strip_shortcodes( sanitize_text_field( $insecure ) );
+}
+
+/**
  * Sanitize description fields.
  *
  * @param string $insecure
@@ -116,7 +127,7 @@ function sanitize_description( $insecure ) {
 	$secure = wp_kses_data( $insecure );
 	$secure = wp_unslash( wp_rel_nofollow( $secure ) );
 
-	return $secure;
+	return strip_shortcodes( $secure );
 }
 
 /**
