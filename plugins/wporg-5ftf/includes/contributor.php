@@ -508,6 +508,10 @@ function process_my_pledges_form() {
 	}
 
 	if ( 'publish' === $new_status && 'publish' !== $contributor_post->post_status ) {
+		if ( ! can_accept_invitation( $contributor_post, $pledge ) ) {
+			return 'That invitation is no longer available.';
+		}
+
 		wp_update_post( array(
 			'ID'          => $contributor_post->ID,
 			'post_status' => $new_status,
@@ -517,6 +521,21 @@ function process_my_pledges_form() {
 	}
 
 	return $message;
+}
+
+/**
+ * Whether an invitation can still be accepted.
+ *
+ * @param WP_Post      $contributor_post The invitation being acted on.
+ * @param WP_Post|null $pledge           The pledge the invitation belongs to.
+ *
+ * @return bool
+ */
+function can_accept_invitation( $contributor_post, $pledge ) {
+	return 'pending' === $contributor_post->post_status
+		&& $pledge instanceof WP_Post
+		&& Pledge\CPT_ID === $pledge->post_type
+		&& 'publish' === $pledge->post_status;
 }
 
 /**
