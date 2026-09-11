@@ -73,18 +73,18 @@ function process_form_new() {
 		return $contributors;
 	}
 
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Public, unauthenticated pledge form; the pledge is confirmed via an emailed token.
-	$logo_attachment_id = upload_image( $_FILES['org-logo'] );
-	if ( is_wp_error( $logo_attachment_id ) ) {
-		return $logo_attachment_id;
-	}
-
 	$name = sanitize_meta(
 		PledgeMeta\META_PREFIX . 'org-name',
 		$submission['org-name'],
 		'post',
 		Pledge\CPT_ID
 	);
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Public, unauthenticated pledge form; the pledge is confirmed via an emailed token.
+	$logo_attachment_id = upload_image( $_FILES['org-logo'], $name );
+	if ( is_wp_error( $logo_attachment_id ) ) {
+		return $logo_attachment_id;
+	}
 
 	$new_pledge_id = Pledge\create_new_pledge( $name );
 
@@ -229,7 +229,7 @@ function process_form_manage( $pledge_id, $auth_token ) {
 
 	if ( isset( $_FILES['org-logo'], $_FILES['org-logo']['tmp_name'] ) && ! empty( $_FILES['org-logo']['tmp_name'] ) ) {
 		$original_logo_id   = get_post_thumbnail_id( $pledge_id );
-		$logo_attachment_id = upload_image( $_FILES['org-logo'] );
+		$logo_attachment_id = upload_image( $_FILES['org-logo'], get_post_field( 'post_title', $pledge_id, 'raw' ) );
 		if ( is_wp_error( $logo_attachment_id ) ) {
 			return $logo_attachment_id;
 		}
@@ -484,10 +484,11 @@ function check_invalid_submission( $submission, $context ) {
 /**
  * Upload the logo image into the media library.
  *
- * @param array $logo $_FILES array for the uploaded logo.
+ * @param array  $logo  $_FILES array for the uploaded logo.
+ * @param string $title Title to give the attachment.
  * @return int|WP_Error Upload attachment ID, or WP_Error if there was an error.
  */
-function upload_image( $logo ) {
+function upload_image( $logo, $title ) {
 	if ( ! $logo ) {
 		return false;
 	}
@@ -504,15 +505,23 @@ function upload_image( $logo ) {
 		require_once ABSPATH . 'wp-admin/includes/ms.php';
 	}
 
+	// The pledge is allowed to be nameless, but the attachment should still not be.
+	if ( '' === trim( $title ) ) {
+		$title = sanitize_file_name( pathinfo( $logo['name'], PATHINFO_FILENAME ) );
+	}
+
 	add_filter( 'upload_mimes', __NAMESPACE__ . '\safelist_image_mimes' );
 	add_filter( 'pre_site_option_fileupload_maxk', __NAMESPACE__ . '\restrict_file_size' );
 	add_filter( 'wp_handle_sideload_prefilter', 'check_upload_size' );
+	add_filter( 'wp_read_image_metadata', __NAMESPACE__ . '\discard_image_metadata_text' );
 
-	$logo_id = \media_handle_sideload( $logo, 0 );
+	// Pass a title and pin `post_content`, so the file's own IPTC and EXIF metadata cannot reach either field.
+	$logo_id = \media_handle_sideload( $logo, 0, $title, array( 'post_content' => '' ) );
 
 	remove_filter( 'upload_mimes', __NAMESPACE__ . '\safelist_image_mimes' );
 	remove_filter( 'pre_site_option_fileupload_maxk', __NAMESPACE__ . '\restrict_file_size' );
 	remove_filter( 'wp_handle_sideload_prefilter', 'check_upload_size' );
+	remove_filter( 'wp_read_image_metadata', __NAMESPACE__ . '\discard_image_metadata_text' );
 
 	return $logo_id;
 }
@@ -537,4 +546,27 @@ function safelist_image_mimes( $mimes ) {
  */
 function restrict_file_size( $value ) {
 	return 5 * MB_IN_BYTES;
+}
+
+/**
+ * Discard the free-text fields a submitted image claims about itself.
+ *
+ * `wp_read_image_metadata()` returns these through the post kses profile, which keeps `data-*` attributes, and
+ * they are stored with the attachment for any later consumer to render.
+ *
+ * @param array $meta Metadata read from the image.
+ * @return array
+ */
+function discard_image_metadata_text( $meta ) {
+	return array_merge(
+		$meta,
+		array(
+			'camera'    => '',
+			'caption'   => '',
+			'copyright' => '',
+			'credit'    => '',
+			'keywords'  => array(),
+			'title'     => '',
+		)
+	);
 }
