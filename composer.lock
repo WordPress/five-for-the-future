@@ -4243,12 +4243,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/wporg-mu-plugins.git",
-                "reference": "207512b72370caea1b15b4d443bf8c4b71073d14"
+                "reference": "8ad6154802263bb053687eb14945ca3d4beba6d1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/wporg-mu-plugins/zipball/207512b72370caea1b15b4d443bf8c4b71073d14",
-                "reference": "207512b72370caea1b15b4d443bf8c4b71073d14",
+                "url": "https://api.github.com/repos/WordPress/wporg-mu-plugins/zipball/8ad6154802263bb053687eb14945ca3d4beba6d1",
+                "reference": "8ad6154802263bb053687eb14945ca3d4beba6d1",
                 "shasum": ""
             },
             "require": {
@@ -4259,7 +4259,7 @@
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
                 "phpcompatibility/phpcompatibility-wp": "*",
                 "phpunit/phpunit": "^9.5",
-                "wp-coding-standards/wpcs": "2.*",
+                "wp-coding-standards/wpcs": "^3.4.1",
                 "wp-phpunit/wp-phpunit": "~6.0",
                 "wporg/wporg-repo-tools": "dev-trunk",
                 "yoast/phpunit-polyfills": "^1.1"
@@ -4289,7 +4289,7 @@
                 "source": "https://github.com/WordPress/wporg-mu-plugins/tree/build",
                 "issues": "https://github.com/WordPress/wporg-mu-plugins/issues"
             },
-            "time": "2024-09-26T18:25:32+00:00"
+            "time": "2026-09-10T15:11:57+00:00"
         },
         {
             "name": "wporg/wporg-parent-2021",
@@ -4297,12 +4297,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/WordPress/wporg-parent-2021.git",
-                "reference": "9cb3f85de6a2cdff4772bfa636b0ab727e5d9af4"
+                "reference": "6c1766f20a8770af7a4abc97de308ebe25f0ea96"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/WordPress/wporg-parent-2021/zipball/9cb3f85de6a2cdff4772bfa636b0ab727e5d9af4",
-                "reference": "9cb3f85de6a2cdff4772bfa636b0ab727e5d9af4",
+                "url": "https://api.github.com/repos/WordPress/wporg-parent-2021/zipball/6c1766f20a8770af7a4abc97de308ebe25f0ea96",
+                "reference": "6c1766f20a8770af7a4abc97de308ebe25f0ea96",
                 "shasum": ""
             },
             "type": "wordpress-theme",
@@ -4310,7 +4310,7 @@
                 "source": "https://github.com/WordPress/wporg-parent-2021/tree/build",
                 "issues": "https://github.com/WordPress/wporg-parent-2021/issues"
             },
-            "time": "2024-09-26T20:46:06+00:00"
+            "time": "2026-09-04T15:41:05+00:00"
         },
         {
             "name": "yoast/phpunit-polyfills",

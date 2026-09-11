@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/block.json",
+  "apiVersion": 2,
+  "name": "wporg/pledge-edit-button",
+  "version": "1.0.0-0a21636",
+  "title": "Edit pledge button",
+  "category": "design",
+  "icon": "",
+  "description": "Render the pledge edit button and form.",
+  "textdomain": "wporg",
+  "supports": {
+    "html": false
+  },
+  "usesContext": [
+    "postId",
+    "postType"
+  ],
+  "editorScript": "file:./index.js",
+  "style": "file:./style-index.css"
+}
