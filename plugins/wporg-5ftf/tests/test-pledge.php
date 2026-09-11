@@ -1,6 +1,9 @@
 <?php
 
-use function WordPressDotOrg\FiveForTheFuture\Pledge\{ bypass_jetpack_search };
+use function WordPressDotOrg\FiveForTheFuture\Pledge\{ bypass_jetpack_search, deactivate };
+use function WordPressDotOrg\FiveForTheFuture\Auth\get_authentication_url;
+use const WordPressDotOrg\FiveForTheFuture\Auth\TOKEN_PREFIX;
+use const WordPressDotOrg\FiveForTheFuture\Pledge\CPT_ID as PLEDGE_POST_TYPE;
 
 defined( 'WPINC' ) || die();
 
@@ -45,5 +48,27 @@ class Test_Pledge extends WP_UnitTestCase {
 		global $wp_query;
 		$this->assertFalse( $wp_query->is_search(), 'Expected a non-search query.' );
 		$this->assertTrue( bypass_jetpack_search( true, $wp_query ), 'Non-search queries should pass through.' );
+	}
+
+	/**
+	 * Deactivating a pledge must revoke its outstanding confirmation link, so that a copy already sitting in a
+	 * mailbox cannot be followed afterwards to undo the deactivation.
+	 *
+	 * @covers ::deactivate
+	 */
+	public function test_deactivate_revokes_the_confirmation_token() {
+		$pledge_id = self::factory()->post->create( array(
+			'post_type'   => PLEDGE_POST_TYPE,
+			'post_status' => 'draft',
+		) );
+		$page_id   = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$token_key = TOKEN_PREFIX . 'confirm_pledge_email';
+
+		get_authentication_url( $pledge_id, 'confirm_pledge_email', $page_id );
+		$this->assertNotEmpty( get_post_meta( $pledge_id, $token_key, true ), 'The pledge should start with a token.' );
+
+		deactivate( $pledge_id );
+
+		$this->assertEmpty( get_post_meta( $pledge_id, $token_key, true ) );
 	}
 }

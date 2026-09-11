@@ -49,6 +49,67 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Create an invitation with the given status, attached to the given pledge.
+	 *
+	 * An invitation is always named after a real user, and the cached pledge data assumes it.
+	 *
+	 * @param string $status    Status to give the invitation.
+	 * @param int    $pledge_id The pledge to attach it to.
+	 *
+	 * @return WP_Post
+	 */
+	protected function create_invitation( string $status, int $pledge_id ): WP_Post {
+		return get_post(
+			self::factory()->post->create( array(
+				'post_type'   => Contributor\CPT_ID,
+				'post_status' => $status,
+				'post_parent' => $pledge_id,
+				'post_title'  => self::$users['jane']->user_login,
+			) )
+		);
+	}
+
+	/**
+	 * A join nonce stays valid for hours after the sponsor removes the invitation, so only the invitation's own
+	 * state may decide this. A removed invitee must not be able to restore their own sponsorship by replaying
+	 * one, and no invitation to a pledge that is no longer live may be accepted either.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\can_accept_invitation
+	 */
+	public function test_only_a_pending_invitation_to_a_live_pledge_can_be_accepted(): void {
+		$live_pledge = get_post( self::factory()->post->create( array(
+			'post_type'   => Pledge\CPT_ID,
+			'post_status' => 'publish',
+		) ) );
+
+		$dead_pledge = get_post( self::factory()->post->create( array(
+			'post_type'   => Pledge\CPT_ID,
+			'post_status' => Pledge\DEACTIVE_STATUS,
+		) ) );
+
+		$this->assertTrue(
+			Contributor\can_accept_invitation( $this->create_invitation( 'pending', $live_pledge->ID ), $live_pledge )
+		);
+
+		foreach ( array( 'trash', 'draft', 'publish' ) as $status ) {
+			$this->assertFalse(
+				Contributor\can_accept_invitation( $this->create_invitation( $status, $live_pledge->ID ), $live_pledge ),
+				$status
+			);
+		}
+
+		$this->assertFalse(
+			Contributor\can_accept_invitation( $this->create_invitation( 'pending', $dead_pledge->ID ), $dead_pledge ),
+			'A deactivated pledge must not accept a join.'
+		);
+
+		$this->assertFalse(
+			Contributor\can_accept_invitation( $this->create_invitation( 'pending', 0 ), null ),
+			'An invitation with no pledge must not accept a join.'
+		);
+	}
+
+	/**
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_pledge_contributors
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_contributor
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\add_pledge_contributors

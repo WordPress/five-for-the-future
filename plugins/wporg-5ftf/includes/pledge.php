@@ -7,7 +7,7 @@
 namespace WordPressDotOrg\FiveForTheFuture\Pledge;
 
 use WordPressDotOrg\FiveForTheFuture;
-use WordPressDotOrg\FiveForTheFuture\{ Contributor, Email };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor, Email };
 use WP_Post, WP_Error, WP_Query;
 
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
@@ -395,6 +395,8 @@ function deactivate( $pledge_id, $notify = false, $reason = '' ) {
 	do_action( FiveForTheFuture\PREFIX . '_deactivated_pledge', $pledge_id, $notify, $reason, $result );
 
 	if ( ! is_wp_error( $result ) ) {
+		// Revoke the outstanding confirmation link, so a copy already in a mailbox cannot be followed later.
+		delete_post_meta( $pledge_id, Auth\TOKEN_PREFIX . 'confirm_pledge_email' );
 		Contributor\remove_pledge_contributors( $pledge_id );
 	}
 
