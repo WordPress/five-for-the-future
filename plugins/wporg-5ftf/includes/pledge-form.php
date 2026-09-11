@@ -316,8 +316,9 @@ function process_confirmed_email( $value, $tag ) {
 	$meta_key          = PledgeMeta\META_PREFIX . 'pledge-email-confirmed';
 	$already_confirmed = $pledge->$meta_key;
 	$is_new_pledge     = '5ftf_pledge_form_new' === $tag;
+	$is_confirmable    = accepts_email_confirmation( $pledge );
 
-	$email_confirmed = Auth\is_valid_authentication_token( $pledge_id, $action, $auth_token );
+	$email_confirmed = $is_confirmable && Auth\is_valid_authentication_token( $pledge_id, $action, $auth_token );
 
 	if ( $email_confirmed ) {
 		update_post_meta( $pledge_id, $meta_key, true );
@@ -331,7 +332,7 @@ function process_confirmed_email( $value, $tag ) {
 	}
 
 	// Show success for an already-confirmed pledge on refresh, but never gate the side effects above on it.
-	if ( $already_confirmed ) {
+	if ( $already_confirmed && $is_confirmable ) {
 		$email_confirmed = true;
 	}
 
@@ -368,7 +369,7 @@ function process_resend_confirm_email( $value, $tag ) {
 		$confirmed    = get_post_meta( $pledge->ID, PledgeMeta\META_PREFIX . 'pledge-email-confirmed', true );
 		$throttle_key = 'ftf_resend_' . $pledge->ID;
 
-		if ( ! $confirmed && ! get_transient( $throttle_key ) ) {
+		if ( ! $confirmed && accepts_email_confirmation( $pledge ) && ! get_transient( $throttle_key ) ) {
 			set_transient( $throttle_key, 1, 15 * MINUTE_IN_SECONDS );
 			Email\send_pledge_confirmation_email( $pledge->ID, get_post()->ID );
 		}
@@ -381,6 +382,19 @@ function process_resend_confirm_email( $value, $tag ) {
 	ob_start();
 	require FiveForTheFuture\get_views_path() . 'partial-result-messages.php';
 	return ob_get_clean();
+}
+
+/**
+ * Whether a pledge is in a state where an email confirmation still applies.
+ *
+ * A deactivated or trashed pledge is not awaiting anything, so a confirmation link that predates the
+ * deactivation must not be able to bring it back into view.
+ *
+ * @param \WP_Post $pledge The pledge to check.
+ * @return bool
+ */
+function accepts_email_confirmation( $pledge ) {
+	return in_array( $pledge->post_status, array( 'draft', 'pending', 'publish' ), true );
 }
 
 /**

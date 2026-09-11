@@ -5,7 +5,7 @@
 
 declare( strict_types = 1 );
 
-use WordPressDotOrg\FiveForTheFuture\PledgeForm;
+use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeForm };
 
 defined( 'WPINC' ) || die();
 
@@ -127,6 +127,22 @@ class Test_Pledge_Form extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Create a pledge with the given status.
+	 *
+	 * @param string $status Status to give the pledge.
+	 *
+	 * @return WP_Post
+	 */
+	protected function create_pledge( string $status ): WP_Post {
+		return get_post(
+			self::factory()->post->create( array(
+				'post_type'   => Pledge\CPT_ID,
+				'post_status' => $status,
+			) )
+		);
+	}
+
+	/**
 	 * The logo's own IPTC caption must not become the attachment's content. `post_content` is stored through
 	 * the post kses profile, which keeps `data-*` attributes, and the block theme renders it on the
 	 * attachment's own page — so an anonymous submitter could otherwise store Interactivity directives there.
@@ -167,6 +183,22 @@ class Test_Pledge_Form extends WP_UnitTestCase {
 		$this->attachments[] = $attachment_id;
 
 		$this->assertSame( pathinfo( $path, PATHINFO_FILENAME ), get_post( $attachment_id )->post_title );
+	}
+
+	/**
+	 * A pledge awaiting confirmation is a draft; one an administrator has deactivated, or that has been
+	 * trashed, is not awaiting anything, and a confirmation link must not bring it back into view.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\accepts_email_confirmation
+	 */
+	public function test_only_a_live_pledge_accepts_email_confirmation(): void {
+		foreach ( array( 'draft', 'pending', 'publish' ) as $status ) {
+			$this->assertTrue( PledgeForm\accepts_email_confirmation( $this->create_pledge( $status ) ), $status );
+		}
+
+		foreach ( array( Pledge\DEACTIVE_STATUS, 'trash' ) as $status ) {
+			$this->assertFalse( PledgeForm\accepts_email_confirmation( $this->create_pledge( $status ) ), $status );
+		}
 	}
 
 	/**
