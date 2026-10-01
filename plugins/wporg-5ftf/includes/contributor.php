@@ -573,14 +573,13 @@ function parse_contributors( $contributors, $pledge_id = null ) {
 
 		if ( $user instanceof WP_User ) {
 			if ( in_array( $user->user_login, $existing_usernames, true ) ) {
-				$duplicate_contributors[] = $user->user_login;
+				$duplicate_contributors[] = esc_html( $user->user_login );
 				continue;
 			}
 
 			$sanitized_contributors[] = $user->user_login;
 		} else {
-			// Report the sanitized lookup value, not raw request bytes, so it can't carry markup.
-			$invalid_contributors[] = $sanitized_username;
+			$invalid_contributors[] = esc_html( $sanitized_username );
 		}
 	}
 
