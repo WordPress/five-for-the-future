@@ -295,6 +295,25 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
+	 * `sanitize_user()` keeps a `<` followed by whitespace, which kses rebuilds into a real element, so an
+	 * unresolved name must be escaped before it reaches the HTML error message.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\parse_contributors
+	 */
+	public function test_parse_contributors_escapes_tag_residue_in_invalid_names(): void {
+		$payload = "< math data-wp-interactive='x' data-wp-bind--onfocusin='context.p' tabindex='0' >< /math >";
+		$result  = Contributor\parse_contributors( $payload );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'invalid_contributor', $result->get_error_code() );
+
+		$rendered = wp_kses_post( $result->get_error_message() );
+		$this->assertStringNotContainsString( '<math', $rendered );
+		$this->assertStringNotContainsString( '<', $rendered );
+		$this->assertStringContainsString( '&lt; math', $rendered );
+	}
+
+	/**
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\prune_unnotifiable_users
 	 */
 	public function test_prune_unnotifiable_users() {
