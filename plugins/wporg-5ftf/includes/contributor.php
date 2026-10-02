@@ -10,8 +10,8 @@ defined( 'WPINC' ) || die();
 const SLUG                        = 'contributor';
 const SLUG_PL                     = 'contributors';
 const CPT_ID                      = FiveForTheFuture\PREFIX . '_' . SLUG;
-const INACTIVITY_THRESHOLD_MONTHS = 3;
 const JOIN_KEY_META               = FiveForTheFuture\PREFIX . '_join-key';
+const INACTIVITY_THRESHOLD_MONTHS = 3;
 
 add_action( 'init',                                      __NAMESPACE__ . '\register_custom_post_type', 0 );
 add_action( 'init',                                      __NAMESPACE__ . '\schedule_cron_jobs' );
