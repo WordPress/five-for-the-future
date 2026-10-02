@@ -11,6 +11,7 @@ use WP_User, WP_Post;
  * @var WP_Post $contributor_post
  * @var string  $success_message
  * @var string  $pledge_url
+ * @var string  $login_url
  * @var array   $profile_data
  * @var array   $confirmed_pledge_ids
  */
@@ -141,7 +142,7 @@ $edit_link = sprintf(
 		<p>
 			<?php echo wp_kses_data( sprintf(
 				__( 'Please <a href="%s">log in to your WordPress.org account</a> in order to view your pledges.', 'wporg-5ftf' ),
-				esc_url( wp_login_url( get_permalink() ) )
+				esc_url( $login_url )
 			) ); ?>
 		</p>
 	</div>

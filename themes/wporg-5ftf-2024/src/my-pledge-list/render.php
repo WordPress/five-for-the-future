@@ -11,7 +11,7 @@ use const WordPressDotOrg\FiveForTheFuture\Contributor\CPT_ID as CONTRIBUTOR_POS
 if ( ! is_user_logged_in() ) {
 	render_notice( 'warning', sprintf(
 		__( 'Please <a href="%s">log in to your WordPress.org account</a> in order to view your pledges.', 'wporg-5ftf' ),
-		esc_url( wp_login_url( get_permalink() ) )
+		esc_url( wp_login_url( add_query_arg( Contributor\get_join_link_args(), get_permalink() ) ) )
 	) );
 	return;
 }
@@ -20,6 +20,8 @@ $user            = wp_get_current_user();
 $profile_data    = XProfile\get_contributor_user_data( $user->ID );
 $pledge_url      = get_permalink( get_page_by_path( 'for-organizations' ) );
 $success_message = Contributor\process_my_pledges_form();
+
+Contributor\add_contributor_from_join_link( $user, Contributor\get_join_link_args() );
 
 $contributor_pending_posts = get_posts( array(
 	'title'       => $user->user_login,

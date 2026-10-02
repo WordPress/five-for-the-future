@@ -179,6 +179,14 @@ function render_form_manage() {
 				$messages[] = __( 'You must confirm your new email address before it will be visible.', 'wporg-5ftf' );
 			}
 		}
+	} elseif ( 'reset-join-link' === $action ) {
+		$results = process_form_reset_join_link( $pledge_id, $auth_token );
+
+		if ( is_wp_error( $results ) ) {
+			$errors = $results->get_error_messages();
+		} else {
+			$messages = array( __( 'The join link has been reset. The previous link no longer works.', 'wporg-5ftf' ) );
+		}
 	}
 
 	$data         = PledgeMeta\get_pledge_meta( $pledge_id, '', get_form_submission() );
@@ -283,6 +291,34 @@ function process_form_remove( $pledge_id, $auth_token ) {
 	}
 
 	// If we made it to here, we've successfully removed the pledge.
+	return true;
+}
+
+/**
+ * Process a submission from the Reset Join Link form.
+ *
+ * @param int    $pledge_id  The post ID of the pledge.
+ * @param string $auth_token The token that authorizes managing the pledge.
+ *
+ * @return WP_Error|true An error if the link could not be reset. Otherwise true.
+ */
+function process_form_reset_join_link( $pledge_id, $auth_token ) {
+	$nonce           = filter_input( INPUT_POST, '_wpnonce', FILTER_UNSAFE_RAW );
+	$has_valid_nonce = wp_verify_nonce( $nonce, 'reset_join_link_' . $pledge_id );
+	$can_view_form   = Auth\can_manage_pledge( $pledge_id, $auth_token );
+
+	if ( ! $has_valid_nonce || is_wp_error( $can_view_form ) ) {
+		return new WP_Error(
+			'invalid_token',
+			sprintf(
+				__( 'Your link has expired, please <a href="%s">obtain a new one</a>.', 'wporg-5ftf' ),
+				get_permalink( $pledge_id )
+			)
+		);
+	}
+
+	Contributor\reset_join_link( $pledge_id );
+
 	return true;
 }
 
