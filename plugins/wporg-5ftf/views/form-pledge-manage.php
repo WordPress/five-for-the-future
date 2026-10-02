@@ -2,6 +2,7 @@
 
 namespace WordPressDotOrg\FiveForTheFuture\View;
 use function WordPressDotOrg\FiveForTheFuture\get_views_path;
+use function WordPressDotOrg\FiveForTheFuture\Contributor\get_join_link;
 
 /**
  * @var bool   $can_view_form
@@ -37,6 +38,35 @@ require __DIR__ . '/partial-result-messages.php';
 		</div>
 
 		<h2><?php esc_html_e( 'Contributors', 'wporg-5ftf' ); ?></h2>
+
+		<?php if ( 'publish' === get_post_status( $pledge_id ) ) : ?>
+			<div class="form-field">
+				<label for="5ftf-pledge-join-link">
+					<?php esc_html_e( 'Join link', 'wporg-5ftf' ); ?>
+				</label>
+				<input
+					type="text"
+					id="5ftf-pledge-join-link"
+					value="<?php echo esc_url( get_join_link( $pledge_id ) ); ?>"
+					aria-describedby="5ftf-pledge-join-link-help"
+					readonly
+				/>
+				<p id="5ftf-pledge-join-link-help">
+					<?php esc_html_e( 'Share this link privately with your contributors so they can join the pledge themselves. They still confirm it from their My Pledges page, and you can remove anyone who shouldn’t be listed. If the link reaches the wrong people, reset it to stop the current one from working.', 'wporg-5ftf' ); ?>
+				</p>
+				<div class="wp-block-button is-style-outline is-small">
+					<button
+						type="submit"
+						class="button button-secondary wp-block-button__link"
+						name="action"
+						value="reset-join-link"
+						formnovalidate
+					>
+						<?php esc_html_e( 'Reset link', 'wporg-5ftf' ); ?>
+					</button>
+				</div>
+			</div>
+		<?php endif; ?>
 
 		<?php require get_views_path() . 'manage-contributors.php'; ?>
 

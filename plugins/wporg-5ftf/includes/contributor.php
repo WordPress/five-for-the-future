@@ -11,6 +11,7 @@ const SLUG                        = 'contributor';
 const SLUG_PL                     = 'contributors';
 const CPT_ID                      = FiveForTheFuture\PREFIX . '_' . SLUG;
 const INACTIVITY_THRESHOLD_MONTHS = 3;
+const JOIN_KEY_META               = FiveForTheFuture\PREFIX . '_join-key';
 
 add_action( 'init',                                      __NAMESPACE__ . '\register_custom_post_type', 0 );
 add_action( 'init',                                      __NAMESPACE__ . '\schedule_cron_jobs' );
@@ -437,6 +438,9 @@ function render_my_pledges() {
 	$profile_data    = XProfile\get_contributor_user_data( $user->ID );
 	$pledge_url      = get_permalink( get_page_by_path( 'for-organizations' ) );
 	$success_message = process_my_pledges_form();
+	$login_url       = wp_login_url( add_query_arg( get_join_link_args(), get_permalink() ) );
+
+	add_contributor_from_join_link( $user );
 
 	$contributor_pending_posts = get_posts( array(
 		'title'       => $user->user_login,
@@ -536,6 +540,108 @@ function can_accept_invitation( $contributor_post, $pledge ) {
 		&& $pledge instanceof WP_Post
 		&& Pledge\CPT_ID === $pledge->post_type
 		&& 'publish' === $pledge->post_status;
+}
+
+/**
+ * Get the private link that lets contributors add themselves to a pledge.
+ *
+ * @param int $pledge_id The post ID of the pledge.
+ *
+ * @return string
+ */
+function get_join_link( $pledge_id ) {
+	$key = get_post_meta( $pledge_id, JOIN_KEY_META, true );
+
+	if ( ! $key ) {
+		$key = wp_generate_password( 20, false );
+		update_post_meta( $pledge_id, JOIN_KEY_META, $key );
+	}
+
+	return add_query_arg(
+		array(
+			'join' => $pledge_id,
+			'key'  => $key,
+		),
+		home_url( 'my-pledges/' )
+	);
+}
+
+/**
+ * Replace a pledge's join link, so the previous one stops working.
+ *
+ * @param int $pledge_id The post ID of the pledge.
+ *
+ * @return void
+ */
+function reset_join_link( $pledge_id ) {
+	delete_post_meta( $pledge_id, JOIN_KEY_META );
+}
+
+/**
+ * Get the join link arguments from the current request.
+ *
+ * @return array Empty if the request isn't for a join link.
+ */
+function get_join_link_args() {
+	$pledge_id = filter_input( INPUT_GET, 'join', FILTER_VALIDATE_INT );
+	$key       = filter_input( INPUT_GET, 'key', FILTER_UNSAFE_RAW );
+
+	if ( ! $pledge_id || ! is_string( $key ) || ! ctype_alnum( $key ) ) {
+		return array();
+	}
+
+	return array(
+		'join' => $pledge_id,
+		'key'  => $key,
+	);
+}
+
+/**
+ * Whether a key matches the join link of a live pledge.
+ *
+ * @param int    $pledge_id The post ID of the pledge.
+ * @param string $key       The key from the join link.
+ *
+ * @return bool
+ */
+function is_valid_join_key( $pledge_id, $key ) {
+	$pledge     = get_post( $pledge_id );
+	$stored_key = get_post_meta( $pledge_id, JOIN_KEY_META, true );
+
+	return $pledge instanceof WP_Post
+		&& Pledge\CPT_ID === $pledge->post_type
+		&& 'publish' === $pledge->post_status
+		&& $stored_key
+		&& hash_equals( $stored_key, $key );
+}
+
+/**
+ * Invite the user to a pledge when they arrive through its join link.
+ *
+ * The invitation stays pending, so the user still confirms it on the My Pledges page like any other.
+ *
+ * @param WP_User $user The current user.
+ *
+ * @return void
+ */
+function add_contributor_from_join_link( $user ) {
+	// The My Pledges forms post back to the join link, and declining shouldn't re-invite the user right away.
+	if ( 'POST' === ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+		return;
+	}
+
+	$args = get_join_link_args();
+
+	if ( ! $args || ! $user->exists() || ! is_valid_join_key( $args['join'], $args['key'] ) ) {
+		return;
+	}
+
+	// An error means the user is already associated with the pledge, so there's nothing to add.
+	$contributors = parse_contributors( $user->user_login, $args['join'] );
+
+	if ( ! is_wp_error( $contributors ) ) {
+		add_pledge_contributors( $args['join'], $contributors );
+	}
 }
 
 /**

@@ -110,6 +110,57 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The join link is a pledge's standing invitation, so it must only work with its own key, and only while the
+	 * pledge is live.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\get_join_link
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\is_valid_join_key
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\reset_join_link
+	 */
+	public function test_join_link_only_works_for_its_live_pledge(): void {
+		$pledge_id       = self::factory()->post->create( array(
+			'post_type'   => Pledge\CPT_ID,
+			'post_status' => 'publish',
+		) );
+		$other_pledge_id = self::factory()->post->create( array(
+			'post_type'   => Pledge\CPT_ID,
+			'post_status' => 'publish',
+		) );
+
+		$link = Contributor\get_join_link( $pledge_id );
+		parse_str( (string) wp_parse_url( $link, PHP_URL_QUERY ), $args );
+
+		$this->assertSame( $link, Contributor\get_join_link( $pledge_id ), 'The link must stay stable once shared.' );
+		$this->assertSame( $pledge_id, (int) $args['join'] );
+		$this->assertTrue( Contributor\is_valid_join_key( $pledge_id, $args['key'] ) );
+
+		$this->assertFalse( Contributor\is_valid_join_key( $pledge_id, 'wrong' ) );
+		$this->assertFalse(
+			Contributor\is_valid_join_key( $other_pledge_id, $args['key'] ),
+			'A key must not open another pledge.'
+		);
+
+		Contributor\reset_join_link( $pledge_id );
+		parse_str( (string) wp_parse_url( Contributor\get_join_link( $pledge_id ), PHP_URL_QUERY ), $new_args );
+
+		$this->assertFalse(
+			Contributor\is_valid_join_key( $pledge_id, $args['key'] ),
+			'A reset must stop the previous link from working.'
+		);
+		$this->assertTrue( Contributor\is_valid_join_key( $pledge_id, $new_args['key'] ) );
+
+		wp_update_post( array(
+			'ID'          => $pledge_id,
+			'post_status' => Pledge\DEACTIVE_STATUS,
+		) );
+
+		$this->assertFalse(
+			Contributor\is_valid_join_key( $pledge_id, $new_args['key'] ),
+			'A deactivated pledge must not accept joins.'
+		);
+	}
+
+	/**
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_pledge_contributors
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_contributor
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\add_pledge_contributors
