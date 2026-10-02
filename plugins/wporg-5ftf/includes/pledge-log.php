@@ -20,6 +20,7 @@ add_action( 'deleted_post_meta', __NAMESPACE__ . '\capture_deleted_post_meta', 9
 add_action( 'transition_post_status', __NAMESPACE__ . '\capture_transition_post_status', 99, 3 );
 add_action( FiveForTheFuture\PREFIX . '_add_pledge_contributors', __NAMESPACE__ . '\capture_add_pledge_contributors', 99, 3 );
 add_action( FiveForTheFuture\PREFIX . '_remove_contributor', __NAMESPACE__ . '\capture_remove_contributor', 99, 3 );
+add_action( FiveForTheFuture\PREFIX . '_reset_join_link', __NAMESPACE__ . '\capture_reset_join_link', 99 );
 add_action( FiveForTheFuture\PREFIX . '_email_result', __NAMESPACE__ . '\capture_email_result', 99, 6 );
 add_action( FiveForTheFuture\PREFIX . '_deactivated_pledge', __NAMESPACE__ . '\capture_pledge_deactivation', 99, 4 );
 
@@ -335,6 +336,17 @@ function capture_add_pledge_contributors( $pledge_id, $contributors, $results ) 
 		),
 		$results
 	);
+}
+
+/**
+ * Record a log for the event when a pledge's join link is reset.
+ *
+ * @param int $pledge_id The post ID of the pledge.
+ *
+ * @return void
+ */
+function capture_reset_join_link( $pledge_id ) {
+	add_log_entry( $pledge_id, 'join_link_reset', 'Join link reset.' );
 }
 
 /**

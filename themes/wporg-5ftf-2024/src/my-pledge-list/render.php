@@ -21,7 +21,7 @@ $profile_data    = XProfile\get_contributor_user_data( $user->ID );
 $pledge_url      = get_permalink( get_page_by_path( 'for-organizations' ) );
 $success_message = Contributor\process_my_pledges_form();
 
-Contributor\add_contributor_from_join_link( $user );
+Contributor\add_contributor_from_join_link( $user, Contributor\get_join_link_args() );
 
 $contributor_pending_posts = get_posts( array(
 	'title'       => $user->user_login,

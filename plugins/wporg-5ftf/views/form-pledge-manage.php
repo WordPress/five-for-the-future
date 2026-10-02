@@ -58,9 +58,7 @@ require __DIR__ . '/partial-result-messages.php';
 					<button
 						type="submit"
 						class="button button-secondary wp-block-button__link"
-						name="action"
-						value="reset-join-link"
-						formnovalidate
+						form="5ftf-form-pledge-reset-join-link"
 					>
 						<?php esc_html_e( 'Reset link', 'wporg-5ftf' ); ?>
 					</button>
@@ -70,6 +68,14 @@ require __DIR__ . '/partial-result-messages.php';
 
 		<?php require get_views_path() . 'manage-contributors.php'; ?>
 
+	</form>
+
+	<?php // Kept apart from the manage form, so resetting the link doesn't carry unsaved pledge edits along. ?>
+	<form id="5ftf-form-pledge-reset-join-link" action="" method="post">
+		<?php wp_nonce_field( 'reset_join_link_' . $pledge_id ); ?>
+		<input type="hidden" name="action" value="reset-join-link" />
+		<input type="hidden" name="auth_token" value="<?php echo esc_attr( $auth_token ); ?>" />
+		<input type="hidden" name="pledge_id" value="<?php echo absint( $pledge_id ); ?>" />
 	</form>
 
 	<?php require get_views_path() . 'form-pledge-remove.php'; ?>

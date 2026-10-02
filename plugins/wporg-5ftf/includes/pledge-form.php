@@ -295,13 +295,16 @@ function process_form_remove( $pledge_id, $auth_token ) {
 }
 
 /**
- * Process a request from the Manage Pledge form to reset the join link.
+ * Process a submission from the Reset Join Link form.
+ *
+ * @param int    $pledge_id  The post ID of the pledge.
+ * @param string $auth_token The token that authorizes managing the pledge.
  *
  * @return WP_Error|true An error if the link could not be reset. Otherwise true.
  */
 function process_form_reset_join_link( $pledge_id, $auth_token ) {
 	$nonce           = filter_input( INPUT_POST, '_wpnonce', FILTER_UNSAFE_RAW );
-	$has_valid_nonce = wp_verify_nonce( $nonce, 'manage_pledge_' . $pledge_id );
+	$has_valid_nonce = wp_verify_nonce( $nonce, 'reset_join_link_' . $pledge_id );
 	$can_view_form   = Auth\can_manage_pledge( $pledge_id, $auth_token );
 
 	if ( ! $has_valid_nonce || is_wp_error( $can_view_form ) ) {

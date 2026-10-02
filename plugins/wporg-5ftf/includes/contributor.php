@@ -167,7 +167,7 @@ function add_pledge_contributors( $pledge_id, $contributors ) {
 	$results = array();
 
 	foreach ( $contributors as $wporg_username ) {
-		$wporg_user = get_user_by( 'slug', $wporg_username );
+		$wporg_user = get_user_by( 'login', $wporg_username );
 
 		$args = array(
 			'post_type'   => CPT_ID,
@@ -438,9 +438,10 @@ function render_my_pledges() {
 	$profile_data    = XProfile\get_contributor_user_data( $user->ID );
 	$pledge_url      = get_permalink( get_page_by_path( 'for-organizations' ) );
 	$success_message = process_my_pledges_form();
-	$login_url       = wp_login_url( add_query_arg( get_join_link_args(), get_permalink() ) );
+	$join_link_args  = get_join_link_args();
+	$login_url       = wp_login_url( add_query_arg( $join_link_args, get_permalink() ) );
 
-	add_contributor_from_join_link( $user );
+	add_contributor_from_join_link( $user, $join_link_args );
 
 	$contributor_pending_posts = get_posts( array(
 		'title'       => $user->user_login,
@@ -553,8 +554,9 @@ function get_join_link( $pledge_id ) {
 	$key = get_post_meta( $pledge_id, JOIN_KEY_META, true );
 
 	if ( ! $key ) {
-		$key = wp_generate_password( 20, false );
-		update_post_meta( $pledge_id, JOIN_KEY_META, $key );
+		// Unique, so a concurrent request can't swap out a key that was already handed out.
+		add_post_meta( $pledge_id, JOIN_KEY_META, wp_generate_password( 20, false ), true );
+		$key = get_post_meta( $pledge_id, JOIN_KEY_META, true );
 	}
 
 	return add_query_arg(
@@ -562,7 +564,7 @@ function get_join_link( $pledge_id ) {
 			'join' => $pledge_id,
 			'key'  => $key,
 		),
-		home_url( 'my-pledges/' )
+		get_permalink( get_page_by_path( 'my-pledges' ) )
 	);
 }
 
@@ -575,6 +577,13 @@ function get_join_link( $pledge_id ) {
  */
 function reset_join_link( $pledge_id ) {
 	delete_post_meta( $pledge_id, JOIN_KEY_META );
+
+	/**
+	 * Action: Fires when a pledge's join link is reset.
+	 *
+	 * @param int $pledge_id The post ID of the pledge.
+	 */
+	do_action( FiveForTheFuture\PREFIX . '_reset_join_link', $pledge_id );
 }
 
 /**
@@ -621,26 +630,30 @@ function is_valid_join_key( $pledge_id, $key ) {
  * The invitation stays pending, so the user still confirms it on the My Pledges page like any other.
  *
  * @param WP_User $user The current user.
+ * @param array   $args The join link arguments, see get_join_link_args().
  *
  * @return void
  */
-function add_contributor_from_join_link( $user ) {
-	// The My Pledges forms post back to the join link, and declining shouldn't re-invite the user right away.
-	if ( 'POST' === ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
-		return;
-	}
-
-	$args = get_join_link_args();
-
+function add_contributor_from_join_link( $user, $args ) {
 	if ( ! $args || ! $user->exists() || ! is_valid_join_key( $args['join'], $args['key'] ) ) {
 		return;
 	}
 
-	// An error means the user is already associated with the pledge, so there's nothing to add.
-	$contributors = parse_contributors( $user->user_login, $args['join'] );
+	/*
+	 * Trashed posts count too: someone who was removed, declined, or left can't put themselves back through the
+	 * link, only the pledge admin can.
+	 */
+	$existing = get_posts( array(
+		'title'       => $user->user_login,
+		'post_type'   => CPT_ID,
+		'post_parent' => $args['join'],
+		'post_status' => array( 'pending', 'publish', 'trash' ),
+		'numberposts' => 1,
+		'fields'      => 'ids',
+	) );
 
-	if ( ! is_wp_error( $contributors ) ) {
-		add_pledge_contributors( $args['join'], $contributors );
+	if ( ! $existing ) {
+		add_pledge_contributors( $args['join'], array( $user->user_login ) );
 	}
 }
 

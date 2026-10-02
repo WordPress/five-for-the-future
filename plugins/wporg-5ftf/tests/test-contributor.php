@@ -161,6 +161,47 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Opening the join link invites the user once, and someone who was removed can't put themselves back.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\add_contributor_from_join_link
+	 */
+	public function test_join_link_invites_once_and_respects_removal(): void {
+		$pledge_id = self::factory()->post->create( array(
+			'post_type'   => Pledge\CPT_ID,
+			'post_status' => 'publish',
+		) );
+		$user      = self::$users['jane'];
+
+		parse_str( (string) wp_parse_url( Contributor\get_join_link( $pledge_id ), PHP_URL_QUERY ), $args );
+		$args['join'] = (int) $args['join'];
+
+		$get_invitations = function () use ( $pledge_id ): array {
+			return get_posts( array(
+				'post_type'   => Contributor\CPT_ID,
+				'post_parent' => $pledge_id,
+				'post_status' => array( 'pending', 'publish', 'trash' ),
+			) );
+		};
+
+		Contributor\add_contributor_from_join_link( $user, array( 'key' => 'wrong' ) + $args );
+		$this->assertCount( 0, $get_invitations(), 'A wrong key must not invite anyone.' );
+
+		Contributor\add_contributor_from_join_link( $user, $args );
+		$invitations = $get_invitations();
+		$this->assertCount( 1, $invitations );
+		$this->assertSame( 'pending', $invitations[0]->post_status );
+		$this->assertSame( $user->ID, (int) $invitations[0]->wporg_user_id );
+
+		Contributor\add_contributor_from_join_link( $user, $args );
+		$this->assertCount( 1, $get_invitations(), 'Reopening the link must not invite again.' );
+
+		Contributor\remove_contributor( $invitations[0]->ID );
+		Contributor\add_contributor_from_join_link( $user, $args );
+		$this->assertCount( 1, $get_invitations(), 'A removed contributor must not rejoin through the link.' );
+		$this->assertSame( 'trash', get_post_status( $invitations[0]->ID ) );
+	}
+
+	/**
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_pledge_contributors
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\remove_contributor
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\add_pledge_contributors
