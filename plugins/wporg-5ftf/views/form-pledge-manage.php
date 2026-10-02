@@ -52,7 +52,7 @@ require __DIR__ . '/partial-result-messages.php';
 					readonly
 				/>
 				<p id="5ftf-pledge-join-link-help">
-					<?php esc_html_e( 'Share this link privately with your contributors so they can join the pledge themselves. They still confirm it from their My Pledges page, and you can remove anyone who shouldn’t be listed. If the link reaches the wrong people, reset it to stop the current one from working.', 'wporg-5ftf' ); ?>
+					<?php esc_html_e( 'Share this link privately with your contributors so they can join the pledge themselves. They still confirm it from their My Pledges page, and you can remove anyone who shouldn’t be listed.', 'wporg-5ftf' ); ?>
 				</p>
 				<div class="wp-block-button is-style-outline is-small">
 					<button
