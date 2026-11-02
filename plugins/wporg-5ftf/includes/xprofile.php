@@ -18,7 +18,7 @@ const FIELD_IDS = array(
  * The user meta key where profiles.wordpress.org stores how a contributor splits their weekly hours between their
  * sponsors and their own time, e.g. `array( 123 => 4, 'self' => 2 )`. The `hours_per_week` field holds the total.
  */
-const HOURS_SPLIT_META_KEY = 'wporg_5ftf_hours';
+const HOURS_SPLIT_META_KEY = 'wporg_5ftf_hours_breakdown';
 
 defined( 'WPINC' ) || die();
 

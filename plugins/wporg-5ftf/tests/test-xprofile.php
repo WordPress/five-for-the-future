@@ -74,6 +74,9 @@ class Test_XProfile extends WP_UnitTestCase {
 	 * With a split, only the hours a contributor gives through this pledge count toward it, and their own
 	 * time counts toward no pledge.
 	 *
+	 * The split is saved under the meta key that profiles.wordpress.org uses, written out instead of
+	 * `HOURS_SPLIT_META_KEY`, so that a wrong key fails this test.
+	 *
 	 * @covers WordPressDotOrg\FiveForTheFuture\XProfile\get_aggregate_contributor_data_for_pledge
 	 */
 	public function test_pledge_hours_count_the_split(): void {
@@ -84,7 +87,7 @@ class Test_XProfile extends WP_UnitTestCase {
 		$this->add_confirmed_contributors( $bluehost, array( $jane ) );
 
 		// Jane's profile total is 40: 10 for 10up, 25 for BlueHost and 5 of her own time.
-		update_user_meta( $jane->ID, XProfile\HOURS_SPLIT_META_KEY, array(
+		update_user_meta( $jane->ID, 'wporg_5ftf_hours_breakdown', array(
 			$tenup->ID    => 10,
 			$bluehost->ID => 25,
 			'self'        => 5,
