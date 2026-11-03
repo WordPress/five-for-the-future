@@ -123,10 +123,12 @@ function get_authentication_url( $pledge_id, $action, $action_page_id, $use_once
  * @param int    $pledge_id
  * @param string $action
  * @param string $unverified_token
+ * @param bool   $consume          Optional. Whether to use up a single-use token. Pass false to check a token
+ *                                 before the request that acts on it. Default true.
  *
  * @return bool
  */
-function is_valid_authentication_token( $pledge_id, $action, $unverified_token ) {
+function is_valid_authentication_token( $pledge_id, $action, $unverified_token, $consume = true ) {
 	$verified    = false;
 	$valid_token = get_post_meta( $pledge_id, TOKEN_PREFIX . $action, true );
 
@@ -150,7 +152,7 @@ function is_valid_authentication_token( $pledge_id, $action, $unverified_token )
 		$verified = true;
 
 		// Tokens should not be reusable -- to increase security -- unless explicitly required to fulfill their purpose.
-		if ( false !== $valid_token['use_once'] ) {
+		if ( $consume && false !== $valid_token['use_once'] ) {
 			delete_post_meta( $pledge_id, TOKEN_PREFIX . $action );
 		}
 	}
