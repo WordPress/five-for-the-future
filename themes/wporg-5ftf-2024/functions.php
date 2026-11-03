@@ -132,7 +132,9 @@ function swap_avatar_for_featured_image( $html, $post_id, $post_thumbnail_id, $s
 		foreach ( $attr as $name => $value ) {
 			$attr_str .= " $name=" . '"' . $value . '"';
 		}
-		$html = get_avatar( wp_get_current_user(), 110, 'mystery', '', array( 'extra_attr' => $attr_str ) );
+		// Logged out, this is the generic placeholder, which is decorative.
+		$alt  = is_user_logged_in() ? __( 'Your profile picture', 'wporg-5ftf' ) : '';
+		$html = get_avatar( wp_get_current_user(), 110, 'mystery', $alt, array( 'extra_attr' => $attr_str ) );
 	}
 	return $html;
 }
