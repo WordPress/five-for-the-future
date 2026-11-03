@@ -121,9 +121,23 @@ function render_form_manage() {
 	$messages = array();
 	$errors   = array();
 
-	$action        = sanitize_text_field( $_REQUEST['action'] ?? '' );
-	$pledge_id     = absint( $_REQUEST['pledge_id'] ?? 0 );
-	$auth_token    = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );
+	$action     = sanitize_text_field( $_REQUEST['action'] ?? '' );
+	$pledge_id  = absint( $_REQUEST['pledge_id'] ?? 0 );
+	$auth_token = sanitize_text_field( $_REQUEST['auth_token'] ?? '' );
+
+	if ( ! $pledge_id ) {
+		$errors = array(
+			sprintf(
+				__( 'To manage a pledge, find it in <a href="%s">the pledge directory</a> and select “Edit Pledge”. We’ll email an edit link to the pledge’s admin address.', 'wporg-5ftf' ),
+				esc_url( home_url( 'pledges' ) )
+			),
+		);
+
+		ob_start();
+		require FiveForTheFuture\get_views_path() . 'partial-result-messages.php';
+		return ob_get_clean();
+	}
+
 	$can_view_form = Auth\can_manage_pledge( $pledge_id, $auth_token );
 
 	if ( is_wp_error( $can_view_form ) ) {
