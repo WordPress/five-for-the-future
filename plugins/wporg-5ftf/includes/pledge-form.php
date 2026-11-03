@@ -26,6 +26,17 @@ add_filter( 'pre_do_shortcode_tag', __NAMESPACE__ . '\process_resend_confirm_ema
  * @return false|string
  */
 function render_form_new() {
+	// Spam submissions come from anonymous visitors, and every real organization has someone with an account.
+	if ( ! is_user_logged_in() ) {
+		return sprintf(
+			'<div class="notice notice-warning notice-alt"><p>%s</p></div>',
+			wp_kses_post( sprintf(
+				__( 'Please <a href="%s">log in to your WordPress.org account</a> in order to submit a pledge.', 'wporg-5ftf' ),
+				esc_url( wp_login_url( get_permalink() ) )
+			) )
+		);
+	}
+
 	$action    = isset( $_GET['action'] ) ? filter_input( INPUT_GET, 'action' ) : filter_input( INPUT_POST, 'action' );
 	$is_manage = false;
 	$pledge_id = 0;
