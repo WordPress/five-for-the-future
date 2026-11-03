@@ -14,6 +14,12 @@ const FIELD_IDS = array(
 	'team_names'     => 30,
 );
 
+/*
+ * The user meta key where profiles.wordpress.org stores how a contributor splits their weekly hours between their
+ * sponsors and their own time, e.g. `array( 123 => 4, 'self' => 2 )`. The `hours_per_week` field holds the total.
+ */
+const HOURS_SPLIT_META_KEY = 'wporg_5ftf_hours_breakdown';
+
 defined( 'WPINC' ) || die();
 
 /**
@@ -121,6 +127,54 @@ function get_xprofile_contribution_data( array $user_ids ) {
 }
 
 /**
+ * Get how contributors split their weekly hours between their sponsors and their own time.
+ *
+ * Contributors who have more than one sponsor, or who give some of their own time too, can split their total
+ * `hours_per_week` on their profile.
+ *
+ * @global WPDB $wpdb
+ *
+ * @param array $user_ids
+ *
+ * @return array Splits keyed by user ID. Each split holds hours keyed by pledge ID, and `self` for the
+ *               contributor's own time. Contributors without a split, or with no hours in it, are left out.
+ */
+function get_contributor_hours_splits( array $user_ids ): array {
+	global $wpdb;
+
+	$user_ids = array_filter( array_map( 'absint', $user_ids ) );
+
+	if ( empty( $user_ids ) ) {
+		return array();
+	}
+
+	$id_placeholders = implode( ', ', array_fill( 0, count( $user_ids ), '%d' ) );
+
+	// phpcs:disable -- `$id_placeholders` is safely created above.
+	$rows = $wpdb->get_results( $wpdb->prepare( "
+		SELECT user_id, meta_value
+		FROM `$wpdb->usermeta`
+		WHERE
+			meta_key = %s AND
+			user_id IN ( $id_placeholders )",
+		array_merge( array( HOURS_SPLIT_META_KEY ), $user_ids )
+	) );
+	// phpcs:enable
+
+	$splits = array();
+
+	foreach ( $rows as $row ) {
+		$split = maybe_unserialize( $row->meta_value );
+
+		if ( is_array( $split ) && array_sum( array_map( 'absint', $split ) ) > 0 ) {
+			$splits[ absint( $row->user_id ) ] = $split;
+		}
+	}
+
+	return $splits;
+}
+
+/**
  * Reindex `bpmain_bp_xprofile_data` rows by user ID, normalize it, and format it.
  *
  * This makes the data much easier to work with in many cases.
@@ -175,7 +229,8 @@ function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 	$contributor_users = Contributor\get_contributor_user_objects( $contributor_posts );
 	$user_ids          = wp_list_pluck( $contributor_users, 'ID' );
 
-	$data = get_xprofile_contribution_data( $user_ids );
+	$data   = get_xprofile_contribution_data( $user_ids );
+	$splits = get_contributor_hours_splits( $user_ids );
 
 	$initial = array(
 		'contributors' => count( $user_ids ),
@@ -183,10 +238,17 @@ function get_aggregate_contributor_data_for_pledge( $pledge_id ) {
 		'teams'        => array(),
 	);
 
-	$aggregate_data = array_reduce( $data, function ( $carry, $item ) {
+	$aggregate_data = array_reduce( $data, function ( $carry, $item ) use ( $pledge_id, $splits ) {
 		switch ( $item['field_id'] ) {
 			case FIELD_IDS['hours_per_week']:
-				$carry['hours'] += absint( $item['value'] );
+				$hours = absint( $item['value'] );
+
+				// When the contributor splits their total, only the hours they give through this pledge count.
+				if ( isset( $splits[ $item['user_id'] ] ) ) {
+					$hours = min( $hours, absint( $splits[ $item['user_id'] ][ $pledge_id ] ?? 0 ) );
+				}
+
+				$carry['hours'] += $hours;
 				break;
 
 			case FIELD_IDS['team_names']:

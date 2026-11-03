@@ -159,6 +159,7 @@ function get_snapshot_data() {
 	$company_contributor_user_ids = array_unique( Contributor\get_contributor_user_ids( $company_sponsored_contributors ) );
 	unset( $company_sponsored_contributors );
 
+	$company_contributor_splits                      = XProfile\get_contributor_hours_splits( $company_contributor_user_ids );
 	$all_contributor_profiles                        = XProfile\get_all_xprofile_contributor_hours_teams();
 	$snapshot_data['company_sponsored_contributors'] = count( $company_contributor_user_ids );
 	$snapshot_data['self_sponsored_contributors']    = count( $all_contributor_profiles ) - count( $company_contributor_user_ids );
@@ -181,7 +182,15 @@ function get_snapshot_data() {
 
 		$team_contributor_key = sprintf( 'team_%s_contributors', $attribution_prefix );
 
-		$snapshot_data[ $attribution_prefix . '_hours' ] += $user['hours_per_week'];
+		// A company-sponsored contributor can also give some of their own time, which is self-sponsored.
+		$own_hours = 0;
+
+		if ( $is_company_sponsored && isset( $company_contributor_splits[ $user['user_id'] ] ) ) {
+			$own_hours = min( $user['hours_per_week'], absint( $company_contributor_splits[ $user['user_id'] ]['self'] ?? 0 ) );
+		}
+
+		$snapshot_data[ $attribution_prefix . '_hours' ] += $user['hours_per_week'] - $own_hours;
+		$snapshot_data['self_sponsored_hours']           += $own_hours;
 
 		foreach ( $user['team_names'] as $team ) {
 			if ( isset( $snapshot_data[ $team_contributor_key ][ $team ] ) ) {

@@ -1,6 +1,6 @@
 <?php
 
-use WordPressDotOrg\FiveForTheFuture\{ Contributor };
+use WordPressDotOrg\FiveForTheFuture\{ Contributor, XProfile };
 use WordPressDotOrg\FiveForTheFuture\Tests\Helpers as TestHelpers;
 use function WordPressDotOrg\FiveForTheFuture\Stats\{ get_snapshot_data };
 
@@ -94,5 +94,61 @@ class Test_Stats extends WP_UnitTestCase {
 		$actual = get_snapshot_data();
 
 		$this->assertSame( $expected, $actual );
+	}
+
+	/**
+	 * Own time from a company-sponsored contributor's split counts as self-sponsored.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Stats\get_snapshot_data
+	 */
+	public function test_get_snapshot_counts_own_time_as_self_sponsored(): void {
+		$jane               = self::$users['jane'];
+		$ashish             = self::$users['ashish'];
+		$tenup              = self::$pledges['10up'];
+		$tenup_contributors = Contributor\add_pledge_contributors( $tenup->ID, array( $jane->user_login, $ashish->user_login ) );
+
+		foreach ( $tenup_contributors as $contributor_id ) {
+			wp_update_post( array(
+				'ID'          => $contributor_id,
+				'post_status' => 'publish',
+			) );
+		}
+
+		// Jane's profile total is 40: 30 for 10up and 10 of her own time.
+		update_user_meta( $jane->ID, XProfile\HOURS_SPLIT_META_KEY, array(
+			$tenup->ID => 30,
+			'self'     => 10,
+		) );
+
+		$actual = get_snapshot_data();
+
+		$this->assertSame( 65, $actual['company_sponsored_hours'] );
+		$this->assertSame( 26, $actual['self_sponsored_hours'] );
+	}
+
+	/**
+	 * Own time from a split never moves more than the contributor's total.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Stats\get_snapshot_data
+	 */
+	public function test_get_snapshot_own_time_stays_within_the_total(): void {
+		$jane               = self::$users['jane'];
+		$ashish             = self::$users['ashish'];
+		$tenup              = self::$pledges['10up'];
+		$tenup_contributors = Contributor\add_pledge_contributors( $tenup->ID, array( $jane->user_login, $ashish->user_login ) );
+
+		foreach ( $tenup_contributors as $contributor_id ) {
+			wp_update_post( array(
+				'ID'          => $contributor_id,
+				'post_status' => 'publish',
+			) );
+		}
+
+		update_user_meta( $jane->ID, XProfile\HOURS_SPLIT_META_KEY, array( 'self' => 50 ) );
+
+		$actual = get_snapshot_data();
+
+		$this->assertSame( 35, $actual['company_sponsored_hours'] );
+		$this->assertSame( 56, $actual['self_sponsored_hours'] );
 	}
 }
