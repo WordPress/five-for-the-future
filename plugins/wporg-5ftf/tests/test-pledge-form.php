@@ -226,4 +226,37 @@ class Test_Pledge_Form extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'href="' . home_url( 'pledges' ) . '"', $output );
 		$this->assertStringNotContainsString( 'Your link has expired', $output );
 	}
+
+	/**
+	 * Only a logged-in visitor gets the new pledge form; anyone else is asked to log in, which keeps anonymous
+	 * spam submissions out.
+	 *
+	 * @dataProvider data_new_pledge_form_requires_login
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\render_form_new
+	 *
+	 * @param bool $logged_in Whether the visitor is logged in.
+	 *
+	 * @return void
+	 */
+	public function test_new_pledge_form_requires_login( bool $logged_in ): void {
+		// The install's admin, since a new user would shift the IDs Test_Stats hardcodes.
+		wp_set_current_user( $logged_in ? 1 : 0 );
+
+		$output = PledgeForm\render_form_new();
+
+		$this->assertSame( $logged_in, str_contains( $output, 'id="5ftf-form-pledge-new"' ) );
+		$this->assertSame( ! $logged_in, str_contains( $output, 'wp-login.php' ) );
+	}
+
+	/**
+	 * Visitors on either side of the login check.
+	 *
+	 * @return array<string, array{bool}>
+	 */
+	public function data_new_pledge_form_requires_login(): array {
+		return array(
+			'logged out' => array( false ),
+			'logged in'  => array( true ),
+		);
+	}
 }
