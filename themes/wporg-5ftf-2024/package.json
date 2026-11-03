@@ -6,7 +6,7 @@
 	"license": "GPL-2.0-or-later",
 	"private": true,
 	"devDependencies": {
-		"@wordpress/scripts": "30.0.2"
+		"@wordpress/scripts": "37.0.0"
 	},
 	"eslintConfig": {
 		"extends": "../../.eslintrc.js"
