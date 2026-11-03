@@ -213,4 +213,17 @@ class Test_Pledge_Form extends WP_UnitTestCase {
 		$this->assertSame( '', $image_meta['caption'] );
 		$this->assertSame( '', $image_meta['title'] );
 	}
+
+	/**
+	 * Opening the Manage Pledge page without a pledge, as links from the handbook do, explains how to get an
+	 * edit link instead of claiming a link has expired.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\render_form_manage
+	 */
+	public function test_manage_page_without_a_pledge_points_to_the_directory(): void {
+		$output = PledgeForm\render_form_manage();
+
+		$this->assertStringContainsString( 'href="' . home_url( 'pledges' ) . '"', $output );
+		$this->assertStringNotContainsString( 'Your link has expired', $output );
+	}
 }
