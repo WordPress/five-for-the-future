@@ -10,6 +10,7 @@
 		"@wordpress/scripts": "30.0.2"
 	},
 	"scripts": {
+		"setup:wp": "wp-env run cli bash env/setup.sh",
 		"setup:tools": "npm install && composer install",
 		"build:old-theme": "npm run build --workspace=wporg-5ftf",
 		"start:old-theme": "npm run watch --workspace=wporg-5ftf",
