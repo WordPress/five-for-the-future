@@ -63,8 +63,15 @@ function get_meta_binding_value( $args, $block ) {
 		case 'org-contribution-short-details':
 			$contribution_data = XProfile\get_aggregate_contributor_data_for_pledge( $block->context['postId'] );
 			return sprintf(
-				__( 'pledges %s hours per week.', 'wporg-5ftf' ),
-				number_format_i18n( absint( $contribution_data['hours'] ) ),
+				/* translators: 1: Number of contributors. 2: Number of hours. */
+				_n(
+					'sponsors %1$s contributor for %2$s hours per week.',
+					'sponsors %1$s contributors for %2$s hours per week.',
+					absint( $contribution_data['contributors'] ),
+					'wporg-5ftf'
+				),
+				number_format_i18n( absint( $contribution_data['contributors'] ) ),
+				number_format_i18n( absint( $contribution_data['hours'] ) )
 			);
 		case 'user-contribution-details':
 			if ( ! is_user_logged_in() ) {
