@@ -365,9 +365,11 @@ function process_confirmed_email( $value, $tag ) {
 		return $value;
 	}
 
-	$pledge_id  = filter_input( INPUT_GET, 'pledge_id', FILTER_VALIDATE_INT );
-	$auth_token = filter_input( INPUT_GET, 'auth_token', FILTER_UNSAFE_RAW );
-	$pledge     = $pledge_id ? get_post( $pledge_id ) : null;
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- The emailed token authenticates the request.
+	$pledge_id  = absint( $_GET['pledge_id'] ?? 0 );
+	$auth_token = sanitize_text_field( wp_unslash( $_GET['auth_token'] ?? '' ) );
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
+	$pledge = $pledge_id ? get_post( $pledge_id ) : null;
 
 	// A confirmation token is only issued for a pledge; never confirm or publish any other post.
 	if ( ! $pledge || Pledge\CPT_ID !== $pledge->post_type ) {
@@ -379,22 +381,36 @@ function process_confirmed_email( $value, $tag ) {
 	$is_new_pledge     = '5ftf_pledge_form_new' === $tag;
 	$is_confirmable    = accepts_email_confirmation( $pledge );
 
-	$email_confirmed = $is_confirmable && Auth\is_valid_authentication_token( $pledge_id, $action, $auth_token );
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- The emailed token authenticates the request.
+	$is_submission       = isset( $_POST['confirm_pledge_email'] );
+	$email_confirmed     = false;
+	$awaiting_submission = false;
 
-	if ( $email_confirmed ) {
-		update_post_meta( $pledge_id, $meta_key, true );
-		wp_update_post( array(
-			'ID'          => $pledge_id,
-			'post_status' => 'publish',
-		) );
-		if ( $is_new_pledge ) {
-			Email\send_contributor_confirmation_emails( $pledge_id );
+	/*
+	 * Mail scanners open links to check them, so opening the link only shows a button; the token is used up,
+	 * and the email confirmed, when a person submits it.
+	 */
+	if ( $is_confirmable && Auth\is_valid_authentication_token( $pledge_id, $action, $auth_token, $is_submission ) ) {
+		if ( $is_submission ) {
+			$email_confirmed = true;
+
+			update_post_meta( $pledge_id, $meta_key, true );
+			wp_update_post( array(
+				'ID'          => $pledge_id,
+				'post_status' => 'publish',
+			) );
+			if ( $is_new_pledge ) {
+				Email\send_contributor_confirmation_emails( $pledge_id );
+			}
+		} else {
+			$awaiting_submission = true;
 		}
 	}
 
 	// Show success for an already-confirmed pledge on refresh, but never gate the side effects above on it.
 	if ( $already_confirmed && $is_confirmable ) {
-		$email_confirmed = true;
+		$email_confirmed     = true;
+		$awaiting_submission = false;
 	}
 
 	ob_start();

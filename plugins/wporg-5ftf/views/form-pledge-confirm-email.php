@@ -4,6 +4,7 @@ namespace WordPressDotOrg\FiveForTheFuture\View;
 use WP_Post;
 
 /**
+ * @var bool         $awaiting_submission
  * @var string       $directory_url
  * @var bool         $email_confirmed
  * @var bool         $is_new_pledge
@@ -49,6 +50,24 @@ use WP_Post;
 			<?php esc_html_e( 'Thanks again for pledging your organization’s resources to contribute to WordPress! We can do great things together!', 'wporg-5ftf' ); ?>
 		</p>
 	</div>
+
+<?php elseif ( true === $awaiting_submission ) : ?>
+
+	<p>
+		<?php esc_html_e( 'Please confirm the email address for this pledge.', 'wporg-5ftf' ); ?>
+	</p>
+
+	<form action="" method="post">
+		<input type="hidden" name="confirm_pledge_email" value="1" />
+
+		<p class="wp-block-button">
+			<input
+				type="submit"
+				class="button wp-block-button__link"
+				value="<?php esc_attr_e( 'Confirm email address', 'wporg-5ftf' ); ?>"
+			/>
+		</p>
+	</form>
 
 <?php else : ?>
 

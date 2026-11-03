@@ -5,7 +5,7 @@
 
 declare( strict_types = 1 );
 
-use WordPressDotOrg\FiveForTheFuture\{ Pledge, PledgeForm };
+use WordPressDotOrg\FiveForTheFuture\{ Auth, Pledge, PledgeForm };
 
 defined( 'WPINC' ) || die();
 
@@ -258,5 +258,35 @@ class Test_Pledge_Form extends WP_UnitTestCase {
 			'logged out' => array( false ),
 			'logged in'  => array( true ),
 		);
+	}
+
+	/**
+	 * Mail scanners open links to check them. Opening the confirmation link must leave the token usable, so the
+	 * person who clicks the button afterwards still confirms the pledge.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\process_confirmed_email
+	 */
+	public function test_opening_the_confirmation_link_waits_for_the_button(): void {
+		$pledge = $this->create_pledge( 'draft' );
+		$url    = Auth\get_authentication_url(
+			$pledge->ID,
+			'confirm_pledge_email',
+			self::factory()->post->create( array( 'post_type' => 'page' ) )
+		);
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Simulates following the emailed link.
+		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $_GET );
+		$_REQUEST = $_GET;
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		$output = PledgeForm\process_confirmed_email( false, '5ftf_pledge_form_new' );
+
+		$this->assertStringContainsString( 'name="confirm_pledge_email"', $output );
+		$this->assertSame( 'draft', get_post_status( $pledge->ID ), 'Opening the link should not confirm the pledge.' );
+
+		$_POST['confirm_pledge_email'] = '1';
+		PledgeForm\process_confirmed_email( false, '5ftf_pledge_form_new' );
+
+		$this->assertSame( 'publish', get_post_status( $pledge->ID ) );
+		$this->assertEmpty( get_post_meta( $pledge->ID, Auth\TOKEN_PREFIX . 'confirm_pledge_email', true ) );
 	}
 }
