@@ -406,6 +406,74 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Contributors already on the pledge are refused, whether they confirmed or not, however many of each
+	 * the pledge has.
+	 *
+	 * @dataProvider data_parse_contributors_refuses_existing_contributors
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\parse_contributors
+	 *
+	 * @param string[] $confirmed Usernames that have joined the pledge.
+	 * @param string[] $pending   Usernames that have been invited but have not joined yet.
+	 * @param string   $added     Username being added again.
+	 *
+	 * @return void
+	 */
+	public function test_parse_contributors_refuses_existing_contributors( array $confirmed, array $pending, string $added ): void {
+		$pledge_id   = self::$pledges['10up']->ID;
+		$invitations = Contributor\add_pledge_contributors( $pledge_id, array_merge( $confirmed, $pending ) );
+
+		foreach ( $confirmed as $username ) {
+			wp_update_post( array(
+				'ID'          => $invitations[ $username ],
+				'post_status' => 'publish',
+			) );
+		}
+
+		$result = Contributor\parse_contributors( $added, $pledge_id );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'duplicate_contributor', $result->get_error_code() );
+		$this->assertStringContainsString( $added, $result->get_error_message() );
+	}
+
+	/**
+	 * Someone who was removed from the pledge can still be added back.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\parse_contributors
+	 *
+	 * @return void
+	 */
+	public function test_parse_contributors_allows_removed_contributors(): void {
+		$pledge_id   = self::$pledges['10up']->ID;
+		$invitations = Contributor\add_pledge_contributors( $pledge_id, array( 'jane', 'kimi' ) );
+
+		wp_update_post( array(
+			'ID'          => $invitations['jane'],
+			'post_status' => 'publish',
+		) );
+		Contributor\remove_contributor( $invitations['kimi'] );
+
+		$this->assertSame( 'trash', get_post_status( $invitations['kimi'] ) );
+		$this->assertSame( array( 'kimi' ), Contributor\parse_contributors( 'kimi', $pledge_id ) );
+	}
+
+	/**
+	 * Pledges with different mixes of confirmed and pending contributors, and the one being added again.
+	 *
+	 * @return array<string, array{string[], string[], string}>
+	 */
+	public function data_parse_contributors_refuses_existing_contributors(): array {
+		return array(
+			'pending, more confirmed than pending'   => array( array( 'jane', 'ashish' ), array( 'kimi' ), 'kimi' ),
+			'pending, as many confirmed as pending'  => array( array( 'jane' ), array( 'kimi' ), 'kimi' ),
+			'pending, more pending than confirmed'   => array( array( 'jane' ), array( 'ashish', 'kimi' ), 'ashish' ),
+			'pending, no confirmed contributors'     => array( array(), array( 'kimi' ), 'kimi' ),
+			'confirmed, more confirmed than pending' => array( array( 'jane', 'ashish' ), array( 'kimi' ), 'ashish' ),
+			'confirmed, no pending contributors'     => array( array( 'jane' ), array(), 'jane' ),
+		);
+	}
+
+	/**
 	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\prune_unnotifiable_users
 	 */
 	public function test_prune_unnotifiable_users() {
