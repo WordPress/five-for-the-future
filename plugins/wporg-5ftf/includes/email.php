@@ -47,6 +47,20 @@ function send_email( $to, $subject, $message, $pledge_id = false ) {
 }
 
 /**
+ * Get the pledge's name for a plain-text email.
+ *
+ * The title is stored with HTML entities, for example "Smith &amp; Co" for "Smith & Co", and a plain-text email
+ * would show them as they are.
+ *
+ * @param WP_Post $pledge
+ *
+ * @return string
+ */
+function get_plain_text_pledge_name( $pledge ) {
+	return wp_specialchars_decode( $pledge->post_title, ENT_QUOTES );
+}
+
+/**
  * Email pledge manager to confirm their email address.
  *
  * @param int $pledge_id      The ID of the pledge.
@@ -78,8 +92,9 @@ function send_pledge_confirmation_email( $pledge_id, $action_page_id ) {
  * @param int|null $contributor_id Optional. Send to a specific contributor instead of all.
  */
 function send_contributor_confirmation_emails( $pledge_id, $contributor_id = null ) {
-	$pledge  = get_post( $pledge_id );
-	$subject = "Confirm your {$pledge->post_title} sponsorship";
+	$pledge      = get_post( $pledge_id );
+	$pledge_name = get_plain_text_pledge_name( $pledge );
+	$subject     = "Confirm your $pledge_name sponsorship";
 
 	/*
 	 * Only fetch unconfirmed ones, because we might be resending confirmation emails, and we shouldn't resend to
@@ -102,7 +117,7 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 		 * because there's no expiration.
 		 */
 		$message =
-			"Howdy $name, {$pledge->post_title} has created a Five for the Future pledge on WordPress.org and listed you as one of the contributors that they sponsor to contribute to the WordPress open source project. You can view their pledge at:\n\n" .
+			"Howdy $name, $pledge_name has created a Five for the Future pledge on WordPress.org and listed you as one of the contributors that they sponsor to contribute to the WordPress open source project. You can view their pledge at:\n\n" .
 
 			get_permalink( $pledge_id ) . "\n\n" .
 
@@ -114,7 +129,7 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
 
 			"https://profiles.wordpress.org/me/profile/edit/group/5/\n\n" .
 
-			"If {$pledge->post_title} isn't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge.";
+			"If $pledge_name isn't sponsoring your contributions, then you can ignore this email, and you won't be listed on their pledge.";
 
 		send_email( $user->user_email, $subject, $message, $pledge_id );
 	}
@@ -127,9 +142,10 @@ function send_contributor_confirmation_emails( $pledge_id, $contributor_id = nul
  * @param WP_Post $contributor
  */
 function send_contributor_removed_email( $pledge_id, $contributor ) {
-	$pledge  = get_post( $pledge_id );
-	$subject = "Removed from {$pledge->post_title} Five for the Future pledge";
-	$user    = get_user_by( 'login', $contributor->post_title );
+	$pledge      = get_post( $pledge_id );
+	$pledge_name = get_plain_text_pledge_name( $pledge );
+	$subject     = "Removed from $pledge_name Five for the Future pledge";
+	$user        = get_user_by( 'login', $contributor->post_title );
 
 	$message = sprintf( '
 		Howdy %1$s,
@@ -142,7 +158,7 @@ function send_contributor_removed_email( $pledge_id, $contributor ) {
 
 		Have a great day!',
 		$contributor->post_title,
-		$pledge->post_title
+		$pledge_name
 	);
 	$message = str_replace( "\t", '', trim( $message ) );
 
@@ -196,7 +212,7 @@ function send_pledge_deactivation_email( $pledge ) {
 	$message = sprintf(
 		"Your organization, %s, has been removed from the Five for the Future listing.\n\n" .
 		'Please reply to this email if this was a mistake.',
-		$pledge->post_title
+		get_plain_text_pledge_name( $pledge )
 	);
 
 	return send_email(
@@ -262,11 +278,12 @@ function send_contributor_inactive_email( array $contributor ): bool {
  * Ask a company to update their pledge for accuracy.
  */
 function send_pledge_update_email( WP_Post $pledge ): bool {
-	$to      = $pledge->{'5ftf_org-pledge-email'};
-	$subject = 'Please review your Five for the Future pledge';
-	$url     = get_permalink( $pledge );
+	$to          = $pledge->{'5ftf_org-pledge-email'};
+	$subject     = 'Please review your Five for the Future pledge';
+	$url         = get_permalink( $pledge );
+	$pledge_name = get_plain_text_pledge_name( $pledge );
 
-	$message = "Hi $pledge->post_title, this is a bi-annual reminder to please review your Five for the Future pledge if you haven't lately. Please make sure your list of contributors and their hours/teams are accurate, especially if any folks at your company have left or changed roles recently.
+	$message = "Hi $pledge_name, this is a bi-annual reminder to please review your Five for the Future pledge if you haven't lately. Please make sure your list of contributors and their hours/teams are accurate, especially if any folks at your company have left or changed roles recently.
 
 	Having an accurate roster helps Make team representatives find contributors to work on projects.
 
@@ -282,11 +299,12 @@ function send_pledge_update_email( WP_Post $pledge ): bool {
  * Ask a company to update their pledge for accuracy.
  */
 function send_pledge_inactive_email( WP_Post $pledge ): bool {
-	$to      = $pledge->{'5ftf_org-pledge-email'};
-	$subject = 'Please review your Five for the Future pledge';
-	$url     = get_permalink( $pledge );
+	$to          = $pledge->{'5ftf_org-pledge-email'};
+	$subject     = 'Please review your Five for the Future pledge';
+	$url         = get_permalink( $pledge );
+	$pledge_name = get_plain_text_pledge_name( $pledge );
 
-	$message = "Hi $pledge->post_title, we noticed that your Five for the Future pledge doesn't have any confirmed contributors right now. Would you like any help getting plugged into the WordPress project?
+	$message = "Hi $pledge_name, we noticed that your Five for the Future pledge doesn't have any confirmed contributors right now. Would you like any help getting plugged into the WordPress project?
 
 	If you're no longer able to sponsor a contributor, that's ok! We understand, and appreciate the effort you've made. You can deactivate your pledge by visiting $url, clicking on the Edit Pledge link, and entering $to. You can reactivate it at any time in the future by contacting us.
 
