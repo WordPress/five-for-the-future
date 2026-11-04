@@ -142,12 +142,13 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 	/**
 	 * Builds a submission that is valid apart from the field under test.
 	 *
-	 * @param string $field Submission key to set.
-	 * @param string $value Value for that key.
+	 * @param string            $field Submission key to set.
+	 * @param string|false|null $value Value for that key. The form filter gives false for an invalid value and null
+	 *                                 for a missing field.
 	 *
 	 * @return array
 	 */
-	protected function submission( string $field, string $value ): array {
+	protected function submission( string $field, $value ): array {
 		return array_merge(
 			array(
 				'org-name'         => 'Fixture Org',
@@ -157,6 +158,54 @@ class Test_Pledge_Meta extends WP_UnitTestCase {
 			),
 			array( $field => $value )
 		);
+	}
+
+	/**
+	 * Editing a pledge needs a valid admin email, like creating one. The form filter turns an address PHP rejects
+	 * into `false`, and saving that would empty the stored address and unpublish the pledge.
+	 *
+	 * @dataProvider data_update_refuses_invalid_email
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\check_invalid_submission
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeMeta\has_required_pledge_meta
+	 *
+	 * @param false|null $email Value the form filter gives for the email field.
+	 * @param string     $code  Expected error code.
+	 *
+	 * @return void
+	 */
+	public function test_update_refuses_invalid_email( $email, string $code ): void {
+		$submission = $this->submission( 'org-pledge-email', $email );
+
+		$required = PledgeMeta\has_required_pledge_meta( $submission, 'update' );
+		$error    = PledgeForm\check_invalid_submission( $submission, 'update' );
+
+		$this->assertWPError( $required );
+		$this->assertSame( $code, $required->get_error_code() );
+		$this->assertWPError( $error );
+		$this->assertSame( $code, $error->get_error_code() );
+	}
+
+	/**
+	 * Email values the form filter can give for an edit that must be refused.
+	 *
+	 * @return array<string, array{false|null, string}>
+	 */
+	public function data_update_refuses_invalid_email(): array {
+		return array(
+			'address PHP rejects' => array( false, 'required_field_invalid' ),
+			'field missing'       => array( null, 'required_field_empty' ),
+		);
+	}
+
+	/**
+	 * An edit with a valid admin email still goes through.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\check_invalid_submission
+	 *
+	 * @return void
+	 */
+	public function test_update_accepts_valid_email(): void {
+		$this->assertFalse( PledgeForm\check_invalid_submission( $this->submission( 'org-pledge-email', 'new-admin@example.org' ), 'update' ) );
 	}
 
 	/**

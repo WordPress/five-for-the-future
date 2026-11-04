@@ -62,7 +62,7 @@ function get_pledge_meta_config( $subset = 'all' ) {
 			'single'            => true,
 			'sanitize_callback' => 'sanitize_email',
 			'show_in_rest'      => false,
-			'context'           => array( 'create' ),
+			'context'           => array( 'create', 'update' ),
 			'php_filter'        => FILTER_VALIDATE_EMAIL,
 		),
 	);
