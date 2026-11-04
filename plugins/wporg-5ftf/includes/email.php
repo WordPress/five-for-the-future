@@ -6,10 +6,10 @@
 namespace WordPressDotOrg\FiveForTheFuture\Email;
 
 use WordPressDotOrg\FiveForTheFuture\{ Auth, Contributor };
+use WP_Post, WP_Error;
 use function WordPressdotorg\MU_Plugins\Helpers\{ natural_language_join };
 use const WordPressDotOrg\FiveForTheFuture\PREFIX;
 use const WordPressDotOrg\FiveForTheFuture\PledgeMeta\META_PREFIX;
-use WP_Post, WP_Error;
 
 defined( 'WPINC' ) || die();
 
