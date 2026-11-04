@@ -677,7 +677,7 @@ function parse_contributors( $contributors, $pledge_id = null ) {
 	if ( $pledge_id ) {
 		$pledge_contributors = get_pledge_contributors( $pledge_id, 'all' );
 		$existing_usernames  = wp_list_pluck(
-			$pledge_contributors['publish'] + $pledge_contributors['pending'],
+			array_merge( $pledge_contributors['publish'], $pledge_contributors['pending'] ),
 			'post_title'
 		);
 	}
