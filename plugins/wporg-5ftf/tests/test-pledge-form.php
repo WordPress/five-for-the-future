@@ -289,4 +289,48 @@ class Test_Pledge_Form extends WP_UnitTestCase {
 		$this->assertSame( 'publish', get_post_status( $pledge->ID ) );
 		$this->assertEmpty( get_post_meta( $pledge->ID, Auth\TOKEN_PREFIX . 'confirm_pledge_email', true ) );
 	}
+
+	/**
+	 * Once the pledge email is confirmed, the message links to the pledge directory, both for a new pledge and
+	 * for a changed email.
+	 *
+	 * @dataProvider data_confirmed_email_links_to_the_directory
+	 * @covers WordPressDotOrg\FiveForTheFuture\PledgeForm\process_confirmed_email
+	 *
+	 * @param string $tag    Shortcode on the page the confirmation link opens.
+	 * @param string $status Status of the pledge when the email is confirmed.
+	 *
+	 * @return void
+	 */
+	public function test_confirmed_email_links_to_the_directory( string $tag, string $status ): void {
+		$pledge = $this->create_pledge( $status );
+		$url    = Auth\get_authentication_url(
+			$pledge->ID,
+			'confirm_pledge_email',
+			self::factory()->post->create( array( 'post_type' => 'page' ) )
+		);
+		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Simulates pressing the button on the emailed link.
+		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $_GET );
+		$_REQUEST                      = $_GET;
+		$_POST['confirm_pledge_email'] = '1';
+		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+		$output = PledgeForm\process_confirmed_email( false, $tag );
+
+		$this->assertStringContainsString( 'Thank you for confirming your address!', $output );
+		$this->assertStringContainsString( '<a href="' . home_url( 'pledges' ) . '">the directory</a>', $output );
+	}
+
+	/**
+	 * The two pages a confirmation link opens: the new pledge form, and the Manage Pledge form after the email
+	 * was changed.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public function data_confirmed_email_links_to_the_directory(): array {
+		return array(
+			'new pledge'    => array( '5ftf_pledge_form_new', 'draft' ),
+			'changed email' => array( '5ftf_pledge_form_manage', 'pending' ),
+		);
+	}
 }

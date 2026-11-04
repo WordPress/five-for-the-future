@@ -22,12 +22,12 @@ use WP_Post;
 			<?php
 			if ( $is_new_pledge ) {
 				printf(
-					wp_kses_post( __( 'Thank you for confirming your address! We’ve emailed confirmation links to the contributors you mentioned, and your pledge will show up in <a href=\"%s\">the directory</a> once one contributor confirms their participation.', 'wporg-5ftf' ) ),
+					wp_kses_post( __( 'Thank you for confirming your address! We’ve emailed confirmation links to the contributors you mentioned, and your pledge will show up in <a href="%s">the directory</a> once one contributor confirms their participation.', 'wporg-5ftf' ) ),
 					esc_url( $directory_url )
 				);
 			} else {
 				printf(
-					wp_kses_post( __( 'Thank you for confirming your address! If you have confirmed contributors, your pledge is visible in <a href=\"%s\">the directory</a> again. Otherwise, your pledge wiill show up once one contributor confirms their participation.', 'wporg-5ftf' ) ),
+					wp_kses_post( __( 'Thank you for confirming your address! If you have confirmed contributors, your pledge is visible in <a href="%s">the directory</a> again. Otherwise, your pledge will show up once one contributor confirms their participation.', 'wporg-5ftf' ) ),
 					esc_url( $directory_url )
 				);
 			}
