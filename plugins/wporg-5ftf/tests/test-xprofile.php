@@ -148,4 +148,13 @@ class Test_XProfile extends WP_UnitTestCase {
 
 		$this->assertSame( 40, XProfile\get_aggregate_contributor_data_for_pledge( $tenup->ID )['hours'] );
 	}
+
+	/**
+	 * The Core Program Team gets a badge instead of the unknown "?" one.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\XProfile\get_association_classes
+	 */
+	public function test_core_program_team_has_a_badge(): void {
+		$this->assertNotContains( 'badge-unknown', XProfile\get_association_classes( 'Core Program Team' ) );
+	}
 }
