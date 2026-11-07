@@ -683,6 +683,11 @@ function parse_contributors( $contributors, $pledge_id = null ) {
 	}
 
 	foreach ( $contributors as $wporg_username ) {
+		// A trailing or doubled comma leaves an empty entry, which is not a username to check.
+		if ( '' === trim( $wporg_username ) ) {
+			continue;
+		}
+
 		$sanitized_username = sanitize_user( $wporg_username );
 		$user               = get_user_by( 'login', $sanitized_username );
 

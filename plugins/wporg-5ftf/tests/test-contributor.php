@@ -367,6 +367,43 @@ class Test_Contributor extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Empty entries between commas are skipped, so a trailing or doubled comma does not turn into an
+	 * unnamed "not valid" username.
+	 *
+	 * @dataProvider data_parse_contributors_skips_empty_entries
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\parse_contributors
+	 *
+	 * @param string $list Comma-separated usernames as typed in the form.
+	 */
+	public function test_parse_contributors_skips_empty_entries( string $list ): void {
+		$this->assertSame( array( 'jane', 'ashish' ), Contributor\parse_contributors( $list ) );
+	}
+
+	/**
+	 * Lists of the two fixture users with empty entries.
+	 */
+	public function data_parse_contributors_skips_empty_entries(): array {
+		return array(
+			'trailing comma' => array( 'jane, ashish,' ),
+			'doubled comma'  => array( 'jane,, ashish' ),
+			'blank entry'    => array( 'jane, , ashish' ),
+			'leading comma'  => array( ', jane, ashish' ),
+		);
+	}
+
+	/**
+	 * A list with only commas asks for a username, instead of listing an empty one as not valid.
+	 *
+	 * @covers WordPressDotOrg\FiveForTheFuture\Contributor\parse_contributors
+	 */
+	public function test_parse_contributors_requires_a_name_when_the_list_is_only_commas(): void {
+		$result = Contributor\parse_contributors( ' , ,' );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'contributor_required', $result->get_error_code() );
+	}
+
+	/**
 	 * An unresolved contributor name must be reported through its sanitized form, never the raw
 	 * request bytes, so a tag-shaped entry cannot smuggle markup into the error message that
 	 * lists it.
