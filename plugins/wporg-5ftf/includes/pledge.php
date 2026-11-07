@@ -41,8 +41,9 @@ add_action( 'pledge_footer',       __NAMESPACE__ . '\render_manage_link_request'
 add_action( 'wp_footer',           __NAMESPACE__ . '\render_js_templates' );
 
 // Misc.
-add_action( 'init',                       __NAMESPACE__ . '\schedule_cron_jobs' );
-add_action( '5ftf_send_update_reminders', __NAMESPACE__ . '\send_update_reminders' );
+add_action( 'init',                             __NAMESPACE__ . '\schedule_cron_jobs' );
+add_action( '5ftf_send_update_reminders',       __NAMESPACE__ . '\send_update_reminders' );
+add_action( '5ftf_deactivate_inactive_pledges', __NAMESPACE__ . '\deactivate_inactive_pledges' );
 
 /**
  * Register all the things.
@@ -397,6 +398,10 @@ function deactivate( $pledge_id, $notify = false, $reason = '' ) {
 	if ( ! is_wp_error( $result ) ) {
 		// Revoke the outstanding confirmation link, so a copy already in a mailbox cannot be followed later.
 		delete_post_meta( $pledge_id, Auth\TOKEN_PREFIX . 'confirm_pledge_email' );
+
+		// A reactivated pledge starts the review cycle again, instead of being deactivated on the next run.
+		delete_post_meta( $pledge_id, '5ftf_inactive_deactivate_date' );
+
 		Contributor\remove_pledge_contributors( $pledge_id );
 	}
 
@@ -593,6 +598,10 @@ function schedule_cron_jobs() {
 	if ( ! wp_next_scheduled( '5ftf_send_update_reminders' ) ) {
 		wp_schedule_event( time(), 'daily', '5ftf_send_update_reminders' );
 	}
+
+	if ( ! wp_next_scheduled( '5ftf_deactivate_inactive_pledges' ) ) {
+		wp_schedule_event( time(), 'daily', '5ftf_deactivate_inactive_pledges' );
+	}
 }
 
 /**
@@ -648,5 +657,36 @@ function send_update_reminders(): void {
 		}
 
 		update_post_meta( $pledge->ID, '5ftf_last_update_reminder', time() );
+	}
+}
+
+/**
+ * Deactivate the pledges that still have no confirmed contributors after the inactivity notice.
+ *
+ * `send_update_reminders()` tells those pledges that they will be deactivated in 2 months, and sets the date.
+ * Once it has passed, a pledge that has confirmed contributors again gets back into the review reminders,
+ * and one that still has none is deactivated.
+ */
+function deactivate_inactive_pledges(): void {
+	$pledges = get_posts( array(
+		'post_type'      => CPT_ID,
+		'post_status'    => 'publish',
+		'posts_per_page' => 15, // Limit # of emails to maintain IP reputation.
+		'meta_key'       => '5ftf_inactive_deactivate_date',
+		'meta_value'     => time(),
+		'meta_compare'   => '<',
+		'meta_type'      => 'NUMERIC',
+		'orderby'        => 'meta_value_num',
+		'order'          => 'ASC',
+	) );
+
+	foreach ( $pledges as $pledge ) {
+		// Count them now, rather than trusting the cached count, so a pledge is never removed by mistake.
+		if ( Contributor\get_pledge_contributors( $pledge->ID, 'publish' ) ) {
+			delete_post_meta( $pledge->ID, '5ftf_inactive_deactivate_date' );
+			continue;
+		}
+
+		deactivate( $pledge->ID, true, 'No confirmed contributors 2 months after the inactivity notice.' );
 	}
 }
